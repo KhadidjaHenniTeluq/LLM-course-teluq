@@ -4,11 +4,11 @@ import json
 import shutil
 
 def main():
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     raw_content_dir = os.path.join(base_dir, 'source-assets', 'raw-content')
     figures_dir = os.path.join(base_dir, 'source-assets', 'figures')
     figure_map_path = os.path.join(base_dir, 'source-assets', 'figure_map.json')
-    static_images_dir = os.path.join(base_dir, 'llm-course', 'static', 'images')
+    static_images_dir = os.path.join(base_dir, 'static', 'images')
 
     with open(figure_map_path, 'r', encoding='utf-8') as f:
         figure_map = json.load(f)
