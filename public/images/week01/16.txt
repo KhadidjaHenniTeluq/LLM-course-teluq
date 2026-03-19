@@ -1,1 +1,0 @@
-Figure 1-11. Each previous output token is used as input to generate the next token.

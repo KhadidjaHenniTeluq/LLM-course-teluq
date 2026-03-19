@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Semaine 2 — Tokenisation et Embeddings</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      padding: 1.5rem;
+      line-height: 1.6;
+    }
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .question {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      transition: box-shadow 0.2s;
+    }
+    .question:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .question-text {
+      font-weight: 600;
+      margin-bottom: 0.85rem;
+      font-size: 0.98rem;
+    }
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 0.35rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 0.93rem;
+    }
+    .option:hover { background: #f1f5f9; }
+    .option input[type="radio"] { margin-top: 0.2rem; accent-color: #6366f1; flex-shrink: 0; }
+    .feedback {
+      margin-top: 0.85rem;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .feedback.correct { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .feedback.incorrect { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .btn-check {
+      margin-top: 1rem;
+      padding: 0.5rem 1.2rem;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-check:hover { background: #4f46e5; }
+    .score-box {
+      background: #ede9fe;
+      border: 1px solid #c4b5fd;
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      display: none;
+      margin-top: 1rem;
+    }
+    .score-box h2 { font-size: 1.6rem; color: #4c1d95; margin-bottom: 0.25rem; }
+    .score-box p { color: #6d28d9; font-size: 0.95rem; }
+    .btn-reset {
+      margin-top: 1rem;
+      padding: 0.5rem 1.4rem;
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn-reset:hover { background: #6d28d9; }
+    #submit-all {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      background: #0f172a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: background 0.2s;
+    }
+    #submit-all:hover { background: #1e3a5f; }
+  </style>
+</head>
+<body>
+
+<h1>🧪 Quiz — Semaine 2</h1>
+<p class="subtitle">Tokens, tokeniseurs et embeddings · 10 questions</p>
+
+<form id="quiz-form">
+
+  <div class="question" data-correct="c">
+    <div class="question-text">1. Quel schéma de tokenisation est le plus efficace pour éliminer totalement le problème des mots inconnus ([UNK]) ?</div>
+    <label class="option"><input type="radio" name="q1" value="a" /> a) Tokenisation par mots entiers</label>
+    <label class="option"><input type="radio" name="q1" value="b" /> b) Tokenisation par sous-mots (WordPiece)</label>
+    <label class="option"><input type="radio" name="q1" value="c" /> c) Tokenisation par octets (Byte-level BPE)</label>
+    <label class="option"><input type="radio" name="q1" value="d" /> d) Tokenisation par phrases</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-correct="b">
+    <div class="question-text">2. Quelle est la différence fondamentale entre BERT-cased et BERT-uncased ?</div>
+    <label class="option"><input type="radio" name="q2" value="a" /> a) BERT-cased est beaucoup plus grand</label>
+    <label class="option"><input type="radio" name="q2" value="b" /> b) BERT-uncased convertit tout en minuscules, perdant les indices sur les noms propres</label>
+    <label class="option"><input type="radio" name="q2" value="c" /> c) BERT-cased n'utilise pas de Transformers</label>
+    <label class="option"><input type="radio" name="q2" value="d" /> d) BERT-uncased est réservé au code source</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-correct="c">
+    <div class="question-text">3. Quel tokeniseur moderne est particulièrement optimisé pour ne pas "hacher" les indentations du code source ?</div>
+    <label class="option"><input type="radio" name="q3" value="a" /> a) BERT Tokenizer</label>
+    <label class="option"><input type="radio" name="q3" value="b" /> b) Word2Vec</label>
+    <label class="option"><input type="radio" name="q3" value="c" /> c) StarCoder2 Tokenizer</label>
+    <label class="option"><input type="radio" name="q3" value="d" /> d) Bag-of-Words</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-correct="b">
+    <div class="question-text">4. Dans un espace vectoriel d'embeddings, que représente mathématiquement un concept ?</div>
+    <label class="option"><input type="radio" name="q4" value="a" /> a) Un seul nombre entier</label>
+    <label class="option"><input type="radio" name="q4" value="b" /> b) Un vecteur (une suite de nombres réels)</label>
+    <label class="option"><input type="radio" name="q4" value="c" /> c) Une chaîne de caractères</label>
+    <label class="option"><input type="radio" name="q4" value="d" /> d) Une matrice de zéros</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-correct="b">
+    <div class="question-text">5. L'algorithme Word2Vec utilise le "Negative Sampling" pour :</div>
+    <label class="option"><input type="radio" name="q5" value="a" /> a) Supprimer les mauvais mots du dictionnaire</label>
+    <label class="option"><input type="radio" name="q5" value="b" /> b) Apprendre au modèle à distinguer les voisins probables des paires aléatoires</label>
+    <label class="option"><input type="radio" name="q5" value="c" /> c) Accélérer la vitesse de la carte graphique</label>
+    <label class="option"><input type="radio" name="q5" value="d" /> d) Traduire les textes vers le français</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-correct="c">
+    <div class="question-text">6. Quelle est la dimension typique d'un vecteur d'embedding pour un modèle comme BERT-base ?</div>
+    <label class="option"><input type="radio" name="q6" value="a" /> a) 2 dimensions</label>
+    <label class="option"><input type="radio" name="q6" value="b" /> b) 50 dimensions</label>
+    <label class="option"><input type="radio" name="q6" value="c" /> c) 768 dimensions</label>
+    <label class="option"><input type="radio" name="q6" value="d" /> d) 1 million de dimensions</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-correct="b">
+    <div class="question-text">7. Pourquoi la tokenisation par sous-mots est-elle supérieure à celle par mots entiers ?</div>
+    <label class="option"><input type="radio" name="q7" value="a" /> a) Elle utilise des vecteurs plus longs</label>
+    <label class="option"><input type="radio" name="q7" value="b" /> b) Elle permet de décomposer des mots rares en racines et suffixes connus</label>
+    <label class="option"><input type="radio" name="q7" value="c" /> c) Elle est plus ancienne et plus stable</label>
+    <label class="option"><input type="radio" name="q7" value="d" /> d) Elle ne nécessite pas d'entraînement</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-correct="c">
+    <div class="question-text">8. Quel token spécial GPT-2 utilise-t-il pour signaler la fin d'un texte ?</div>
+    <label class="option"><input type="radio" name="q8" value="a" /> a) `[SEP]`</label>
+    <label class="option"><input type="radio" name="q8" value="b" /> b) `&lt;/s&gt;`</label>
+    <label class="option"><input type="radio" name="q8" value="c" /> c) `&lt;|endoftext|&gt;`</label>
+    <label class="option"><input type="radio" name="q8" value="d" /> d) `[END]`</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-correct="b">
+    <div class="question-text">9. Quelle mesure géométrique est la plus utilisée pour évaluer la similarité sémantique entre deux vecteurs ?</div>
+    <label class="option"><input type="radio" name="q9" value="a" /> a) La somme des nombres</label>
+    <label class="option"><input type="radio" name="q9" value="b" /> b) La similarité cosinus (l'angle entre les vecteurs)</label>
+    <label class="option"><input type="radio" name="q9" value="c" /> c) La longueur du texte</label>
+    <label class="option"><input type="radio" name="q9" value="d" /> d) Le nombre de voyelles</label>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-correct="b">
+    <div class="question-text">10. Quel modèle d'embedding récent utilise des "Rotary Positional Embeddings" (RoPE) ?</div>
+    <label class="option"><input type="radio" name="q10" value="a" /> a) Word2Vec</label>
+    <label class="option"><input type="radio" name="q10" value="b" /> b) Llama-2 / Llama-3</label>
+    <label class="option"><input type="radio" name="q10" value="c" /> c) GloVe</label>
+    <label class="option"><input type="radio" name="q10" value="d" /> d) TF-IDF</label>
+    <div class="feedback"></div>
+  </div>
+
+  <button type="button" id="submit-all" onclick="submitQuiz()">Valider mes réponses</button>
+</form>
+
+<div class="score-box" id="score-box">
+  <h2 id="score-text"></h2>
+  <p id="score-msg"></p>
+  <button class="btn-reset" onclick="resetQuiz()">🔄 Recommencer</button>
+</div>
+
+<script>
+const explanations = {
+  q1: "En travaillant au niveau de l'octet, n'importe quelle séquence de caractères peut être décomposée, éliminant le besoin de tokens 'inconnus'.",
+  q2: "'Uncased' ignore la casse, ce qui simplifie le vocabulaire mais peut nuire à la reconnaissance d'entités nommées.",
+  q3: "Les tokeniseurs spécialisés dans le code créent des tokens dédiés aux séquences d'espaces pour préserver la structure syntaxique.",
+  q4: "Un concept est projeté dans un espace à haute dimension (ex: 768) où sa position définit son sens.",
+  q5: "Le contraste entre exemples positifs et négatifs est ce qui permet de sculpter l'espace sémantique.",
+  q6: "C'est le standard pour les modèles 'base' de la famille Transformer.",
+  q7: "Cela permet au modèle de généraliser son savoir à des mots qu'il n'a jamais rencontrés.",
+  q8: "C'est le marqueur de fin de séquence spécifique à la famille GPT.",
+  q9: "Elle mesure l'alignement directionnel des concepts dans l'espace.",
+  q10: "RoPE est une technique moderne pour encoder la position des tokens de manière plus fluide."
+};
+
+function submitQuiz() {
+  const questions = document.querySelectorAll('.question');
+  let score = 0;
+  let answered = 0;
+
+  questions.forEach((q, i) => {
+    const name = `q${i + 1}`;
+    const correct = q.dataset.correct;
+    const selected = q.querySelector(`input[name="${name}"]:checked`);
+    const feedback = q.querySelector('.feedback');
+
+    if (selected) {
+      answered++;
+      feedback.style.display = 'block';
+      if (selected.value === correct) {
+        score++;
+        feedback.className = 'feedback correct';
+        feedback.textContent = '✅ Correct ! ' + explanations[name];
+      } else {
+        feedback.className = 'feedback incorrect';
+        feedback.textContent = `❌ Incorrect. La bonne réponse est (${correct.toUpperCase()}). ` + explanations[name];
+      }
+    }
+  });
+
+  if (answered < questions.length) {
+    alert('Veuillez répondre à toutes les questions avant de valider.');
+    return;
+  }
+
+  const scoreBox = document.getElementById('score-box');
+  scoreBox.style.display = 'block';
+  document.getElementById('score-text').textContent = `${score} / ${questions.length}`;
+  const pct = Math.round((score / questions.length) * 100);
+  let msg = '';
+  if (pct >= 90) msg = '🌟 Excellent ! Vous maîtrisez les concepts fondamentaux de la tokenisation.';
+  else if (pct >= 70) msg = '👍 Très bien ! Quelques révisions sur les embeddings et vous serez au top.';
+  else if (pct >= 50) msg = '📚 Pas mal ! Relisez les sections correspondantes avant de continuer.';
+  else msg = '🔄 Prenez le temps de revoir cette semaine 2, puis réessayez.';
+  document.getElementById('score-msg').textContent = msg;
+  scoreBox.scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetQuiz() {
+  document.getElementById('quiz-form').reset();
+  document.querySelectorAll('.feedback').forEach(f => { f.style.display = 'none'; f.textContent = ''; });
+  document.getElementById('score-box').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

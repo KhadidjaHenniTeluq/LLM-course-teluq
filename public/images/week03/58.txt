@@ -1,1 +1,0 @@
-Figure 3-3. The tokenizer has a vocabulary of 50,000 tokens. The model has token embeddings associated with those embeddings.

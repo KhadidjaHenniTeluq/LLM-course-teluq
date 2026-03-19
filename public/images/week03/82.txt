@@ -1,1 +1,0 @@
-Figure 3-21. A Transformer block from the original Transformer paper.

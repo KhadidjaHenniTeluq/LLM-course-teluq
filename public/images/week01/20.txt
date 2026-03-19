@@ -1,1 +1,0 @@
-Figure 1-15. The Transformer is a combination of stacked encoder and decoder blocks where the input flows through each encoder and decoder.

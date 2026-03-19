@@ -1,1 +1,0 @@
-Figure 1-28. Compared to traditional machine learning, LLM training takes a multistep approach.

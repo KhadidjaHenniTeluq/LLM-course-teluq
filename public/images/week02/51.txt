@@ -1,1 +1,0 @@
-Figure 2-14. A vocabulary of words and their starting, random, uninitialized embedding vectors.
