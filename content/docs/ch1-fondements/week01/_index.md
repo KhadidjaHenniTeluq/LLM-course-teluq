@@ -1,6 +1,7 @@
 ---
 title: "Semaine 1 : Introduction aux LLM et historique du NLP"
 weight: 1
+bookCollapseSection: true
 ---
 
 **De la sacoche de mots aux Transformers révolutionnaires**

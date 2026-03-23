@@ -33,10 +33,11 @@ inputs = tokenizer(sentence, return_tensors="pt")
 <!-- TODO: add colab link -->
 
 {{< colab url="" label="Voir la solution sur Colab" >}}
-<!-- TODO: add solution colab link -->
 
 <details>
 <summary>Voir la réponse</summary>
+
+<!-- TODO: add solution colab link -->
 
 ```python
 outputs = model(**inputs)

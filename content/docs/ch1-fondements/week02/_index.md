@@ -1,6 +1,7 @@
 ---
 title: "Semaine 2 : Tokens, tokeniseurs et embeddings"
 weight: 2
+bookCollapseSection: true
 ---
 
 **Les briques fondamentales des LLM : De la tokenisation aux représentations vectorielles**

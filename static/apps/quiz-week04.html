@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Semaine 4 — Modèles de Représentation (BERT)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            padding: 1.5rem;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .question {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+            transition: box-shadow 0.2s;
+        }
+
+        .question:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 0.85rem;
+            font-size: 0.98rem;
+        }
+
+        .option {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.35rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 0.93rem;
+        }
+
+        .option:hover {
+            background: #f1f5f9;
+        }
+
+        .option input[type="radio"] {
+            margin-top: 0.2rem;
+            accent-color: #6366f1;
+            flex-shrink: 0;
+        }
+
+        .feedback {
+            margin-top: 0.85rem;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .feedback.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .btn-check {
+            margin-top: 1rem;
+            padding: 0.5rem 1.2rem;
+            background: #6366f1;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-check:hover {
+            background: #4f46e5;
+        }
+
+        .score-box {
+            background: #ede9fe;
+            border: 1px solid #c4b5fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .score-box h2 {
+            font-size: 1.6rem;
+            color: #4c1d95;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-box p {
+            color: #6d28d9;
+            font-size: 0.95rem;
+        }
+
+        .btn-reset {
+            margin-top: 1rem;
+            padding: 0.5rem 1.4rem;
+            background: #7c3aed;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: #6d28d9;
+        }
+
+        #submit-all {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f172a;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: background 0.2s;
+        }
+
+        #submit-all:hover {
+            background: #1e3a5f;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🧪 Quiz — Semaine 4</h1>
+    <p class="subtitle">Modèles de Représentation (BERT) · 10 questions</p>
+
+    <form id="quiz-form">
+
+        <div class="question" data-correct="c">
+            <div class="question-text">1. Quel token spécial est utilisé par BERT pour représenter l'intégralité d'une
+                phrase en vue d'une classification ?</div>
+            <label class="option"><input type="radio" name="q1" value="a" /> a) `[SEP]`</label>
+            <label class="option"><input type="radio" name="q1" value="b" /> b) `[MASK]`</label>
+            <label class="option"><input type="radio" name="q1" value="c" /> c) `[CLS]`</label>
+            <label class="option"><input type="radio" name="q1" value="d" /> d) `[PAD]`</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">2. Quelle technique d'entraînement permet à BERT d'apprendre des représentations
+                bidirectionnelles sans labels humains ?</div>
+            <label class="option"><input type="radio" name="q2" value="a" /> a) La descente de gradient
+                stochastique</label>
+            <label class="option"><input type="radio" name="q2" value="b" /> b) Le Masked Language Modeling
+                (MLM)</label>
+            <label class="option"><input type="radio" name="q2" value="c" /> c) La prédiction du mot suivant (Next Token
+                Prediction)</label>
+            <label class="option"><input type="radio" name="q2" value="d" /> d) Le clustering K-means</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="c">
+            <div class="question-text">3. Quel modèle est une version distillée, 40% plus petite et 60% plus rapide que
+                BERT ?</div>
+            <label class="option"><input type="radio" name="q3" value="a" /> a) RoBERTa</label>
+            <label class="option"><input type="radio" name="q3" value="b" /> b) DeBERTa</label>
+            <label class="option"><input type="radio" name="q3" value="c" /> c) DistilBERT</label>
+            <label class="option"><input type="radio" name="q3" value="d" /> d) GPT-2</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="c">
+            <div class="question-text">4. Quelle métrique de classification est la plus robuste lorsqu'on cherche un
+                équilibre entre la précision et le rappel ?</div>
+            <label class="option"><input type="radio" name="q4" value="a" /> a) L'Accuracy globale</label>
+            <label class="option"><input type="radio" name="q4" value="b" /> b) La perte (Loss)</label>
+            <label class="option"><input type="radio" name="q4" value="c" /> c) Le score F1</label>
+            <label class="option"><input type="radio" name="q4" value="d" /> d) Le taux d'erreur</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">5. Dans un modèle task-specific, quel composant convertit les embeddings de BERT
+                en prédictions de classes finales ?</div>
+            <label class="option"><input type="radio" name="q5" value="a" /> a) La couche d'attention</label>
+            <label class="option"><input type="radio" name="q5" value="b" /> b) La tête de classification (couche
+                linéaire/dense)</label>
+            <label class="option"><input type="radio" name="q5" value="c" /> c) Le tokeniseur</label>
+            <label class="option"><input type="radio" name="q5" value="d" /> d) La couche d'activation ReLU</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">6. Quelle approche permet de classer du texte dans des catégories sans avoir
+                besoin d'un jeu de données d'entraînement étiqueté ?</div>
+            <label class="option"><input type="radio" name="q6" value="a" /> a) Le Supervised Fine-tuning</label>
+            <label class="option"><input type="radio" name="q6" value="b" /> b) La classification Zero-shot</label>
+            <label class="option"><input type="radio" name="q6" value="c" /> c) Le Bag-of-Words</label>
+            <label class="option"><input type="radio" name="q6" value="d" /> d) La régression logistique</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">7. Combien de couches (Transformer blocks) possède la version "base" de BERT ?
+            </div>
+            <label class="option"><input type="radio" name="q7" value="a" /> a) 6</label>
+            <label class="option"><input type="radio" name="q7" value="b" /> b) 12</label>
+            <label class="option"><input type="radio" name="q7" value="c" /> c) 24</label>
+            <label class="option"><input type="radio" name="q7" value="d" /> d) 48</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="c">
+            <div class="question-text">8. Quel est l'avantage principal du fine-tuning (réglage fin) par rapport à
+                l'utilisation d'un modèle gelé (frozen) ?</div>
+            <label class="option"><input type="radio" name="q8" value="a" /> a) C'est beaucoup plus rapide</label>
+            <label class="option"><input type="radio" name="q8" value="b" /> b) Cela nécessite moins de mémoire</label>
+            <label class="option"><input type="radio" name="q8" value="c" /> c) Cela permet au modèle d'adapter ses
+                représentations internes au vocabulaire spécifique de votre domaine</label>
+            <label class="option"><input type="radio" name="q8" value="d" /> d) Cela ne nécessite aucun label</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">9. Quelle technique mathématique est la plus utilisée pour mesurer la similarité
+                entre deux embeddings textuels ?</div>
+            <label class="option"><input type="radio" name="q9" value="a" /> a) La distance de Manhattan</label>
+            <label class="option"><input type="radio" name="q9" value="b" /> b) La similarité Cosinus</label>
+            <label class="option"><input type="radio" name="q9" value="c" /> c) L'écart type</label>
+            <label class="option"><input type="radio" name="q9" value="d" /> d) La multiplication simple</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">10. Quel modèle récent a introduit l'attention "désentrelacée" (disentangled
+                attention) pour surpasser BERT ?</div>
+            <label class="option"><input type="radio" name="q10" value="a" /> a) ALBERT</label>
+            <label class="option"><input type="radio" name="q10" value="b" /> b) DeBERTa</label>
+            <label class="option"><input type="radio" name="q10" value="c" /> c) CamemBERT</label>
+            <label class="option"><input type="radio" name="q10" value="d" /> d) RoBERTa</label>
+            <div class="feedback"></div>
+        </div>
+
+        <button type="button" id="submit-all" onclick="submitQuiz()">Valider mes réponses</button>
+    </form>
+
+    <div class="score-box" id="score-box">
+        <h2 id="score-text"></h2>
+        <p id="score-msg"></p>
+        <button class="btn-reset" onclick="resetQuiz()">🔄 Recommencer</button>
+    </div>
+
+    <script>
+        const explanations = {
+            q1: "Le token `[CLS]` (Classification) accumule les informations de toute la séquence grâce à la self-attention bidirectionnelle.",
+            q2: "En cachant 15% des mots, le modèle apprend à reconstruire le sens à partir du contexte gauche et droit.",
+            q3: "DistilBERT utilise la distillation de connaissances pour conserver 97% des performances de BERT dans un format compact.",
+            q4: "Le score F1 est la moyenne harmonique de la précision et du rappel, punissant les déséquilibres entre les deux.",
+            q5: "On ajoute une couche « Head » par-dessus le Transformer pour projeter le vecteur `[CLS]` vers le nombre de classes souhaité.",
+            q6: "Elle compare la similarité sémantique entre le texte et les étiquettes transformées en vecteurs.",
+            q7: "BERT-base est constitué de 12 blocs d'encodeurs empilés.",
+            q8: "En dégelant les couches, les poids de BERT s'ajustent pour mieux « comprendre » les nuances spécifiques de vos données.",
+            q9: "Elle mesure l'angle entre les vecteurs, ignorant leur longueur pour se concentrer sur l'orientation sémantique.",
+            q10: "DeBERTa sépare les informations de contenu et de position pour un raisonnement plus fin."
+        };
+
+        function submitQuiz() {
+            const questions = document.querySelectorAll('.question');
+            let score = 0;
+            let answered = 0;
+
+            questions.forEach((q, i) => {
+                const name = `q${i + 1}`;
+                const correct = q.dataset.correct;
+                const selected = q.querySelector(`input[name="${name}"]:checked`);
+                const feedback = q.querySelector('.feedback');
+
+                if (selected) {
+                    answered++;
+                    feedback.style.display = 'block';
+                    if (selected.value === correct) {
+                        score++;
+                        feedback.className = 'feedback correct';
+                        feedback.textContent = '✅ Correct ! ' + explanations[name];
+                    } else {
+                        feedback.className = 'feedback incorrect';
+                        feedback.textContent = `❌ Incorrect. La bonne réponse est (${correct.toUpperCase()}). ` + explanations[name];
+                    }
+                }
+            });
+
+            if (answered < questions.length) {
+                alert('Veuillez répondre à toutes les questions avant de valider.');
+                return;
+            }
+
+            const scoreBox = document.getElementById('score-box');
+            scoreBox.style.display = 'block';
+            document.getElementById('score-text').textContent = `${score} / ${questions.length}`;
+            const pct = Math.round((score / questions.length) * 100);
+            let msg = '';
+            if (pct >= 90) msg = '🌟 Excellent ! Vous maîtrisez parfaitement les modèles de représentation et BERT.';
+            else if (pct >= 70) msg = '👍 Très bien ! Quelques révisions sur le Fine-tuning et vous serez au top.';
+            else if (pct >= 50) msg = '📚 Pas mal ! Relisez les sections sur le Zero-shot avant de continuer.';
+            else msg = '🔄 Prenez le temps de revoir cette semaine 4, puis réessayez.';
+            document.getElementById('score-msg').textContent = msg;
+            scoreBox.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            document.getElementById('quiz-form').reset();
+            document.querySelectorAll('.feedback').forEach(f => { f.style.display = 'none'; f.textContent = ''; });
+            document.getElementById('score-box').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>
