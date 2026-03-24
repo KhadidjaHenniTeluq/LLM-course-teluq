@@ -35,8 +35,8 @@ jobs:
       - name: Install Python dependencies
         run: pip install pdfplumber
 
-      - name: Run deploy figures script
-        run: python scripts/deploy_figures.py
+      # - name: Run deploy figures script
+      #   run: python scripts/deploy_figures.py
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
