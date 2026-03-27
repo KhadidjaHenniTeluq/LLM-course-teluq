@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Semaine 10 — LLM Multimodaux</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; padding: 1.5rem; line-height: 1.6; }
+        h1 { font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; }
+        .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
+        .question { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; transition: box-shadow 0.2s; }
+        .question:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .question-text { font-weight: 600; margin-bottom: 0.85rem; font-size: 0.98rem; }
+        .option { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.35rem; cursor: pointer; transition: background 0.15s; font-size: 0.93rem; }
+        .option:hover { background: #f1f5f9; }
+        .option input[type="radio"] { margin-top: 0.2rem; accent-color: #6366f1; flex-shrink: 0; }
+        .feedback { margin-top: 0.85rem; padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.9rem; display: none; }
+        .feedback.correct { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .feedback.incorrect { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .score-box { background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 10px; padding: 1.5rem; text-align: center; display: none; margin-top: 1rem; }
+        .score-box h2 { font-size: 1.6rem; color: #4c1d95; margin-bottom: 0.25rem; }
+        .score-box p { color: #6d28d9; font-size: 0.95rem; }
+        .btn-reset { margin-top: 1rem; padding: 0.5rem 1.4rem; background: #7c3aed; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .btn-reset:hover { background: #6d28d9; }
+        #submit-all { display: block; width: 100%; padding: 0.75rem; background: #0f172a; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 1.5rem; transition: background 0.2s; }
+        #submit-all:hover { background: #1e3a5f; }
+        code { background: #f1f5f9; border-radius: 4px; padding: 0.1em 0.4em; font-size: 0.88em; font-family: 'Consolas', monospace; }
+    </style>
+</head>
+<body>
+
+<h1>&#x1F9EA; Quiz &#8212; Semaine 10</h1>
+<p class="subtitle">LLM Multimodaux (CLIP, ViT, BLIP-2) &middot; 10 questions</p>
+
+<form id="quiz-form">
+
+    <div class="question" data-correct="c">
+        <div class="question-text">1. Quel mod&egrave;le est c&eacute;l&egrave;bre pour aligner des embeddings de texte et d&rsquo;image dans le m&ecirc;me espace vectoriel commun&nbsp;?</div>
+        <label class="option"><input type="radio" name="q1" value="a" /> a) BERT-base</label>
+        <label class="option"><input type="radio" name="q1" value="b" /> b) GPT-2</label>
+        <label class="option"><input type="radio" name="q1" value="c" /> c) CLIP (Contrastive Language-Image Pretraining)</label>
+        <label class="option"><input type="radio" name="q1" value="d" /> d) ResNet-50</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">2. Combien de patches (tokens visuels) obtient-on typiquement avec un mod&egrave;le ViT-base ayant une image de 224&times;224 pixels et des patches de 16&times;16 pixels&nbsp;?</div>
+        <label class="option"><input type="radio" name="q2" value="a" /> a) 16</label>
+        <label class="option"><input type="radio" name="q2" value="b" /> b) 196</label>
+        <label class="option"><input type="radio" name="q2" value="c" /> c) 224</label>
+        <label class="option"><input type="radio" name="q2" value="d" /> d) 256</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">3. Dans l&rsquo;architecture BLIP-2, quel composant joue le r&ocirc;le de &laquo;&nbsp;traducteur&nbsp;&raquo; entre l&rsquo;encodeur visuel et le LLM&nbsp;?</div>
+        <label class="option"><input type="radio" name="q3" value="a" /> a) Le CNN</label>
+        <label class="option"><input type="radio" name="q3" value="b" /> b) Le Q-Former (Querying Transformer)</label>
+        <label class="option"><input type="radio" name="q3" value="c" /> c) La couche Softmax</label>
+        <label class="option"><input type="radio" name="q3" value="d" /> d) Le Tokeniseur BPE</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">4. Quelle technique d&rsquo;entra&icirc;nement CLIP utilise-t-il pour apprendre &agrave; associer une image &agrave; sa l&eacute;gende&nbsp;?</div>
+        <label class="option"><input type="radio" name="q4" value="a" /> a) Masked Language Modeling</label>
+        <label class="option"><input type="radio" name="q4" value="b" /> b) Apprentissage contrastif (maximiser la similarit&eacute; des paires correctes)</label>
+        <label class="option"><input type="radio" name="q4" value="c" /> c) Next Sentence Prediction</label>
+        <label class="option"><input type="radio" name="q4" value="d" /> d) RLHF (Renforcement par feedback humain)</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">5. L&rsquo;entra&icirc;nement de BLIP-2 se d&eacute;roule en combien d&rsquo;&eacute;tapes principales&nbsp;?</div>
+        <label class="option"><input type="radio" name="q5" value="a" /> a) Une seule &eacute;tape massive</label>
+        <label class="option"><input type="radio" name="q5" value="b" /> b) Deux &eacute;tapes (Repr&eacute;sentation puis G&eacute;n&eacute;ration)</label>
+        <label class="option"><input type="radio" name="q5" value="c" /> c) Dix &eacute;tapes it&eacute;ratives</label>
+        <label class="option"><input type="radio" name="q5" value="d" /> d) Il n&rsquo;y a pas d&rsquo;entra&icirc;nement, c&rsquo;est du Zero-shot pur</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">6. Quel type de LLM est g&eacute;n&eacute;ralement utilis&eacute; comme &laquo;&nbsp;colonne vert&eacute;brale&nbsp;&raquo; textuelle dans les versions originales de BLIP-2&nbsp;?</div>
+        <label class="option"><input type="radio" name="q6" value="a" /> a) BERT ou RoBERTa</label>
+        <label class="option"><input type="radio" name="q6" value="b" /> b) OPT ou Flan-T5</label>
+        <label class="option"><input type="radio" name="q6" value="c" /> c) Word2Vec</label>
+        <label class="option"><input type="radio" name="q6" value="d" /> d) LSTM</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">7. Quelle est la taille standard des images en entr&eacute;e pour la plupart des mod&egrave;les CLIP et ViT&nbsp;?</div>
+        <label class="option"><input type="radio" name="q7" value="a" /> a) 128&times;128</label>
+        <label class="option"><input type="radio" name="q7" value="b" /> b) 224&times;224</label>
+        <label class="option"><input type="radio" name="q7" value="c" /> c) 512&times;512</label>
+        <label class="option"><input type="radio" name="q7" value="d" /> d) 1024&times;1024</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">8. Quel avantage majeur offre l&rsquo;IA multimodale par rapport au texte seul&nbsp;?</div>
+        <label class="option"><input type="radio" name="q8" value="a" /> a) Elle utilise moins de VRAM.</label>
+        <label class="option"><input type="radio" name="q8" value="b" /> b) Elle permet l&rsquo;&eacute;mergence de capacit&eacute;s de perception et de raisonnement ancr&eacute;es dans le monde physique.</label>
+        <label class="option"><input type="radio" name="q8" value="c" /> c) Elle n&rsquo;a plus besoin de tokeniseur.</label>
+        <label class="option"><input type="radio" name="q8" value="d" /> d) Elle est insensible aux biais.</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="c">
+        <div class="question-text">9. Quel token sp&eacute;cial indique le d&eacute;but d&rsquo;une s&eacute;quence textuelle dans l&rsquo;encodeur de CLIP&nbsp;?</div>
+        <label class="option"><input type="radio" name="q9" value="a" /> a) <code>[CLS]</code></label>
+        <label class="option"><input type="radio" name="q9" value="b" /> b) <code>&lt;s&gt;</code></label>
+        <label class="option"><input type="radio" name="q9" value="c" /> c) <code>&lt;|startoftext|&gt;</code></label>
+        <label class="option"><input type="radio" name="q9" value="d" /> d) <code>[MASK]</code></label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="c">
+        <div class="question-text">10. Quelle application permet de poser une question ouverte sur le contenu d&rsquo;une image (ex&nbsp;: &laquo;&nbsp;Pourquoi cette photo est-elle triste&nbsp;?&nbsp;&raquo;)&nbsp;?</div>
+        <label class="option"><input type="radio" name="q10" value="a" /> a) Image Captioning</label>
+        <label class="option"><input type="radio" name="q10" value="b" /> b) OCR</label>
+        <label class="option"><input type="radio" name="q10" value="c" /> c) VQA (Visual Question Answering)</label>
+        <label class="option"><input type="radio" name="q10" value="d" /> d) Classification Zero-shot</label>
+        <div class="feedback"></div>
+    </div>
+
+    <button type="button" id="submit-all" onclick="submitQuiz()">Valider mes r&eacute;ponses</button>
+</form>
+
+<div class="score-box" id="score-box">
+    <h2 id="score-text"></h2>
+    <p id="score-msg"></p>
+    <button class="btn-reset" onclick="resetQuiz()">&#x1F504; Recommencer</button>
+</div>
+
+<script>
+    const explanations = {
+        q1: "CLIP utilise l'apprentissage contrastif sur 400 millions de paires image/légende du web pour rapprocher les représentations textuelles et visuelles dans un espace commun.",
+        q2: "(224 / 16) × (224 / 16) = 14 × 14 = 196 patches. Chaque patch de 16×16 pixels devient un 'mot visuel' dans la séquence d'entrée du ViT.",
+        q3: "Le Q-Former extrait les caractéristiques visuelles pertinentes via 32 jetons de requête apprenables (Cross-Attention avec le ViT), puis les présente au LLM sous forme digeste.",
+        q4: "Le modèle apprend en maximisant la similarité des N paires correctes dans une matrice N×N et en minimisant les N²−N paires incorrectes.",
+        q5: "Étape 1 : le Q-Former apprend à comprendre l'image (Representation Learning). Étape 2 : on le connecte au LLM via une projection linéaire pour générer du texte (Generative Learning).",
+        q6: "BLIP-2 se connecte à des modèles génératifs de type décodeur (OPT) ou encodeur-décodeur (Flan-T5), bien adaptés à la génération de texte.",
+        q7: "C'est l'héritage de l'entraînement sur ImageNet. Le processeur redimensionne automatiquement les images à 224×224 avant de les découper en patches.",
+        q8: "La multimodalité permet au modèle de percevoir le contexte visuel dont on lui parle, ouvrant la voie au raisonnement ancré dans le monde physique réel.",
+        q9: "CLIP délimite les textes avec des tokens spéciaux de début et de fin — différent de BERT ([CLS]) ou de LLaMA avec ses propres délimiteurs de séquence.",
+        q10: "Le VQA combine la perception visuelle du Q-Former et la génération raisonnée du LLM pour répondre à des questions ouvertes et contextuelles sur une image."
+    };
+
+    function submitQuiz() {
+        const questions = document.querySelectorAll('.question');
+        let score = 0;
+        let answered = 0;
+
+        questions.forEach((q, i) => {
+            const name = `q${i + 1}`;
+            const correct = q.dataset.correct;
+            const selected = q.querySelector(`input[name="${name}"]:checked`);
+            const feedback = q.querySelector('.feedback');
+
+            if (selected) {
+                answered++;
+                feedback.style.display = 'block';
+                if (selected.value === correct) {
+                    score++;
+                    feedback.className = 'feedback correct';
+                    feedback.textContent = '✅ Correct ! ' + explanations[name];
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = `❌ Incorrect. La bonne réponse est (${correct.toUpperCase()}). ` + explanations[name];
+                }
+            }
+        });
+
+        if (answered < questions.length) {
+            alert('Veuillez répondre à toutes les questions avant de valider.');
+            return;
+        }
+
+        const scoreBox = document.getElementById('score-box');
+        scoreBox.style.display = 'block';
+        document.getElementById('score-text').textContent = `${score} / ${questions.length}`;
+        const pct = Math.round((score / questions.length) * 100);
+        let msg = '';
+        if (pct >= 90) msg = '🌟 Excellent ! Vous maîtrisez CLIP, ViT et BLIP-2 comme un vrai ingénieur multimodal !';
+        else if (pct >= 70) msg = '👍 Très bien ! Revoyez le Q-Former et le comptage des patches pour atteindre le top.';
+        else if (pct >= 50) msg = '📚 Pas mal ! Relisez les sections sur l\'apprentissage contrastif et l\'architecture BLIP-2.';
+        else msg = '🔄 Prenez le temps de revoir cette semaine 10 sur la multimodalité, puis réessayez.';
+        document.getElementById('score-msg').textContent = msg;
+        scoreBox.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetQuiz() {
+        document.getElementById('quiz-form').reset();
+        document.querySelectorAll('.feedback').forEach(f => { f.style.display = 'none'; f.textContent = ''; });
+        document.getElementById('score-box').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+</script>
+</body>
+</html>

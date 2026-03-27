@@ -1,1 +1,1 @@
-Figure 10-11. Text is passed to one or multiple encoders by first tokenizing it using a tokenizer.
+Figure 10-10. Text is passed to one or multiple encoders by first tokenizing it using a tokenizer.
