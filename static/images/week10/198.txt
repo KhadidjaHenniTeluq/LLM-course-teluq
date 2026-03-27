@@ -1,0 +1,1 @@
+Figure 10-1. Models that are able to deal with different types (or modalities) of data, such as images, audio, video, or sensors, are said to be multimodal. It’s possible for a model to accept a modality as input yet not be able to generate in that modality.

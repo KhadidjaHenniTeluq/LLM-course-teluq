@@ -30,12 +30,15 @@ Les stratégies de découpage illustrées dans les **Figures 6-9 à 6-11** sont 
 
 {{< bookfig src="180.png" week="06" >}}
 
+<a id="overlap"></a>
+
 3.  **La fenêtre glissante avec chevauchement (Overlap) (Figure 6-11)** : C'est la technique préférée des experts.
 > [!TIP]
 🔑 **Notez bien cette intuition :** on crée des morceaux qui se chevauchent (par exemple, les 50 derniers tokens du bloc 1 se retrouvent au début du bloc 2). Pourquoi ? Pour s'assurer que si une information cruciale se trouve à la charnière de deux blocs, le contexte ne soit pas perdu.
 
 {{< bookfig src="181.png" week="06" >}}
 
+<a id="faiss"></a>
 
 ## Passer à l'échelle avec FAISS : La recherche de plus proches voisins
 Une fois vos millions de "chunks" transformés en vecteurs, comment trouver les plus proches ? On utilise l'algorithme des **K-Plus Proches Voisins (K-Nearest Neighbors ou KNN)**, illustré en **Figure 6-12**.
@@ -63,6 +66,8 @@ Un moteur de recherche sémantique robuste suit ce pipeline non-négociable :
 1.  **Ingestion** : Lecture des PDF, sites web ou bases de données.
 2.  **Preprocessing** : Nettoyage et *Chunking* intelligent.
 3.  **Embedding** : Passage dans un modèle comme `all-mpnet-base-v2`.
+<a id="indexing"></a>
+
 4.  **Indexing** : Stockage des vecteurs dans FAISS ou une base vectorielle (Chroma, Pinecone).
 5.  **Querying** : Encodage de la question de l'utilisateur et recherche KNN.
 

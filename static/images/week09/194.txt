@@ -1,0 +1,1 @@
+Figure 9-14. The mean average precision takes into consideration the average precision score of a system for every query in the test suite. By averaging them, it produces a single metric that we can use to compare a search system against another.

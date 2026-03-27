@@ -1,0 +1,1 @@
+Figure 10-2. Multimodal embedding models can create embeddings for multiple modali‐ ties in the same vector space.

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Semaine 9 — RAG (Retrieval-Augmented Generation)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            padding: 1.5rem;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .question {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+            transition: box-shadow 0.2s;
+        }
+
+        .question:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 0.85rem;
+            font-size: 0.98rem;
+        }
+
+        .option {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.35rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 0.93rem;
+        }
+
+        .option:hover {
+            background: #f1f5f9;
+        }
+
+        .option input[type="radio"] {
+            margin-top: 0.2rem;
+            accent-color: #6366f1;
+            flex-shrink: 0;
+        }
+
+        .feedback {
+            margin-top: 0.85rem;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .feedback.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .score-box {
+            background: #ede9fe;
+            border: 1px solid #c4b5fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .score-box h2 {
+            font-size: 1.6rem;
+            color: #4c1d95;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-box p {
+            color: #6d28d9;
+            font-size: 0.95rem;
+        }
+
+        .btn-reset {
+            margin-top: 1rem;
+            padding: 0.5rem 1.4rem;
+            background: #7c3aed;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: #6d28d9;
+        }
+
+        #submit-all {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f172a;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: background 0.2s;
+        }
+
+        #submit-all:hover {
+            background: #1e3a5f;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🧪 Quiz — Semaine 9</h1>
+    <p class="subtitle">RAG (Retrieval-Augmented Generation) · 10 questions</p>
+
+    <form id="quiz-form">
+
+        <div class="question" data-correct="b">
+            <div class="question-text">1. Dans une architecture RAG, quel composant est responsable de transformer
+                la question de l'utilisateur en un vecteur pour interroger la base de données ?</div>
+            <label class="option"><input type="radio" name="q1" value="a" /> a) Le LLM générateur</label>
+            <label class="option"><input type="radio" name="q1" value="b" /> b) Le modèle d'Embedding
+                (Retriever)</label>
+            <label class="option"><input type="radio" name="q1" value="c" /> c) Le tokenizer du décodeur</label>
+            <label class="option"><input type="radio" name="q1" value="d" /> d) Le module de
+                Post-processing</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="c">
+            <div class="question-text">2. Quelle technique permet de transformer une requête utilisateur
+                ambiguë (ex: "Et pour lui ?") en une requête de recherche claire en utilisant l'historique ?</div>
+            <label class="option"><input type="radio" name="q2" value="a" /> a) Le Chunking</label>
+            <label class="option"><input type="radio" name="q2" value="b" /> b) La Quantification</label>
+            <label class="option"><input type="radio" name="q2" value="c" /> c) Le Query Rewriting (Réécriture
+                de requête)</label>
+            <label class="option"><input type="radio" name="q2" value="d" /> d) Le Cross-encoding</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">3. Quelle métrique du framework Ragas mesure si la réponse générée par
+                l'IA est entièrement supportée par les documents fournis dans le contexte ?</div>
+            <label class="option"><input type="radio" name="q3" value="a" /> a) Answer Relevancy</label>
+            <label class="option"><input type="radio" name="q3" value="b" /> b) Faithfulness (Fidélité)</label>
+            <label class="option"><input type="radio" name="q3" value="c" /> c) Context Recall</label>
+            <label class="option"><input type="radio" name="q3" value="d" /> d) Perplexity</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">4. Pourquoi utilise-t-on le "Multi-hop RAG" pour des questions complexes ?</div>
+            <label class="option"><input type="radio" name="q4" value="a" /> a) Pour économiser des tokens.</label>
+            <label class="option"><input type="radio" name="q4" value="b" /> b) Pour permettre au modèle de faire
+                plusieurs recherches successives afin de lier des informations éparpillées.</label>
+            <label class="option"><input type="radio" name="q4" value="c" /> c) Pour traduire la réponse dans
+                plusieurs langues simultanément.</label>
+            <label class="option"><input type="radio" name="q4" value="d" /> d) Pour accélérer le temps de
+                réponse.</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">5. Quelle bibliothèque d'orchestration simplifie le lien entre les Vector
+                Stores, les prompts et les LLM ?</div>
+            <label class="option"><input type="radio" name="q5" value="a" /> a) PyTorch</label>
+            <label class="option"><input type="radio" name="q5" value="b" /> b) LangChain</label>
+            <label class="option"><input type="radio" name="q5" value="c" /> c) Scikit-learn</label>
+            <label class="option"><input type="radio" name="q5" value="d" /> d) TensorFlow</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">6. Quel est le principal défaut de la stratégie de chaîne "stuff" dans
+                LangChain ?</div>
+            <label class="option"><input type="radio" name="q6" value="a" /> a) Elle est trop lente.</label>
+            <label class="option"><input type="radio" name="q6" value="b" /> b) Elle peut dépasser la limite de
+                tokens (Context Window) du LLM si l'on fournit trop de documents.</label>
+            <label class="option"><input type="radio" name="q6" value="c" /> c) Elle modifie les poids du
+                modèle.</label>
+            <label class="option"><input type="radio" name="q6" value="d" /> d) Elle ne permet pas de
+                citations.</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">7. Pourquoi un "Reranker" (souvent un Cross-Encoder) est-il utilisé après
+                une recherche vectorielle classique ?</div>
+            <label class="option"><input type="radio" name="q7" value="a" /> a) Pour réduire la taille des
+                documents.</label>
+            <label class="option"><input type="radio" name="q7" value="b" /> b) Parce qu'il analyse finement
+                l'interaction entre chaque mot de la question et du document, corrigeant les erreurs de la
+                recherche "grossière".</label>
+            <label class="option"><input type="radio" name="q7" value="c" /> c) Pour compresser les poids du
+                LLM.</label>
+            <label class="option"><input type="radio" name="q7" value="d" /> d) Pour générer des images à partir
+                du texte.</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">8. Que permet d'éviter l'ajout d'un "Overlap" (chevauchement) lors du
+                découpage (chunking) d'un document ?</div>
+            <label class="option"><input type="radio" name="q8" value="a" /> a) L'utilisation excessive de
+                VRAM.</label>
+            <label class="option"><input type="radio" name="q8" value="b" /> b) La perte d'information sémantique
+                située précisément à la limite entre deux morceaux de texte.</label>
+            <label class="option"><input type="radio" name="q8" value="c" /> c) Le coût des API OpenAI.</label>
+            <label class="option"><input type="radio" name="q8" value="d" /> d) La répétition des mots dans la
+                réponse finale.</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="c">
+            <div class="question-text">9. Quelle métrique évalue si le "Bibliothécaire" a mis le document le
+                plus pertinent en première position plutôt qu'en dixième ?</div>
+            <label class="option"><input type="radio" name="q9" value="a" /> a) Accuracy</label>
+            <label class="option"><input type="radio" name="q9" value="b" /> b) F1-Score</label>
+            <label class="option"><input type="radio" name="q9" value="c" /> c) MAP (Mean Average
+                Precision)</label>
+            <label class="option"><input type="radio" name="q9" value="d" /> d) Bleu Score</label>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" data-correct="b">
+            <div class="question-text">10. Dans LangChain, quel composant permet de filtrer les documents par
+                date ou par auteur avant même de faire la recherche sémantique ?</div>
+            <label class="option"><input type="radio" name="q10" value="a" /> a) Les Embeddings</label>
+            <label class="option"><input type="radio" name="q10" value="b" /> b) Les Métadonnées
+                (Metadata)</label>
+            <label class="option"><input type="radio" name="q10" value="c" /> c) Le LLM</label>
+            <label class="option"><input type="radio" name="q10" value="d" /> d) La Temperature</label>
+            <div class="feedback"></div>
+        </div>
+
+        <button type="button" id="submit-all" onclick="submitQuiz()">Valider mes réponses</button>
+    </form>
+
+    <div class="score-box" id="score-box">
+        <h2 id="score-text"></h2>
+        <p id="score-msg"></p>
+        <button class="btn-reset" onclick="resetQuiz()">🔄 Recommencer</button>
+    </div>
+
+    <script>
+        const explanations = {
+            q1: "Le modèle d'embedding convertit le texte en coordonnées numériques pour permettre la recherche de plus proches voisins (KNN) dans la base vectorielle.",
+            q2: "Le LLM analyse le contexte conversationnel pour expliciter les pronoms et ambiguïtés, rendant la recherche vectorielle plus précise.",
+            q3: "La fidélité (Faithfulness) vérifie l'ancrage (grounding) et détecte si l'IA a inventé des faits hors-contexte. C'est l'arme absolue contre les hallucinations.",
+            q4: "Certaines questions demandent de trouver un premier fait (ex: le nom d'un inventeur) pour pouvoir chercher le second (ex: sa date de naissance). L'IA pilote la recherche de manière itérative.",
+            q5: "LangChain propose des abstractions comme `RetrievalQA` pour automatiser le flux complet RAG : chargement, chunking, embedding, retrieval et génération.",
+            q6: "\"Stuffing\" consiste à mettre tous les documents dans le prompt ; si le volume dépasse la Context Window du modèle, celui-ci tronque silencieusement l'entrée.",
+            q7: "Le Cross-Encoder ne compare pas des vecteurs finis, il lit simultanément la question et le document entier, captant des liens subtils (négation, nuances métier) que le Bi-Encoder manque.",
+            q8: "En répétant la fin du bloc N au début du bloc N+1 (overlap), on s'assure que les phrases à cheval sur deux morceaux ne soient jamais coupées de leur contexte.",
+            q9: "Le MAP (Mean Average Precision) récompense les systèmes qui mettent le document pertinent en tête de liste. Un bon classement est aussi crucial que la présence du document.",
+            q10: "Les métadonnées permettent un pré-filtrage indépendant de la sémantique (ex: ne chercher que dans les documents de l'année 2024), réduisant le bruit de la recherche."
+        };
+
+        function submitQuiz() {
+            const questions = document.querySelectorAll('.question');
+            let score = 0;
+            let answered = 0;
+
+            questions.forEach((q, i) => {
+                const name = `q${i + 1}`;
+                const correct = q.dataset.correct;
+                const selected = q.querySelector(`input[name="${name}"]:checked`);
+                const feedback = q.querySelector('.feedback');
+
+                if (selected) {
+                    answered++;
+                    feedback.style.display = 'block';
+                    if (selected.value === correct) {
+                        score++;
+                        feedback.className = 'feedback correct';
+                        feedback.textContent = '✅ Correct ! ' + explanations[name];
+                    } else {
+                        feedback.className = 'feedback incorrect';
+                        feedback.textContent = `❌ Incorrect. La bonne réponse est (${correct.toUpperCase()}). ` + explanations[name];
+                    }
+                }
+            });
+
+            if (answered < questions.length) {
+                alert('Veuillez répondre à toutes les questions avant de valider.');
+                return;
+            }
+
+            const scoreBox = document.getElementById('score-box');
+            scoreBox.style.display = 'block';
+            document.getElementById('score-text').textContent = `${score} / ${questions.length}`;
+            const pct = Math.round((score / questions.length) * 100);
+            let msg = '';
+            if (pct >= 90) msg = '🌟 Excellent ! Vous maîtrisez le RAG de l\'indexation à l\'évaluation Ragas. Vous êtes prêt pour la production !';
+            else if (pct >= 70) msg = '👍 Très bien ! Revoyez les nuances du Reranking et de la chaîne "stuff" de LangChain.';
+            else if (pct >= 50) msg = '📚 Pas mal ! Relisez les sections sur le Faithfulness, le MAP et le Multi-hop RAG avant de continuer.';
+            else msg = '🔄 Prenez le temps de revoir cette semaine 9 sur le RAG dans son ensemble, puis réessayez.';
+            document.getElementById('score-msg').textContent = msg;
+            scoreBox.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            document.getElementById('quiz-form').reset();
+            document.querySelectorAll('.feedback').forEach(f => { f.style.display = 'none'; f.textContent = ''; });
+            document.getElementById('score-box').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>

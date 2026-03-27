@@ -1,0 +1,1 @@
+Figure 9-15. LangChain is a complete framework for using LLMs. It has modular compo‐ nents that can be chained together to allow for complex LLM systems.

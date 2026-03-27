@@ -1,0 +1,1 @@
+Figure 10-4. The type of data that is needed to train a multimodal embedding model.

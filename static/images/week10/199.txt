@@ -1,0 +1,1 @@
+Figure 10-9. Both the original Transformer as well as the Vision Transformer take unstructured data, convert it to numerical representations, and finally use that for tasks like classification.

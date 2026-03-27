@@ -1,9 +1,10 @@
 ﻿---
 title: "Semaine 8 : Ingénierie des prompts"
 weight: 3
+bookCollapseSection : true
 ---
 
-# 📝 Sommaire de la Semaine 8 : Ingénierie des prompts
+# 📝 Semaine 8 : Ingénierie des prompts
 
 Bonjour à toutes et à tous ! Je suis ravie de vous retrouver pour entamer cette semaine. Jusqu'ici, nous avons construit des moteurs et cartographié des données. Aujourd'hui, nous allons apprendre à "murmurer à l'oreille des IA". 
 

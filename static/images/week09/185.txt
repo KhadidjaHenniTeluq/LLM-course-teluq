@@ -1,0 +1,1 @@
+Figure 9-6. LLM rerankers operate as part of a search pipeline with the goal of reordering a number of shortlisted search results by relevance.

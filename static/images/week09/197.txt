@@ -1,0 +1,1 @@
+Figure 9-4. Find the most relevant information to an input prompt by comparing the similarities between embeddings. The most relevant information is added to the prompt before giving it to the LLM.

@@ -1,0 +1,1 @@
+Figure 9-8. To evaluate search systems, we need a test suite including queries and relevance judgments indicating which documents in our archive are relevant for each query.

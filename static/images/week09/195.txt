@@ -1,0 +1,1 @@
+Figure 9-1. A basic RAG pipeline is made up of a search step followed by a grounded generation step where the LLM is prompted with the question and the information retrieved from the search step.

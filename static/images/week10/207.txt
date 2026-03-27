@@ -1,0 +1,1 @@
+Figure 10-6. In the second step of training CLIP, the similarity between the sentence and image embedding is calculated using cosine similarity.

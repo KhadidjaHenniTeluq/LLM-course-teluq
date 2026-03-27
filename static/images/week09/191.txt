@@ -1,0 +1,1 @@
+Figure 9-11. To calculate mean average precision, we start by calculating precision at each position, starting with position 1.

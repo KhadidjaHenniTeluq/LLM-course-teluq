@@ -1,0 +1,1 @@
+Figure 10-3. Despite having coming from different modalities, embeddings with similar meaning will be close to each other in vector space.

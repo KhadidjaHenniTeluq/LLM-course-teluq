@@ -1,0 +1,1 @@
+Figure 10-5. In the first step of training CLIP, both images and text are embedded using an image and text encoder, respectively.

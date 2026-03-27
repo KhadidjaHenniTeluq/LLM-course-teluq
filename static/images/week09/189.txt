@@ -1,0 +1,1 @@
+Figure 9-10. Looking at the relevance judgments from our test suite, we can see that system 1 did a better job than system 2.

@@ -38,6 +38,8 @@ Le processus, méticuleusement détaillé dans les **Figures 1-3 à 1-5**, se d�
 
 <a id="tf-idf"></a>
 
+<!-- TODO: Ajouter une petite section parlant du Score BM25 -->
+
 ## De TF-IDF aux limites de la représentation creuse (Sparse)
 
 Pour affiner le comptage, les chercheurs ont introduit le **TF-IDF** (Term Frequency-Inverse Document Frequency). L'intuition est brillante : un mot qui apparaît partout (comme "le", "et", "est") n'apporte aucune information sur le sujet d'un texte. TF-IDF punit les mots trop fréquents et valorise les mots rares et spécifiques (comme "photosynthèse" ou "algorithme").

@@ -1,0 +1,1 @@
+Figure 9-12. If the system places nonrelevant documents ahead of a relevant document, its precision score is penalized.

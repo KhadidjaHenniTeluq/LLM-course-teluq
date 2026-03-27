@@ -1,0 +1,1 @@
+Figure 9-9. To compare two search systems, we pass the same query from our test suite to both systems and look at their top results.

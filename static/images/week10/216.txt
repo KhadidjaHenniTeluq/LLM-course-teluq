@@ -1,0 +1,1 @@
+Figure 10-16. In step 2, the learned embeddings from the Q-Former are passed to the LLM through a projection layer. The projected embeddings serve as a soft visual prompt.

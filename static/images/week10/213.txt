@@ -1,0 +1,1 @@
+Figure 10-13. The Querying Transformer is the bridge between vision (ViT) and text (LLM) that is the only trainable component of the pipeline.

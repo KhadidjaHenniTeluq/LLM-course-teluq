@@ -1,0 +1,1 @@
+Figure 9-3. Rerankers, the second key type of semantic search, take a search query and a collection of results, and reorder them by relevance, often resulting in vastly improved results. RAG

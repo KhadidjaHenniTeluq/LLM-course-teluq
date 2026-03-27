@@ -1,0 +1,1 @@
+Figure 10-10. The “tokenization” process for image input. It converts an image into patches of subimages.

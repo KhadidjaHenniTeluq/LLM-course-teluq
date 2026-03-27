@@ -1,0 +1,1 @@
+Figure 10-18. An example of a multimodal text generation model (BLIP-2) that can reason about input images.

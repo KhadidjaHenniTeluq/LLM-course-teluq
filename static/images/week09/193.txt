@@ -1,0 +1,1 @@
+Figure 9-13. Average precision of a document with multiple relevant documents considers the precision at k results of all the relevant documents.
