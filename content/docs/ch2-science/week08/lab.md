@@ -154,7 +154,3 @@ except:
 **Mots-clés de la semaine** : Persona, In-Context Learning, Few-shot, Chain-of-Thought (CoT), Self-Consistency, Tree-of-Thought, Lost in the Middle, Constrained Sampling, GBNF, JSON Formatting.
 
 **En prévision de la semaine suivante** : Nous allons apprendre à combattre les hallucinations de manière radicale. Comment connecter votre IA à Internet ou à vos propres documents PDF pour qu'elle réponde avec des preuves ? Bienvenue dans le monde du **RAG (Retrieval-Augmented Generation)**.
-
-**SOURCES COMPLÈTES** :
-*   Guide de Prompting : [PromptingGuide.ai](https://www.promptingguide.ai/fr)
-*   Blog Jay Alammar : *The Illustrated Transformer* (pour l'intuition de l'attention dans le CoT).

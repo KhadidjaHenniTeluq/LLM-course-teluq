@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Semaine 11 — Fine-tuning supervisé de modèles génératifs</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; padding: 1.5rem; line-height: 1.6; }
+        h1 { font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; }
+        .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
+        .question { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; transition: box-shadow 0.2s; }
+        .question:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .question-text { font-weight: 600; margin-bottom: 0.85rem; font-size: 0.98rem; }
+        .option { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.35rem; cursor: pointer; transition: background 0.15s; font-size: 0.93rem; }
+        .option:hover { background: #f1f5f9; }
+        .option input[type="radio"] { margin-top: 0.2rem; accent-color: #6366f1; flex-shrink: 0; }
+        .feedback { margin-top: 0.85rem; padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.9rem; display: none; }
+        .feedback.correct { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .feedback.incorrect { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .score-box { background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 10px; padding: 1.5rem; text-align: center; display: none; margin-top: 1rem; }
+        .score-box h2 { font-size: 1.6rem; color: #4c1d95; margin-bottom: 0.25rem; }
+        .score-box p { color: #6d28d9; font-size: 0.95rem; }
+        .btn-reset { margin-top: 1rem; padding: 0.5rem 1.4rem; background: #7c3aed; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .btn-reset:hover { background: #6d28d9; }
+        #submit-all { display: block; width: 100%; padding: 0.75rem; background: #0f172a; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 1.5rem; transition: background 0.2s; }
+        #submit-all:hover { background: #1e3a5f; }
+        code { background: #f1f5f9; border-radius: 4px; padding: 0.1em 0.4em; font-size: 0.88em; font-family: 'Consolas', monospace; }
+    </style>
+</head>
+<body>
+
+<h1>&#x1F9EA; Quiz &#8212; Semaine 11</h1>
+<p class="subtitle">Fine-tuning supervisé et QLoRA &middot; 10 questions</p>
+
+<form id="quiz-form">
+
+    <div class="question" data-correct="b">
+        <div class="question-text">1. Quel est l'avantage principal des méthodes PEFT (comme LoRA) par rapport au "Full Fine-Tuning" ?</div>
+        <label class="option"><input type="radio" name="q1" value="a" /> a) Elles nécessitent plus de données d'entraînement.</label>
+        <label class="option"><input type="radio" name="q1" value="b" /> b) Elles permettent d'adapter des modèles massifs en n'entraînant qu'une infime fraction (souvent &lt; 1%) des paramètres, réduisant ainsi drastiquement la VRAM requise.</label>
+        <label class="option"><input type="radio" name="q1" value="c" /> c) Elles suppriment le besoin de tokenisation.</label>
+        <label class="option"><input type="radio" name="q1" value="d" /> d) Elles garantissent que le modèle ne fera plus jamais d'hallucinations.</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">2. Dans la méthode LoRA, que représente mathématiquement le paramètre "r" (Rank) ?</div>
+        <label class="option"><input type="radio" name="q2" value="a" /> a) Le nombre de couches du Transformer à supprimer.</label>
+        <label class="option"><input type="radio" name="q2" value="b" /> b) La dimension des matrices de décomposition de bas rang qui capturent les mises à jour de poids.</label>
+        <label class="option"><input type="radio" name="q2" value="c" /> c) La vitesse de rotation des embeddings positionnels.</label>
+        <label class="option"><input type="radio" name="q2" value="d" /> d) Le nombre d'époques d'entraînement.</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">3. Combien de bits d'information utilise un poids stocké dans le format de quantification NF4 (Normal Float 4-bit) ?</div>
+        <label class="option"><input type="radio" name="q3" value="a" /> a) 2 bits</label>
+        <label class="option"><input type="radio" name="q3" value="b" /> b) 4 bits</label>
+        <label class="option"><input type="radio" name="q3" value="c" /> c) 8 bits</label>
+        <label class="option"><input type="radio" name="q3" value="d" /> d) 16 bits</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">4. Quel composant de QLoRA permet de décharger temporairement les données de l'optimiseur vers la RAM système pour éviter les erreurs "Out of Memory" ?</div>
+        <label class="option"><input type="radio" name="q4" value="a" /> a) Le Q-Former</label>
+        <label class="option"><input type="radio" name="q4" value="b" /> b) Le Paged Optimizer (ex: paged_adamw_32bit)</label>
+        <label class="option"><input type="radio" name="q4" value="c" /> c) Le tokenizer BPE</label>
+        <label class="option"><input type="radio" name="q4" value="d" /> d) La couche de projection linéaire</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">5. Quelle technique combine la réduction de précision des poids (4-bit) et l'adaptation par matrices de bas rang ?</div>
+        <label class="option"><input type="radio" name="q5" value="a" /> a) BERTology</label>
+        <label class="option"><input type="radio" name="q5" value="b" /> b) QLoRA (Quantized LoRA)</label>
+        <label class="option"><input type="radio" name="q5" value="c" /> c) TF-IDF vectorization</label>
+        <label class="option"><input type="radio" name="q5" value="d" /> d) Zero-shot retrieval</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="a">
+        <div class="question-text">6. Pour un modèle de 7 milliards de paramètres (7B), quel est le pourcentage typique de paramètres entraînés lors d'un fine-tuning LoRA standard ?</div>
+        <label class="option"><input type="radio" name="q6" value="a" /> a) Environ 0.1% à 1%</label>
+        <label class="option"><input type="radio" name="q6" value="b" /> b) Exactement 10%</label>
+        <label class="option"><input type="radio" name="q6" value="c" /> c) Environ 50%</label>
+        <label class="option"><input type="radio" name="q6" value="d" /> d) 100%</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">7. Quel type d'optimiseur est formellement recommandé dans l'article original QLoRA pour stabiliser l'entraînement en 4-bit ?</div>
+        <label class="option"><input type="radio" name="q7" value="a" /> a) SGD classique</label>
+        <label class="option"><input type="radio" name="q7" value="b" /> b) AdamW 8-bit ou Paged AdamW</label>
+        <label class="option"><input type="radio" name="q7" value="c" /> c) RMSProp</label>
+        <label class="option"><input type="radio" name="q7" value="d" /> d) Adagrad</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">8. Quelle est la valeur standard du "Learning Rate" souvent utilisée pour le fine-tuning QLoRA ?</div>
+        <label class="option"><input type="radio" name="q8" value="a" /> a) 1.0</label>
+        <label class="option"><input type="radio" name="q8" value="b" /> b) 2e-4 (0.0002)</label>
+        <label class="option"><input type="radio" name="q8" value="c" /> c) 1e-1</label>
+        <label class="option"><input type="radio" name="q8" value="d" /> d) 1e-12</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="a">
+        <div class="question-text">9. En "Instruction Tuning", combien d'époques (epochs) sont généralement recommandées pour éviter l'oubli catastrophique sur un petit dataset de haute qualité ?</div>
+        <label class="option"><input type="radio" name="q9" value="a" /> a) 1 à 3 époques</label>
+        <label class="option"><input type="radio" name="q9" value="b" /> b) 50 à 100 époques</label>
+        <label class="option"><input type="radio" name="q9" value="c" /> c) 1000 époques</label>
+        <label class="option"><input type="radio" name="q9" value="d" /> d) Le nombre d'époques n'a aucune importance</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">10. Dans la configuration LoRA, à quoi sert le paramètre <code>lora_dropout</code> ?</div>
+        <label class="option"><input type="radio" name="q10" value="a" /> a) À éteindre le GPU à la fin du calcul.</label>
+        <label class="option"><input type="radio" name="q10" value="b" /> b) À prévenir le sur-apprentissage (overfitting) en désactivant aléatoirement certains neurones de l'adaptateur pendant l'entraînement.</label>
+        <label class="option"><input type="radio" name="q10" value="c" /> c) À réduire la taille du dictionnaire.</label>
+        <label class="option"><input type="radio" name="q10" value="d" /> d) À augmenter la température de génération.</label>
+        <div class="feedback"></div>
+    </div>
+
+    <button type="button" id="submit-all" onclick="submitQuiz()">Valider mes réponses</button>
+</form>
+
+<div class="score-box" id="score-box">
+    <h2 id="score-text"></h2>
+    <p id="score-msg"></p>
+    <button class="btn-reset" onclick="resetQuiz()">🔄 Recommencer</button>
+</div>
+
+<script>
+    const explanations = {
+        q1: "Le PEFT gèle le modèle de base et n'entraîne que de petites matrices additionnelles, ce qui permet de travailler sur des GPU grand public en économisant massivement la VRAM.",
+        q2: "Le 'r' (Rank) est la largeur des deux petites matrices de décomposition. Un 'r' plus élevé augmente la capacité d'adaptation mais consomme plus de calcul.",
+        q3: "NF4 est un format de données sur 4-bit optimisé mathématiquement pour épouser la courbe de distribution normale des poids neuronaux.",
+        q4: "Les optimiseurs paginés (Paged Optimizers) transfèrent temporairement les états de l'optimiseur dans la RAM classique du système quand la VRAM du GPU déborde, prévenant ainsi les crashs.",
+        q5: "QLoRA combine la quantification extrême (4-bit via BitsAndBytes) avec l'apprentissage sur matrices de bas rang (LoRA) pour démocratiser l'accès au fine-tuning.",
+        q6: "La magie de LoRA réside dans sa discrétion : souvent entre 0.1% et 0.5% des paramètres (quelques dizaines de millions) suffisent à reprogrammer un modèle de 7 milliards de poids.",
+        q7: "Paged AdamW 32-bit ou AdamW 8-bit sont spécialement conçus pour préserver la dynamique des gradients tout en exploitant les poids quantifiés.",
+        q8: "Puisque l'on entraîne qu'une minuscule partie du réseau, on utilise un learning rate plus agressif (comme 2e-4) comparativement à un Full Fine-Tuning.",
+        q9: "Au-delà de 2 à 3 époques sur de petits datasets, le modèle risque le sur-apprentissage sévère et l''oubli catastrophique' de ses compétences générales.",
+        q10: "Le dropout est une technique de régularisation : éteindre aléatoirement des neurones force le réseau à construire des chemins redondants, ce qui l'empêche d'apprendre par cœur."
+    };
+
+    function submitQuiz() {
+        const questions = document.querySelectorAll('.question');
+        let score = 0;
+        let answered = 0;
+
+        questions.forEach((q, i) => {
+            const name = `q${i + 1}`;
+            const correct = q.dataset.correct;
+            const selected = q.querySelector(`input[name="${name}"]:checked`);
+            const feedback = q.querySelector('.feedback');
+
+            if (selected) {
+                answered++;
+                feedback.style.display = 'block';
+                if (selected.value === correct) {
+                    score++;
+                    feedback.className = 'feedback correct';
+                    feedback.textContent = '✅ Correct ! ' + explanations[name];
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = `❌ Incorrect. La bonne réponse est (${correct.toUpperCase()}). ` + explanations[name];
+                }
+            }
+        });
+
+        if (answered < questions.length) {
+            alert('Veuillez répondre à toutes les questions avant de valider.');
+            return;
+        }
+
+        const scoreBox = document.getElementById('score-box');
+        scoreBox.style.display = 'block';
+        document.getElementById('score-text').textContent = `${score} / ${questions.length}`;
+        const pct = Math.round((score / questions.length) * 100);
+        let msg = '';
+        if (pct >= 90) msg = '🌟 Excellent ! Vous êtes fin prêt à lancer votre propre pipeline QLoRA sur GPU !';
+        else if (pct >= 70) msg = '👍 Très bien ! Révisez un peu le concept du Rank et des Paged Optimizers, et ce sera parfait.';
+        else if (pct >= 50) msg = '📚 Pas mal ! Il serait bon de relire la distinction entre les poids quantifiés et les poids entraînables.';
+        else msg = '🔄 Prenez le temps de relire la théorie de la quantification et de LoRA avant de passer au laboratoire.';
+        
+        document.getElementById('score-msg').textContent = msg;
+        scoreBox.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetQuiz() {
+        document.getElementById('quiz-form').reset();
+        document.querySelectorAll('.feedback').forEach(f => { f.style.display = 'none'; f.textContent = ''; });
+        document.getElementById('score-box').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>

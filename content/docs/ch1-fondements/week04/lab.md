@@ -158,7 +158,3 @@ print(f"Score de similarité : {similarities[0][best_index]:.4f}")
 **Mots-clés de la semaine** : BERT, Encodeur, Bidirectionnel, MLM, Token [CLS], Fine-tuning, Représentation creuse vs dense, Score F1, Similarité Cosinus, Zero-shot.
 
 **En prévision de la semaine suivante** : Nous allons changer de paradigme. Finie la compréhension pure, place à la création ! Nous explorerons les modèles **Decoder-only** (famille GPT) et l'art de murmurer à l'oreille des IA : le ***Prompt Engineering***.
-
-**SOURCES COMPLÈTES** :
-*   Hugging Face Blog : *Sentence Transformers* (https://huggingface.co/blog/sentence-transformers).
-*   SBERT Documentation : https://www.sbert.net/

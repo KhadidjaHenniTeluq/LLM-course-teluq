@@ -132,7 +132,3 @@ print(f"IA : {answer}")
 **Mots-clés de la semaine** : Multimodal, CLIP, ViT, Patches, Q-Former, BLIP-2, Alignement, VQA, Image Captioning, Espace Vectoriel Commun.
 
 **En prévision de la semaine suivante** : Nous allons apprendre à adapter ces géants à vos besoins spécifiques. Comment ré-entraîner un modèle de 7 milliards de paramètres sur un simple PC ? Bienvenue dans le monde du **Fine-tuning supervisé** et de la méthode **LoRA**.
-
-**SOURCES COMPLÈTES** :
-*   Lilian Weng : [*Generalized Visual Language Models*](https://lilianweng.github.io/posts/2022-06-09-vlm/).
-*   OpenAI : [*CLIP Blog*](https://openai.com/index/clip/).

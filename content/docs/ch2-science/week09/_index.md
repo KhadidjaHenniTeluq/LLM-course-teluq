@@ -31,7 +31,7 @@ Pour maîtriser le RAG, vous devez avoir solidement acquis :
 
 ## 📚 Ressources utiles pour les concepts de la semaine
 
-### 🌐 Documentations et Articles de référence (Vérifiés)
+### 🌐 Documentations et Articles de référence
 *   **Hugging Face Blog** : [Retrieval Augmented Generation (RAG) Explained](https://huggingface.co/blog/ray-rag) – Un guide technique sur l'intégration de la récupération.
 *   **Lilian Weng (OpenAI)** : [LLM Powered Autonomous Agents](https://lilianweng.github.io/posts/2023-06-23-agent/) – (Voir la section "Memory" et "Tool Use" pour l'intuition du RAG).
 *   **Ragas Documentation** : [Ragas: Evaluation framework for RAG](https://docs.ragas.io/en/stable/) – La référence pour mesurer la "Faithfulness" de vos systèmes.
@@ -40,7 +40,7 @@ Pour maîtriser le RAG, vous devez avoir solidement acquis :
 *   **LangChain Documentation** : [Q&A with RAG](https://python.langchain.com/docs/use_cases/question_answering/) – Tutoriel pas à pas pour construire votre premier chatbot sur documents.
 *   **Cohere Blog** : [Reranking for Better RAG](https://txt.cohere.com/rerank/) – Pourquoi le top-K ne suffit pas toujours.
 
-### 📺 Vidéos recommandées (Vérifiées)
+### 📺 Vidéos recommandées
 *   🎥 **FreeCodeCamp** : [Learn RAG from Scratch](https://youtu.be/sVcwVQRHIc8?si=Nm7RlL6deLFAB8Kt).
 *   🎥 **DataBricks** : [Building Advanced RAG Over Complex Documents](https://www.youtube.com/watch?v=dI_TmTW9S4c).
 

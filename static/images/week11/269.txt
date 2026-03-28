@@ -1,0 +1,1 @@
+Figure 11-7. Decomposing a large weight matrix into two smaller matrices leads to a compressed, low-rank version of the matrix that can be fine-tuned more efficiently.

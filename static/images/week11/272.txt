@@ -1,0 +1,1 @@
+Figure 11-10. Quantizing weights that are close to one another results in the same reconstructed weights thereby removing any differentiating factor.

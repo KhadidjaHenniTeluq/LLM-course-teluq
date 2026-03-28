@@ -4,4 +4,4 @@ weight: 5
 bookCollapseSection : true
 ---
 
-### TO-DO: un résumé pour la semaine 04
+### TO-DO: un résumé pour la semaine 05

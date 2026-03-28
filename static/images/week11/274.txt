@@ -1,0 +1,1 @@
+Figure 11-11. Using distribution-aware blocks we can prevent values close to one another from being represented with the same quantized value.

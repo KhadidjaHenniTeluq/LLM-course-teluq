@@ -34,12 +34,12 @@ Pour cette semaine, vous devez avoir bien assimilé :
 
 ## 📚 Ressources utiles pour les concepts de la semaine
 
-### 🌐 Documentations et Guides de référence (Vérifiés)
+### 🌐 Documentations et Guides de référence
 *   **PromptingGuide.ai** : [The Prompt Engineering Guide](https://www.promptingguide.ai/fr) – La ressource la plus complète et multilingue sur le sujet .
 *   **Hugging Face Blog** : [LLM Prompting Guide](https://huggingface.co/docs/transformers/v4.49.0/tasks/prompting) – Un excellent point de départ technique .
 *   **Documentation OpenAI** : [Prompt Engineering Best Practices](https://platform.openai.com/docs/guides/prompt-engineering) – Des conseils applicables à tous les modèles, pas seulement GPT .
 
-### 📺 Vidéos recommandées (Vérifiées)
+### 📺 Vidéos recommandées
 *   🎥 **DeepLearning.AI (Andrew Ng)** : [ChatGPT Prompt Engineering for Developers](https://www.youtube.com/watch?v=H4YK_7MAckk) – Un cours fondamental sur la structuration des instructions .
 *   🎥 **Elvis Saravia** : [Advanced Prompting Techniques](https://www.youtube.com/watch?v=dOxUroR57xs) – Focus sur le raisonnement et les agents .
 

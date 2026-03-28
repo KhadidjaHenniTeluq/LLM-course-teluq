@@ -5,9 +5,10 @@ weight: 6
 
 Bonjour à toutes et à tous ! Nous y sommes : après avoir exploré la théorie des Transformers, il est temps d'ouvrir le capot et de regarder le moteur tourner.
 
-{{% hint info %}}
-🔑 **Je dois insister :** l'architecture que vous allez manipuler aujourd'hui est le socle de TOUT ce que nous ferons jusqu'à la fin du semestre. Ne vous laissez pas intimider par la structure du modèle : voyez-la comme une suite logique d'étapes de calcul. Respirez, nous allons visualiser l'attention et comprendre comment le KV cache nous fait gagner un temps précieux. C'est parti !
-{{% /hint %}}
+> [!IMPORTANT]
+🔑 **Je dois insister :** l'architecture que vous allez manipuler aujourd'hui est le socle de TOUT ce que nous ferons jusqu'à la fin du cours. 
+
+Ne vous laissez pas intimider par la structure du modèle : voyez-la comme une suite logique d'étapes de calcul. Respirez, nous allons visualiser l'attention et comprendre comment le KV cache nous fait gagner un temps précieux. C'est parti !
 
 ---
 
@@ -133,9 +134,9 @@ print(f"Temps AVEC cache : {end_cache:.4f}s")
 print(f"Facteur d'accélération : {end_no_cache/end_cache:.2f}x")
 ```
 
-{{% hint warning %}}
-⚠️ **Note du Professeur :** Sur de très longues séquences, l'écart devient massif !
-{{% /hint %}}
+> [!WARNING]
+⚠️ **Note :** Sur de très longues séquences, l'écart devient massif !
+
 
 </details>
 

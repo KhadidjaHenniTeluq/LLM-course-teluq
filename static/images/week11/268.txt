@@ -1,0 +1,1 @@
+Figure 11-6. A major bottleneck of LLMs is their massive weight matrices. Only one of these may have 150 million parameters and each Transformer block would have its version of these.

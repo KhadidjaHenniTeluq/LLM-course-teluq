@@ -154,7 +154,3 @@ print(f"Score MRR du système : {mrr_score:.4f}")
 **Mots-clés de la semaine** : Sentence Embeddings, SBERT, Similarité Cosinus, FAISS, Chunking, Overlap, KNN, Retrieval, MRR, Hit Rate.
 
 **En prévision de la semaine suivante** : Nous allons apprendre à découvrir la structure cachée de vos documents. Comment regrouper automatiquement des milliers de textes par thématiques sans intervention humaine ? Bienvenue dans le monde du **Clustering** et de **BERTopic**.
-
-**SOURCES COMPLÈTES** :
-*   Hugging Face : *Semantic Search Guide* (https://huggingface.co/blog/semantic-search).
-*   Pinecone : *Vector Similarity* (https://www.pinecone.io/learn/vector-similarity/).

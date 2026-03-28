@@ -1,0 +1,1 @@
+Figure 11-8. Compared to full fine-tuning, LoRA aims to update a small representation of the original weights during training.

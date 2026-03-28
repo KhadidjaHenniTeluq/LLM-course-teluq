@@ -25,13 +25,13 @@ Pour cette immersion, vous devez avoir révisé :
 1.  **L'Attention Spatiale** : Comprendre que la self-attention (Semaine 3) peut s'appliquer aux pixels comme aux mots.
 2.  **L'Espace Vectoriel Commun** : L'idée que le vecteur du mot "Chien" et le vecteur d'une photo de chien doivent être proches mathématiquement.
 
-**Ressources pour réviser les pré-requis (Vérifiées et fonctionnelles) :**
+**Ressources pour réviser les pré-requis :**
 *   🎥 **Computerphile** : [Vision Transformer (ViT) - How it works](https://www.youtube.com/watch?v=Hnsrm1ezI3g) (Excellente introduction au *Vision Transformer*).
 *   💻 **Hugging Face Documentation** : [Concepts de Computer Vision](https://huggingface.co/docs/transformers/tasks/image_classification) (Pour comprendre le prétraitement des images).
 
 ---
 
-## 📚 Ressources utiles pour les concepts de la semaine (Vérifiées le 22/05/2024)
+## 📚 Ressources utiles pour les concepts de la semaine
 
 ### 🌐 Articles et Blogs de référence
 *   **Lilian Weng (OpenAI)** : [Generalized Visual Language Models](https://lilianweng.github.io/posts/2022-06-09-vlm/) – Un blog technique détaillé et précis sur les modèles de langage visuels.

@@ -129,8 +129,3 @@ print(nucleus_out[0]['generated_text'][-1]['content'])
 **Mots-clés de la semaine** : GPT, Decoder-only, Autorégressif, Instruction Tuning, RLHF, Température, Top-P (Nucleus), Hallucination, EOS Token, Base vs Chat model.
 
 **En prévision de la semaine suivante** : Nous allons apprendre à donner une "mémoire externe" à nos modèles grâce à la recherche sémantique et aux bases de données vectorielles. Préparez-vous pour la révolution du **RAG** !
-
-**SOURCES COMPLÈTES** :
-*   Hugging Face Blog : *Prompt Engineering* (https://huggingface.co/blog/prompt-engineering).
-*   Prompting Guide : https://www.promptingguide.ai/
-*   GitHub Officiel : chapter06 repository.

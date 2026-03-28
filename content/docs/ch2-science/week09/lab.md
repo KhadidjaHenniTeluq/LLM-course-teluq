@@ -142,7 +142,3 @@ for score, doc in results:
 **Mots-clés de la semaine** : RAG, Retrieval, Grounding, Indexation, Vector DB, FAISS, Cross-Encoder, Reranking, Faithfulness, LangChain.
 
 **En prévision de la semaine suivante** : Nous allons sortir du monde du texte pur. Comment une IA peut-elle "voir" une image et en discuter avec vous ? Bienvenue dans le monde fascinant des **LLM Multimodaux**.
-
-**SOURCES COMPLÈTES** :
-*   [Framework Ragas](https://docs.ragas.io/)
-*   [LangChain RAG Guide](https://python.langchain.com/docs/use_cases/question_answering/)

@@ -133,7 +133,3 @@ print(topic_model.get_topic(0)[:5])
 **Mots-clés de la semaine** : Clustering, UMAP, HDBSCAN, BERTopic, c-TF-IDF, Outliers, MMR, KeyBERTInspired, Visualisation hiérarchique, Représentation sémantique.
 
 **En prévision de la semaine suivante** : Nous allons apprendre à maîtriser l'interface entre l'humain et la machine : l'art du **Prompt Engineering**. Comment formuler vos demandes pour obtenir le meilleur des LLM ?
-
-**SOURCES COMPLÈTES** :
-*   BERTopic Documentation : https://maartengr.github.io/BERTopic/
-*   SBERT Clustering Guide : https://www.sbert.net/examples/applications/clustering/README.html
