@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Semaine 13 — Déploiement, optimisation et éthique</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; padding: 1.5rem; line-height: 1.6; }
+        h1 { font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; }
+        .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
+        .question { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; transition: box-shadow 0.2s; }
+        .question:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .question-text { font-weight: 600; margin-bottom: 0.85rem; font-size: 0.98rem; }
+        .option { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.35rem; cursor: pointer; transition: background 0.15s; font-size: 0.93rem; }
+        .option:hover { background: #f1f5f9; }
+        .option input[type="radio"] { margin-top: 0.2rem; accent-color: #6366f1; flex-shrink: 0; }
+        .feedback { margin-top: 0.85rem; padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.9rem; display: none; }
+        .feedback.correct { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .feedback.incorrect { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .score-box { background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 10px; padding: 1.5rem; text-align: center; display: none; margin-top: 1rem; }
+        .score-box h2 { font-size: 1.6rem; color: #4c1d95; margin-bottom: 0.25rem; }
+        .score-box p { color: #6d28d9; font-size: 0.95rem; }
+        .btn-reset { margin-top: 1rem; padding: 0.5rem 1.4rem; background: #7c3aed; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .btn-reset:hover { background: #6d28d9; }
+        #submit-all { display: block; width: 100%; padding: 0.75rem; background: #0f172a; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 1.5rem; transition: background 0.2s; }
+        #submit-all:hover { background: #1e3a5f; }
+    </style>
+</head>
+<body>
+
+<h1>&#x1F9EA; Quiz &#8212; Semaine 13</h1>
+<p class="subtitle">Déploiement, optimisation et éthique &middot; 10 questions</p>
+
+<form id="quiz-form">
+
+    <div class="question" data-correct="b">
+        <div class="question-text">1. Quel mécanisme matériel permet d'éviter de recalculer les représentations des jetons passés à chaque nouvelle étape de génération ?</div>
+        <label class="option"><input type="radio" name="q1" value="a" /> a) La descente de gradient</label>
+        <label class="option"><input type="radio" name="q1" value="b" /> b) Le KV Cache (Key-Value Cache)</label>
+        <label class="option"><input type="radio" name="q1" value="c" /> c) La Tokenisation BPE</label>
+        <label class="option"><input type="radio" name="q1" value="d" /> d) Le Dropout</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">2. Combien de bits par paramètre occupe généralement un modèle quantifié pour une inférence équilibrée entre vitesse et précision sur un GPU T4 ?</div>
+        <label class="option"><input type="radio" name="q2" value="a" /> a) 1 bit</label>
+        <label class="option"><input type="radio" name="q2" value="b" /> b) 4 bits ou 8 bits</label>
+        <label class="option"><input type="radio" name="q2" value="c" /> c) 32 bits</label>
+        <label class="option"><input type="radio" name="q2" value="d" /> d) 64 bits</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">3. Comment appelle-t-on l'attaque consistant à insérer des instructions cachées pour forcer le LLM à ignorer ses règles de sécurité ?</div>
+        <label class="option"><input type="radio" name="q3" value="a" /> a) Le Phishing</label>
+        <label class="option"><input type="radio" name="q3" value="b" /> b) L'injection de prompt (Prompt Injection)</label>
+        <label class="option"><input type="radio" name="q3" value="c" /> c) Le Cross-site scripting</label>
+        <label class="option"><input type="radio" name="q3" value="d" /> d) Le déni de service (DDoS)</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">4. Quel framework spécialisé permet de valider les sorties du modèle par rapport à un schéma strict avant qu'elles n'atteignent l'utilisateur ?</div>
+        <label class="option"><input type="radio" name="q4" value="a" /> a) PyTorch</label>
+        <label class="option"><input type="radio" name="q4" value="b" /> b) Guardrails AI (ou Guidance)</label>
+        <label class="option"><input type="radio" name="q4" value="c" /> c) Matplotlib</label>
+        <label class="option"><input type="radio" name="q4" value="d" /> d) Pandas</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="c">
+        <div class="question-text">5. Dans l'AI Act européen, dans quelle catégorie de risque tombe généralement un LLM utilisé pour le diagnostic médical ?</div>
+        <label class="option"><input type="radio" name="q5" value="a" /> a) Risque minimal</label>
+        <label class="option"><input type="radio" name="q5" value="b" /> b) Risque limité</label>
+        <label class="option"><input type="radio" name="q5" value="c" /> c) Haut Risque (High Risk)</label>
+        <label class="option"><input type="radio" name="q5" value="d" /> d) Risque inacceptable</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="c">
+        <div class="question-text">6. Quel paramètre d'inférence définit la "mémoire à court terme" (le nombre maximum de jetons) que le modèle peut traiter simultanément ?</div>
+        <label class="option"><input type="radio" name="q6" value="a" /> a) Temperature</label>
+        <label class="option"><input type="radio" name="q6" value="b" /> b) Top-P</label>
+        <label class="option"><input type="radio" name="q6" value="c" /> c) n_ctx (Context Size)</label>
+        <label class="option"><input type="radio" name="q6" value="d" /> d) Learning Rate</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">7. Le "Red Teaming" est une pratique qui consiste à :</div>
+        <label class="option"><input type="radio" name="q7" value="a" /> a) Peindre les serveurs en rouge pour mieux les identifier.</label>
+        <label class="option"><input type="radio" name="q7" value="b" /> b) Simuler des attaques adverses pour tester la résistance et les biais du modèle avant sa mise en ligne.</label>
+        <label class="option"><input type="radio" name="q7" value="c" /> c) Augmenter la puissance du GPU.</label>
+        <label class="option"><input type="radio" name="q7" value="d" /> d) Compter le nombre de mots par phrase.</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">8. Pourquoi le format GGUF est-il privilégié pour le déploiement sur des machines avec peu de VRAM ?</div>
+        <label class="option"><input type="radio" name="q8" value="a" /> a) Il est plus joli.</label>
+        <label class="option"><input type="radio" name="q8" value="b" /> b) Il permet au modèle de déborder intelligemment de la mémoire GPU vers la RAM système.</label>
+        <label class="option"><input type="radio" name="q8" value="c" /> c) Il supprime le besoin d'embeddings.</label>
+        <label class="option"><input type="radio" name="q8" value="d" /> d) Il ne fonctionne que sur Linux.</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">9. Quelle métrique de monitoring mesure précisément le temps d'attente de l'utilisateur avant l'apparition du premier caractère ?</div>
+        <label class="option"><input type="radio" name="q9" value="a" /> a) Throughput (Débit)</label>
+        <label class="option"><input type="radio" name="q9" value="b" /> b) TTFT (Time To First Token)</label>
+        <label class="option"><input type="radio" name="q9" value="c" /> c) Perplexity</label>
+        <label class="option"><input type="radio" name="q9" value="d" /> d) F1-Score</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">10. Quel document est devenu le standard industriel pour documenter les limites, les données et les biais d'un modèle déployé ?</div>
+        <label class="option"><input type="radio" name="q10" value="a" /> a) Une facture</label>
+        <label class="option"><input type="radio" name="q10" value="b" /> b) Une Model Card</label>
+        <label class="option"><input type="radio" name="q10" value="c" /> c) Un manuel d'utilisation Python</label>
+        <label class="option"><input type="radio" name="q10" value="d" /> d) Un contrat de travail</label>
+        <div class="feedback"></div>
+    </div>
+
+    <button type="button" id="submit-all" onclick="submitQuiz()">Valider mes réponses</button>
+</form>
+
+<div class="score-box" id="score-box">
+    <h2 id="score-text"></h2>
+    <p id="score-msg"></p>
+    <button class="btn-reset" onclick="resetQuiz()">🔄 Recommencer</button>
+</div>
+
+<script>
+    const explanations = {
+        q1: "Le cache KV stocke les calculs d'attention des jetons précédents pour rendre la génération linéaire au lieu de quadratique, réduisant considérablement la latence.",
+        q2: "Les formats 4-bit (NF4/AWQ) et 8-bit (GGUF) sont les standards pour l'inférence optimisée, permettant des économies importantes de mémoire (VRAM).",
+        q3: "L'injection de prompt détourne la logique du modèle en mélangeant données textuelles et instructions malicieuses.",
+        q4: "Ces outils (comme Guardrails AI) agissent comme des pare-feu sémantiques vérifiant la structure de la réponse (JSON, numéros, toxicité) avant qu'elle ne soit renvoyée.",
+        q5: "Les applications touchant à la santé ou à l'intégrité physique sont soumises à des audits stricts et tombent sous le coup du 'Haut risque'.",
+        q6: "La taille du contexte (n_ctx) limite la quantité d'informations, incluant l'historique et les documents fournis, que l'IA peut observer en une seule requête.",
+        q7: "Le Red Teaming est une phase d'audit de sécurité offensive indispensable où des experts essaient littéralement de casser le modèle par des jailbreaks ou injections.",
+        q8: "GGUF offre une flexibilité totale entre CPU et GPU (via n_gpu_layers), et gère le fait que les couches du modèle ne tiennent pas toutes sur la carte graphique.",
+        q9: "Le TTFT est la métrique critique pour la perception de réactivité d'un chatbot, marquant le délai avant le début de la génération de texte.",
+        q10: "La Model Card garantit la transparence et l'auditabilité du système, ce qui sert d'outil précieux pour la conformité réglementaire (ex: AI Act)."
+    };
+
+    function submitQuiz() {
+        const questions = document.querySelectorAll('.question');
+        let score = 0;
+        let answered = 0;
+
+        questions.forEach((q, i) => {
+            const name = `q${i + 1}`;
+            const correct = q.dataset.correct;
+            const selected = q.querySelector(`input[name="${name}"]:checked`);
+            const feedback = q.querySelector('.feedback');
+
+            if (selected) {
+                answered++;
+                feedback.style.display = 'block';
+                if (selected.value === correct) {
+                    score++;
+                    feedback.className = 'feedback correct';
+                    feedback.textContent = '✅ Correct ! ' + explanations[name];
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = `❌ Incorrect. La bonne réponse est (${correct.toUpperCase()}). ` + explanations[name];
+                }
+            }
+        });
+
+        if (answered < questions.length) {
+            alert('Veuillez répondre à toutes les questions avant de valider.');
+            return;
+        }
+
+        const scoreBox = document.getElementById('score-box');
+        scoreBox.style.display = 'block';
+        document.getElementById('score-text').textContent = `${score} / ${questions.length}`;
+        const pct = Math.round((score / questions.length) * 100);
+        let msg = '';
+        if (pct >= 90) msg = '🌟 Parfait ! Vous êtes paré(e) pour le déploiement en production !';
+        else if (pct >= 70) msg = '👍 Très bien ! Bonnes connaissances sur l\'optimisation et la sécurité.';
+        else if (pct >= 50) msg = '📚 Correct ! Quelques révisions sur le RAG et les failles de sémantique pourraient aider.';
+        else msg = '🔄 Prenez le temps de relire les sections sur la quantification, la sécurité et le Red Teaming.';
+        
+        document.getElementById('score-msg').textContent = msg;
+        scoreBox.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetQuiz() {
+        document.getElementById('quiz-form').reset();
+        document.querySelectorAll('.feedback').forEach(f => { f.style.display = 'none'; f.textContent = ''; });
+        document.getElementById('score-box').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>
