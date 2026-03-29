@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Semaine 14 — Synthèse et frontières de la recherche</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; padding: 1.5rem; line-height: 1.6; }
+        h1 { font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; }
+        .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
+        .question { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; transition: box-shadow 0.2s; }
+        .question:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .question-text { font-weight: 600; margin-bottom: 0.85rem; font-size: 0.98rem; }
+        .option { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.35rem; cursor: pointer; transition: background 0.15s; font-size: 0.93rem; }
+        .option:hover { background: #f1f5f9; }
+        .option input[type="radio"] { margin-top: 0.2rem; accent-color: #6366f1; flex-shrink: 0; }
+        .feedback { margin-top: 0.85rem; padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.9rem; display: none; }
+        .feedback.correct { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .feedback.incorrect { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .score-box { background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 10px; padding: 1.5rem; text-align: center; display: none; margin-top: 1rem; }
+        .score-box h2 { font-size: 1.6rem; color: #4c1d95; margin-bottom: 0.25rem; }
+        .score-box p { color: #6d28d9; font-size: 0.95rem; }
+        .btn-reset { margin-top: 1rem; padding: 0.5rem 1.4rem; background: #7c3aed; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .btn-reset:hover { background: #6d28d9; }
+        #submit-all { display: block; width: 100%; padding: 0.75rem; background: #0f172a; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 1.5rem; transition: background 0.2s; }
+        #submit-all:hover { background: #1e3a5f; }
+    </style>
+</head>
+<body>
+
+<h1>&#x1F9EA; Quiz &#8212; Semaine 14</h1>
+<p class="subtitle">Synthèse &amp; frontières de la recherche &middot; 10 questions</p>
+
+<form id="quiz-form">
+
+    <div class="question" data-correct="b">
+        <div class="question-text">1. Quel concept fondamental permet de transformer des jetons de texte en positions sémantiques dans un espace vectoriel ?</div>
+        <label class="option"><input type="radio" name="q1" value="a" /> a) Le Forward Pass</label>
+        <label class="option"><input type="radio" name="q1" value="b" /> b) Le Plongement lexical (Embedding)</label>
+        <label class="option"><input type="radio" name="q1" value="c" /> c) La Normalisation RMSNorm</label>
+        <label class="option"><input type="radio" name="q1" value="d" /> d) Le Découpage BPE</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">2. Quelle contrainte mathématique du Transformer original pousse la recherche vers de nouvelles architectures comme Mamba ?</div>
+        <label class="option"><input type="radio" name="q2" value="a" /> a) Sa faible précision en calcul arithmétique.</label>
+        <label class="option"><input type="radio" name="q2" value="b" /> b) Sa complexité quadratique O(L&sup2;) par rapport à la longueur du texte, faisant exploser la mémoire GPU.</label>
+        <label class="option"><input type="radio" name="q2" value="c" /> c) Son incapacité à traiter du texte multilingue.</label>
+        <label class="option"><input type="radio" name="q2" value="d" /> d) L'absence de couches Feedforward dans son architecture.</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">3. Quelle technique combine la recherche dans une base de documents et la génération de texte pour ancrer le modèle dans des preuves vérifiables ?</div>
+        <label class="option"><input type="radio" name="q3" value="a" /> a) Le Few-shot prompting</label>
+        <label class="option"><input type="radio" name="q3" value="b" /> b) Le RAG (Retrieval-Augmented Generation)</label>
+        <label class="option"><input type="radio" name="q3" value="c" /> c) La Quantification QLoRA</label>
+        <label class="option"><input type="radio" name="q3" value="d" /> d) La Self-Attention bidirectionnelle</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">4. Dans la méthode LoRA, quel paramètre contrôle la "capacité de mémorisation" de l'adaptateur (sa richesse d'expression) ?</div>
+        <label class="option"><input type="radio" name="q4" value="a" /> a) La Température</label>
+        <label class="option"><input type="radio" name="q4" value="b" /> b) Le Rang (<i>Rank</i> ou <i>r</i>)</label>
+        <label class="option"><input type="radio" name="q4" value="c" /> c) Le Top-P</label>
+        <label class="option"><input type="radio" name="q4" value="d" /> d) Le coefficient Alpha</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">5. Pourquoi la méthode DPO est-elle jugée plus stable que le RLHF (PPO) pour l'alignement ?</div>
+        <label class="option"><input type="radio" name="q5" value="a" /> a) Parce qu'elle utilise davantage de paramètres.</label>
+        <label class="option"><input type="radio" name="q5" value="b" /> b) Parce qu'elle remplace l'apprentissage par renforcement complexe par une classification directe sur les probabilités du modèle, sans Reward Model séparé.</label>
+        <label class="option"><input type="radio" name="q5" value="c" /> c) Parce qu'elle ne nécessite aucun modèle de référence (SFT).</label>
+        <label class="option"><input type="radio" name="q5" value="d" /> d) Parce qu'elle fonctionne uniquement sur les modèles GPT-4.</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">6. Quel composant du Transformer est spécifiquement utilisé pour éviter de recalculer les représentations des jetons passés lors de la génération ?</div>
+        <label class="option"><input type="radio" name="q6" value="a" /> a) Le Q-Former</label>
+        <label class="option"><input type="radio" name="q6" value="b" /> b) Le KV Cache (Key-Value Cache)</label>
+        <label class="option"><input type="radio" name="q6" value="c" /> c) Le Tokeniseur WordPiece</label>
+        <label class="option"><input type="radio" name="q6" value="d" /> d) La couche de Projection Linéaire</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">7. Quelle architecture alternative aux Transformers propose une complexité linéaire O(L) grâce à un "état interne" de taille fixe ?</div>
+        <label class="option"><input type="radio" name="q7" value="a" /> a) RNN classique (LSTM/GRU)</label>
+        <label class="option"><input type="radio" name="q7" value="b" /> b) Mamba (State Space Models sélectifs)</label>
+        <label class="option"><input type="radio" name="q7" value="c" /> c) BERT-base</label>
+        <label class="option"><input type="radio" name="q7" value="d" /> d) DistilGPT-2</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">8. Quel framework de prompt engineering permet à un LLM d'utiliser des outils externes (calculatrice, web) via une boucle "Pensée &#8594; Action &#8594; Observation" ?</div>
+        <label class="option"><input type="radio" name="q8" value="a" /> a) Bag-of-Words</label>
+        <label class="option"><input type="radio" name="q8" value="b" /> b) ReAct (Reasoning and Acting)</label>
+        <label class="option"><input type="radio" name="q8" value="c" /> c) Fine-tuning supervisé (SFT)</label>
+        <label class="option"><input type="radio" name="q8" value="d" /> d) Tokenisation par octets</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="b">
+        <div class="question-text">9. Lors du déploiement d'un agent autonome ayant accès à des outils (mail, API de paiement), quelle précaution éthique est impérative ?</div>
+        <label class="option"><input type="radio" name="q9" value="a" /> a) Choisir un fond d'écran adapté pour l'interface.</label>
+        <label class="option"><input type="radio" name="q9" value="b" /> b) Maintenir un contrôle humain (<i>Human-in-the-loop</i>) pour valider les actions irréversibles.</label>
+        <label class="option"><input type="radio" name="q9" value="c" /> c) Augmenter le nombre de têtes d'attention du modèle.</label>
+        <label class="option"><input type="radio" name="q9" value="d" /> d) Utiliser une connexion Internet fibre optique.</label>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-correct="a">
+        <div class="question-text">10. Quel défi majeur de la recherche actuelle vise à faire en sorte que l'IA "réfléchisse" plus longtemps avant de répondre pour améliorer sa justesse logique ?</div>
+        <label class="option"><input type="radio" name="q10" value="a" /> a) Le Scaling de l'inférence (<i>Inference-time reasoning / Système 2</i>)</label>
+        <label class="option"><input type="radio" name="q10" value="b" /> b) La réduction de la fenêtre de contexte</label>
+        <label class="option"><input type="radio" name="q10" value="c" /> c) La suppression du fine-tuning</label>
+        <label class="option"><input type="radio" name="q10" value="d" /> d) L'augmentation du taux de Dropout</label>
+        <div class="feedback"></div>
+    </div>
+
+    <button type="button" id="submit-all" onclick="submitQuiz()">Valider mes réponses</button>
+</form>
+
+<div class="score-box" id="score-box">
+    <h2 id="score-text"></h2>
+    <p id="score-msg"></p>
+    <button class="btn-reset" onclick="resetQuiz()">🔄 Recommencer</button>
+</div>
+
+<script>
+    const explanations = {
+        q1: "Les embeddings sont la brique fondatrice de tous les LLM : ils traduisent les mots en vecteurs numériques où la distance géométrique égale la différence de sens.",
+        q2: "Dans le mécanisme d'attention, chaque token calcule sa relation avec TOUS les autres. Doubler la séquence quadruple la mémoire nécessaire, rendant les très longs textes impossibles à traiter.",
+        q3: "Le RAG est le remède principal contre les hallucinations : il force le modèle à s'appuyer sur des documents récupérés plutôt que sur ses seuls poids statistiques.",
+        q4: "Le rang 'r' de LoRA définit la dimensionnalité des matrices d'adaptation. Un rang plus élevé capture des nuances plus fines mais augmente le nombre de paramètres entraînables.",
+        q5: "DPO supprime le besoin de former et de stabiliser un Reward Model séparé, en reformulant l'alignement comme une classification binaire directement sur le modèle de langue.",
+        q6: "Le KV Cache stocke les vecteurs Keys et Values des tokens déjà calculés. À chaque nouveau token généré, il suffit de lire le cache plutôt que de tout recalculer depuis le début.",
+        q7: "Mamba (Selective State Space Model) compresse l'historique de la séquence dans un vecteur d'état de taille fixe, offrant une complexité O(L) contre O(L²) pour l'Attention classique.",
+        q8: "ReAct est un format de prompt structuré (Thought / Action / Observation) qui guide le LLM dans un cycle itératif de raisonnement et d'utilisation d'outils externos.",
+        q9: "Un agent autonome peut commettre des erreurs de logique irréversibles (envoyer un email, déclencher un paiement). Le contrôle humain est le bouclier légal et éthique indispensable.",
+        q10: "L'Inference-time scaling (ou Système 2) consiste à allouer plus de calcul au moment de la réponse — via la génération de brouillons, l'auto-correction ou des Process Reward Models — pour améliorer la fiabilité logique."
+    };
+
+    function submitQuiz() {
+        const questions = document.querySelectorAll('.question');
+        let score = 0;
+        let answered = 0;
+
+        questions.forEach((q, i) => {
+            const name = `q${i + 1}`;
+            const correct = q.dataset.correct;
+            const selected = q.querySelector(`input[name="${name}"]:checked`);
+            const feedback = q.querySelector('.feedback');
+
+            if (selected) {
+                answered++;
+                feedback.style.display = 'block';
+                if (selected.value === correct) {
+                    score++;
+                    feedback.className = 'feedback correct';
+                    feedback.textContent = '✅ Correct ! ' + explanations[name];
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = `❌ Incorrect. La bonne réponse est (${correct.toUpperCase()}). ` + explanations[name];
+                }
+            }
+        });
+
+        if (answered < questions.length) {
+            alert('Veuillez répondre à toutes les questions avant de valider.');
+            return;
+        }
+
+        const scoreBox = document.getElementById('score-box');
+        scoreBox.style.display = 'block';
+        document.getElementById('score-text').textContent = `${score} / ${questions.length}`;
+        const pct = Math.round((score / questions.length) * 100);
+        let msg = '';
+        if (pct >= 90) msg = '🌟 Félicitations ! Vous maîtrisez l\'ensemble du cursus, des fondements aux frontières de la recherche !';
+        else if (pct >= 70) msg = '👍 Très bien ! Votre vision d\'ensemble est solide. Quelques points sur Mamba ou ReAct à consolider.';
+        else if (pct >= 50) msg = '📚 Correct ! Relisez les sections sur les architectures SSM et le cycle de vie du déploiement pour affiner votre synthèse.';
+        else msg = '🔄 Ce quiz couvre 14 semaines de cours. Prenez le temps de relire la Carte Mémoire de l\'Expert (Tableau 14-1) et les connexions entre les piliers.';
+
+        document.getElementById('score-msg').textContent = msg;
+        scoreBox.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetQuiz() {
+        document.getElementById('quiz-form').reset();
+        document.querySelectorAll('.feedback').forEach(f => { f.style.display = 'none'; f.textContent = ''; });
+        document.getElementById('score-box').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>
