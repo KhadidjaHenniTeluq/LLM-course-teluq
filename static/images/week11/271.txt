@@ -1,1 +1,1 @@
-Figure 11-9. Attempting to represent pi with float 32-bit and float 16-bit representations. Notice the lowered accuracy when we halve the number of bits.
+Figure 11-13. Blockwise quantization can accurately represent weights in lower precision through quantization blocks.

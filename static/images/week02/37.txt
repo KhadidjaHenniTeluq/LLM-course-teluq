@@ -1,0 +1,1 @@
+Figure 2-1. Language models deal with text in small chunks called tokens. For the lan‐ guage model to compute language, it needs to turn tokens into numeric representations called embeddings.

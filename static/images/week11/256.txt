@@ -1,0 +1,1 @@
+Figure 11-2. During supervised fine-tuning, the LLM aims to predict the next token based on an input that has additional labels. In a sense, the label is the user’s input.

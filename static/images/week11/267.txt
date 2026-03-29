@@ -1,1 +1,1 @@
-Figure 11-5. LoRA requires only fine-tuning a small set of parameters that can be kept separately from the base LLM.
+Figure 11-7. Decomposing a large weight matrix into two smaller matrices leads to a compressed, low-rank version of the matrix that can be fine-tuned more efficiently.

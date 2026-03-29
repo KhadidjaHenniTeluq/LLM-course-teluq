@@ -1,1 +1,1 @@
-Figure 11-12. Blockwise quantization can accurately represent weights in lower precision through quantization blocks.
+Figure 11-14. The chat template that we use throughout this chapter.

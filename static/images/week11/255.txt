@@ -1,0 +1,1 @@
+Figure 11-1. During language modeling, the LLM aims to predict the next token based on an input. This is a process without labels.

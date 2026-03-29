@@ -87,17 +87,26 @@ Dans l'approche BoW ou même avec les premiers modèles statistiques, le mot "ba
 En 2013, la recherche a basculé. Au lieu d'avoir des vecteurs "creux" (plein de zéros), on a inventé les **embeddings denses**.
 
 **L'intuition de Word2Vec** :
+
+<a id="fig-1-6"></a>
+
 *   **Figure 1-6** : On utilise un petit réseau de neurones. Ce n'est pas encore un LLM, mais c'est son ancêtre direct. Chaque mot est relié à d'autres par des "poids" numériques.
 
 {{< bookfig src="10.png" week="01" >}}
+<a id="fig-1-7"></a>
+
 
 *   **Figure 1-7** : Le modèle s'entraîne à deviner si deux mots sont voisins. Si "Chat" et "Miaule" sont souvent voisins, leurs vecteurs vont se rapprocher géométriquement.
 
 {{< bookfig src="11.png" week="01" >}}
 
+<a id="fig-1-8"></a>
+
 *   **Figure 1-8** : On découvre que les dimensions du vecteur capturent des propriétés. Une dimension pourrait représenter le genre (masculin/féminin), une autre la royauté, une autre l'aspect animal.
 
 {{< bookfig src="12.png" week="01" >}}
+
+<a id="fig-1-9"></a>
 
 *   **Figure 1-9** : Si on projette ces vecteurs en 2D, on voit que "Chat" et "Chien" sont proches, alors que "Banane" est très loin.
 

@@ -1,1 +1,1 @@
-Figure 11-10. Quantizing weights that are close to one another results in the same reconstructed weights thereby removing any differentiating factor.
+Figure 11-12. Using distribution-aware blocks we can prevent values close to one another from being represented with the same quantized value.

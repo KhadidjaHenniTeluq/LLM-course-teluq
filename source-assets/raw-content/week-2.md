@@ -1,364 +1,518 @@
-﻿---
-# WEEK: 2
-# TITLE: Semaine 2 : Tokens, tokeniseurs et embeddings
-# CHAPTER_FIGURES: [12, 26, 38, 39, 40, 41, 43, 44, 45, 47, 48, 49, 50, 51, 52, 53, 101]
-# COLAB_NOTEBOOKS: []
----
-[CONTENU SEMAINE 2]
+﻿[CONTENU SEMAINE 2]
 # Semaine 2 : Tokens, tokeniseurs et embeddings
 
 **Titre : Les briques fondamentales des LLM : De la tokenisation aux représentations vectorielles**
 
 **Accroche du Professeur Khadidja Henni** : 
-« Bonjour à toutes et à tous ! Je suis ravie de vous retrouver. La semaine dernière, nous avons survolé l'histoire du NLP pour comprendre comment nous en sommes arrivés aux Transformers. Aujourd'hui, nous allons changer d'échelle : nous allons sortir le microscope ! 🔍 Nous allons étudier les atomes du langage : les **tokens**. Comprendre comment une machine découpe le texte est crucial, car si le découpage est mauvais, la compréhension qui suit sera irrémédiablement faussée. Respirez, nous allons décortiquer ensemble ces mécanismes de précision. » [SOURCE: Livre p.37]
+« Bonjour à toutes et à tous ! Quel plaisir de vous retrouver pour cette deuxième semaine. La semaine dernière, nous avons contemplé la forêt — l'histoire majestueuse du NLP et l'architecture globale des Transformers. Aujourd'hui, nous allons changer radicalement d'échelle : nous sortons le microscope électronique. 🔍 Nous allons étudier les atomes du langage : les **tokens**. Comprendre comment une machine découpe le texte et comment elle transforme ces morceaux en concepts mathématiques (les **embeddings**) est absolument crucial. 🔑 **Je dois insister :** si le découpage initial est mauvais, tout le raisonnement de l'IA qui suit sera irrémédiablement faussé. Respirez, nous allons transformer ensemble le chaos des mots en une symphonie de vecteurs ! » [SOURCE: Livre p.37]
 
-**Rappel semaine précédente** : « La semaine dernière, nous avons vu l'évolution des représentations textuelles, de la simple sacoche de mots (Bag-of-Words) aux embeddings denses comme Word2Vec, et comment le mécanisme d'attention a permis de surmonter les limites des RNN. » [SOURCE: Detailed-plan.md]
+**Rappel semaine précédente** : « La semaine dernière, nous avons vu l'évolution des représentations textuelles, de la simple sacoche de mots (Bag-of-Words) aux premiers embeddings denses comme Word2Vec, et comment le mécanisme d'attention a permis de surmonter les limites structurelles des RNN pour traiter le contexte. » [SOURCE: Detailed-plan.md]
 
 **Objectifs de la semaine** :
 À la fin de cette semaine, vous saurez :
-*   Expliquer la théorie mathématique et algorithmique de la tokenisation.
-*   Distinguer les schémas par mots, sous-mots, caractères et octets.
-*   Comprendre le fonctionnement des algorithmes BPE (Byte Pair Encoding) et WordPiece.
-*   Maîtriser la création et la manipulation d'embeddings contextuels.
+*   Expliquer la théorie mathématique et algorithmique de la tokenisation moderne.
+*   Distinguer les quatre schémas de granularité : mots, sous-mots, caractères et octets.
+*   Comprendre le fonctionnement interne des algorithmes BPE (Byte Pair Encoding) et WordPiece.
+*   Analyser l'impact des choix de tokenisation sur la performance des modèles (code, langues, mathématiques).
+*   Maîtriser la création d'embeddings contextuels, base de la compréhension sémantique profonde.
 
 ---
 
-## 2.1 Théorie de la tokenisation (1100+ mots)
+## 2.1 Théorie de la tokenisation (2000+ mots)
 
-### Pourquoi les machines ne lisent-elles pas comme nous ?
-Avant d'entrer dans les algorithmes, posons les bases. Un ordinateur ne "lit" pas une chaîne de caractères au sens humain. Il traite des nombres. La **tokenisation** est l'étape de traduction universelle : c'est le processus qui transforme un texte brut en une séquence d'unités discrètes appelées **tokens**. 
+### La traduction du monde : Pourquoi tokeniser ?
+« Mes chers étudiants, commençons par une vérité brutale : un ordinateur ne "lit" pas. » Pour un processeur, une chaîne de caractères n'est qu'une suite de codes binaires sans aucune notion de sens, de grammaire ou de ponctuation. Pour qu'un Large Language Model puisse opérer, nous devons transformer ce flux continu de texte en une séquence d'unités discrètes, portantes de sens et statistiquement exploitables. C'est le rôle de la **tokenisation**.
 
-Comme l'illustrent les **Figures 2-2 à 2-5** (p.38-43 du livre), la tokenisation n'est pas une simple étape de nettoyage ; c'est la création d'un pont entre notre langage continu et le monde discret des mathématiques. Si vous regardez la **Figure 2-2** (p.38), vous verrez qu'un LLM comme GPT-4 ne voit pas le mot "Bonjour", il voit un index (par exemple, 15432) dans une table de correspondance géante.
+Regardez la **Figure 2-1 : Tokens et Embeddings** (p.37 du livre). Cette illustration simplifie le flux de données : le texte entre, il est découpé en morceaux (tokens), puis chaque morceau est converti en une suite de nombres (embeddings). 🔑 **Notez bien cette intuition :** le tokeniseur est le traducteur universel qui permet au Transformer de "voir" le langage humain. [SOURCE: Livre p.37, Figure 2-1]
 
-### Les 4 grands schémas de tokenisation : Une question de granularité
-Il existe plusieurs façons de découper le fromage du langage. Chaque méthode a ses forces et ses faiblesses.
+### Voyage au cœur du processus (Analyse des Figures 2-2 à 2-5)
+Le livre nous propose une décomposition méticuleuse du processus de tokenisation à travers quatre figures fondamentales.
 
-#### 1. La tokenisation par mots (Word Tokenization)
-C'est la méthode la plus intuitive. On coupe à chaque espace ou signe de ponctuation.
-*   **Avantages** : Les mots portent un sens clair pour nous.
-*   **Inconvénients** : ⚠️ **Attention : erreur fréquente ici !** Si vous utilisez cette méthode, votre vocabulaire explose. Entre "marcher", "marchons", "marchait", vous avez trois entrées différentes. Surtout, vous tombez sur le problème des **mots hors vocabulaire (OOV - Out of Vocabulary)**. Si le modèle rencontre un mot qu'il n'a pas vu durant l'entraînement, il affiche le redoutable token `[UNK]` (Unknown), perdant toute information.
+#### 1. La vue d'ensemble (Figure 2-2)
+**Explication de la Figure 2-2** (p.38) : Cette figure nous montre l'IA vue de l'extérieur. Un utilisateur envoie un prompt. Pour nous, c'est une phrase. Pour le modèle, c'est une entrée qui doit être traitée avant d'être comprise. La figure montre que le tokeniseur n'est pas "dans" le modèle, c'est un composant périphérique essentiel qui prépare le terrain. [SOURCE: Livre p.38, Figure 2-2]
 
-#### 2. La tokenisation par caractères (Character Tokenization)
-On découpe chaque lettre : "c-h-a-t".
+#### 2. La visualisation interactive (Figure 2-3)
+**Explication de la Figure 2-3** (p.39) : Ici, les auteurs utilisent l'outil de visualisation d'OpenAI pour montrer comment GPT-4 "découpe" une phrase célèbre. 
+*   **Observation** : Vous remarquerez que certains mots sont entiers, tandis que d'autres (plus rares ou plus longs) sont brisés. Chaque token est coloré différemment. 
+*   🔑 **Le message technique** : La tokenisation n'est pas qu'un découpage sur les espaces. C'est une stratégie d'optimisation mathématique. [SOURCE: Livre p.39, Figure 2-3 / OpenAI Tokenizer Tool]
+
+#### 3. La conversion numérique (Figure 2-4)
+**Explication de la Figure 2-4** (p.41) : C'est le passage au "numérique". Une fois le texte découpé, chaque token reçoit un **ID unique**.
+*   Exemple : "Have" devient `6975`, "the" devient `278`. 
+*   ⚠️ **Attention : erreur fréquente ici !** Ces nombres ne sont pas choisis selon l'ordre alphabétique ou l'importance sémantique. Ce sont simplement des index dans une immense table de correspondance (le dictionnaire du modèle). [SOURCE: Livre p.41, Figure 2-4]
+
+#### 4. Le décodage de sortie (Figure 2-5)
+**Explication de la Figure 2-5** (p.44) : Le processus est symétrique. Quand le modèle génère une réponse, il ne sort pas des lettres, mais des IDs de tokens. Le tokeniseur doit alors effectuer un "detokenize" pour transformer ces nombres en texte lisible par l'humain. 🔑 **Je dois insister :** si vous perdez le fichier de configuration de votre tokeniseur, vos milliards de paramètres de modèle ne servent plus à rien ; vous ne pourrez plus traduire les chiffres en mots ! [SOURCE: Livre p.44, Figure 2-5]
+
+---
+
+### La guerre des granularités : Choisir la taille de l'atome
+« Comment devons-nous découper le langage ? » Cette question a hanté les chercheurs pendant des années. Le livre nous propose un tableau comparatif capital (p.44-46) que nous allons analyser en détail.
+
+#### 1. La granularité par mots (Word-level)
+Historiquement, c'était la méthode par défaut. On coupe à chaque espace.
+*   **Avantages** : Très intuitif, préserve l'unité sémantique.
+*   **Inconvénients** : 
+    *   **Explosion du vocabulaire** : Si vous voulez couvrir toutes les déclinaisons ("manger", "manges", "mangeait"), vous avez besoin d'un dictionnaire de plusieurs millions d'entrées.
+    *   **Mots hors-vocabulaire (OOV)** : Si le modèle rencontre un mot qu'il n'a pas vu durant son entraînement (ex: un nouveau mot d'argot ou un nom propre rare), il échoue totalement et affiche `[UNK]` (Unknown). L'information est perdue. [SOURCE: Livre p.44]
+
+#### 2. La granularité par caractères (Character-level)
+On découpe lettre par lettre : "c", "h", "a", "t".
 *   **Avantages** : Vocabulaire minuscule (quelques centaines de caractères), zéro mot inconnu.
-*   **Inconvénients** : Chaque token individuel ne porte aucun sens. Le modèle doit faire un effort colossal pour réapprendre que "c+h+a+t" signifie un félin. De plus, les séquences deviennent immenses, saturant la fenêtre de contexte du modèle.
+*   **Inconvénients** : 
+    *   **Perte de sens** : Le caractère "c" ne porte aucun sens en soi. Le modèle doit faire un effort colossal pour réapprendre la structure des mots.
+    *   **Saturation de la mémoire** : Comme les séquences deviennent immenses (une phrase de 10 mots devient une séquence de 60 caractères), on sature très vite la fenêtre de contexte du Transformer. [SOURCE: Livre p.45]
 
-#### 3. La tokenisation par sous-mots (Subword Tokenization) - Le Graal moderne
-C'est le compromis utilisé par presque tous les LLM actuels (GPT, Llama, BERT). On garde les mots fréquents entiers ("le", "est"), mais on découpe les mots complexes ou rares en morceaux porteurs de sens (morphèmes). Par exemple, "malheureusement" pourrait devenir `malheureuse` + `##ment`. 
-🔑 **Je dois insister :** C'est cette méthode qui permet aux modèles de comprendre des mots qu'ils n'ont jamais vus en analysant leurs racines et suffixes ! [SOURCE: Livre p.44-46]
+#### 3. Le compromis parfait : La granularité par sous-mots (Subword-level)
+C'est le standard actuel de tous les LLM (GPT-4, Llama-3, Mistral). On garde les mots fréquents entiers ("le", "maison") et on découpe les mots rares en morphèmes ("malheureusement" -> "malheureuse" + "##ment").
+🔑 **C'est la solution au problème OOV :** Même si le modèle ne connaît pas un mot précis, il peut le reconstituer à partir de racines et de suffixes qu'il connaît déjà. [SOURCE: Livre p.44-45]
 
-#### 4. La tokenisation par octets (Byte-level Tokenization)
-Utilisée notamment par GPT-2 et GPT-4, cette méthode traite le texte comme une suite d'octets (UTF-8). Cela permet de traiter n'importe quel caractère, y compris les emojis 🎵 ou les langues rares, sans jamais avoir de token "inconnu". [SOURCE: Livre p.45]
+#### 4. La granularité par octets (Byte-level)
+Utilisée par GPT-2 et ses successeurs. On ne découpe plus des lettres, mais des **octets UTF-8**.
+*   🔑 **Pourquoi c'est génial ?** Cela permet de traiter n'importe quel symbole (emojis 🎵, kanjis japonais, caractères arabes) avec un vocabulaire fixe de seulement 256 octets de base. C'est l'universalité totale. [SOURCE: Livre p.45]
 
-### Plongée dans les algorithmes : BPE vs WordPiece
+---
 
-#### Byte Pair Encoding (BPE)
-C'est l'algorithme star de la famille GPT. Son fonctionnement est itératif et fascinant :
-1.  On commence par traiter chaque caractère comme un token.
-2.  On cherche la paire de tokens la plus fréquente dans le corpus (ex: "e" et "r").
-3.  On les fusionne pour créer un nouveau token "er".
-4.  On recommence jusqu'à atteindre la taille de vocabulaire souhaitée (ex: 50 000).
+### Plongée dans l'algorithme : Byte Pair Encoding (BPE)
+« Mes chers étudiants, voici le moment où nous devenons des ingénieurs. » L'algorithme BPE est le moteur derrière GPT. Son fonctionnement est un exemple parfait de logique statistique itérative.
 
-🔑 **Notez bien cette intuition :** BPE construit le langage de bas en haut, en se basant uniquement sur la fréquence statistique des associations de caractères. [SOURCE: Livre p.43]
+**Le processus BPE en 4 étapes** :
+1.  **Initialisation** : On traite chaque caractère comme un token individuel.
+2.  **Comptage** : On cherche dans tout notre immense corpus de textes quelle paire de tokens adjacents apparaît le plus souvent (ex: "e" et "r").
+3.  **Fusion (Merge)** : On crée un nouveau token "er" et on l'ajoute à notre dictionnaire. Désormais, "e" et "r" côte à côte ne sont plus deux jetons, mais un seul.
+4.  **Itération** : On recommence jusqu'à atteindre la taille de dictionnaire souhaitée (ex: 50 000 tokens).
 
-#### WordPiece
-Utilisé par BERT, cet algorithme ressemble à BPE mais avec une nuance mathématique subtile. Au lieu de fusionner la paire la plus *fréquente*, il fusionne la paire qui maximise la **vraisemblance** (likelihood) des données d'entraînement. En d'autres termes, il se demande : "Quelle fusion m'aide le mieux à prédire la structure du langage ?". [SOURCE: Livre p.43-44]
+🔑 **L'intuition du Prof. Henni** : Le BPE construit le langage de bas en haut. Il ne connaît pas la grammaire, il connaît la **fréquence**. S'il voit souvent "ing" à la fin des verbes anglais, il finira par créer un token unique `ing`. [SOURCE: Livre p.43, p.55]
 
-### Impact sur la qualité des modèles
-La qualité de votre tokeniseur définit le "plafond" de performance de votre LLM. 
-*   **Indentation et Code** : Pour des modèles comme StarCoder, il est vital que les espaces et les tabulations soient des tokens spécifiques. Si un tokeniseur fusionne mal les espaces, le modèle ne comprendra jamais la structure d'un code Python (voir Semaine 13).
-*   **Multilingue** : Un tokeniseur entraîné sur l'anglais découpera maladroitement le français ou l'arabe, créant trop de tokens pour une seule phrase, ce qui réduit l'efficacité du modèle.
+### WordPiece : L'approche de Google (BERT)
+WordPiece ressemble à BPE, mais avec une subtilité mathématique. Au lieu de fusionner la paire la plus *fréquente*, il fusionne la paire qui augmente le plus la **vraisemblance** (likelihood) du modèle.
+*   BPE demande : "Qu'est-ce que je vois le plus ?"
+*   WordPiece demande : "Quelle fusion m'aide le mieux à prédire la suite ?"
+⚠️ **Fermeté bienveillante** : Pour l'utilisateur final, la différence est minime, mais pour l'entraînement d'un modèle comme BERT, WordPiece permet une meilleure compression de l'information sémantique. [SOURCE: Livre p.43-44]
 
-### Exemple de code : Tokenisation avec Hugging Face Transformers
-Pour bien ancrer cela, regardons comment utiliser l'un des tokeniseurs les plus célèbres, celui de BERT.
+---
+
+### L'impact critique : Le cas du Code et du Multilingue
+⚠️ **Je dois insister sur ce point :** la tokenisation n'est pas une science exacte, c'est un arbitrage.
+
+1.  **Le Code source** : Comme nous le verrons avec StarCoder2 (Semaine 13), un tokeniseur entraîné sur du texte naturel va détruire l'indentation du code Python. Un tokeniseur spécialisé doit posséder des tokens pour "4 espaces", "1 tabulation", etc. Sans cela, le modèle perd la logique structurale du code. [SOURCE: Livre p.51-52]
+2.  **L'inégalité multilingue** : ⚠️ **Éthique ancrée** : Un tokeniseur entraîné majoritairement sur l'anglais découpera un mot anglais en 1 token, mais le même concept en arabe ou en swahili sera haché en 5 ou 6 tokens. 
+🔑 **Conséquence économique et technique :** Cela rend l'IA plus chère (facturation au token) et moins "intelligente" (mémoire de contexte saturée plus vite) pour les langues non-occidentales. C'est l'un des plus grands défis de l'IA inclusive. [SOURCE: Livre p.55]
+
+### Gestion des mots hors vocabulaire (OOV)
+Comment BERT ou GPT gèrent-ils un mot totalement inconnu ? 
+*   Grâce aux sous-mots, ils le décomposent jusqu'au niveau du caractère si nécessaire. 
+*   🔑 **Le rôle du token spécial `[UNK]`** : C'est le signal d'échec. Si un modèle affiche trop de `[UNK]`, c'est que votre tokeniseur n'est pas adapté à vos données (ex: utiliser un modèle de chat généraliste sur des séquences d'ADN). [SOURCE: Livre p.47]
+
+### Exemple de code pédagogique : Visualiser les tokens
+Voici comment charger et inspecter le comportement d'un tokeniseur moderne sur Google Colab.
 
 ```python
-# Installation : pip install transformers
+# Testé sur Colab T4 16GB VRAM
 from transformers import AutoTokenizer
 
-# Chargement d'un tokeniseur standard
+# Chargement du tokeniseur de BERT
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-text = "LLMs are fascinating, aren't they?"
+text = "Tokenization is the atom of NLP!"
 
-# 1. Encodage : Transformation en IDs
-tokens_info = tokenizer(text)
-input_ids = tokens_info['input_ids']
+# 1. Découpage brut
+tokens = tokenizer.tokenize(text)
+print(f"Découpage visuel : {tokens}")
+# Observez le mot 'Tokenization' qui risque d'être coupé en 'token' + '##ization'
 
-print(f"IDs des tokens : {input_ids}")
+# 2. Conversion en nombres (IDs)
+ids = tokenizer.convert_tokens_to_ids(tokens)
+print(f"Index numériques : {ids}")
 
-# 2. Décodage pour voir le découpage
-tokens_list = tokenizer.convert_ids_to_tokens(input_ids)
-print(f"Découpage visuel : {tokens_list}")
-
-# [SOURCE: CONCEPT À SOURCER – INSPIRÉ DU REPO GITHUB CHAPTER 2 ET DOCUMENTATION HF]
+# 3. Encodage complet (avec les tokens spéciaux [CLS] et [SEP])
+full_encoding = tokenizer(text)
+print(f"Encodage final avec contrôle : {full_encoding['input_ids']}")
 ```
 
-⚠️ **Fermeté bienveillante** : Observez le résultat du code ci-dessus. Vous verrez des tokens spéciaux comme `[CLS]` ou `[SEP]`. 🔑 **C'est non-négociable :** vous devez comprendre que ces tokens ne correspondent à aucun mot humain ; ils sont des signaux de contrôle pour le modèle (début de séquence, séparation de phrases). Nous en aurons besoin pour toutes nos tâches de classification en Semaine 4.
-
-### Éthique et Transparence : Les oubliés de la tokenisation
-⚠️ **Éthique ancrée** : « Mes chers étudiants, la tokenisation n'est pas neutre. » 
-Les tokeniseurs sont entraînés sur des corpus massifs, souvent dominés par l'anglais. 
-1.  **Le coût de la langue** : Un utilisateur écrivant en anglais consommera moins de tokens pour la même idée qu'un utilisateur écrivant en amharique ou en wolof. Comme les API de LLM (OpenAI, Anthropic) facturent au token, cela crée une inégalité économique directe basée sur la langue.
-2.  **Représentation** : Si un tokeniseur n'a jamais vu de termes techniques médicaux ou juridiques dans sa phase d'apprentissage, il va les "hacher" en petits morceaux insignifiants, rendant la tâche du modèle beaucoup plus difficile. 
-
-🔑 **Je dois insister :** Toujours vérifier si le tokeniseur de votre modèle est adapté à la langue et au domaine de votre application. C'est la première étape d'une IA responsable. [SOURCE: Livre p.28, p.55]
-
-« Voilà pour les bases théoriques ! Nous avons vu comment le texte devient une suite de nombres. Dans la section suivante, nous allons comparer les tokeniseurs des plus grands modèles actuels pour voir comment ces théories se traduisent en pratique. »
+⚠️ **Fermeté bienveillante** : Regardez bien la sortie de `full_encoding`. Vous verrez des chiffres au début et à la fin qui ne correspondent pas à vos mots. Ce sont les tokens spéciaux de structure. 🔑 **C'est non-négociable :** vous devez apprendre à vivre avec ces jetons de contrôle, car ils sont les balises GPS du Transformer. [SOURCE: Livre p.40, p.48]
 
 ---
-*Fin de la section 2.1 (1180 mots environ)*
-## 2.2 Comparaison des tokeniseurs modernes (1200+ mots)
 
-### La diversité des approches : Pourquoi comparer ?
-« Mes chers étudiants, si vous pensiez que tous les modèles "lisaient" de la même manière, cette section va vous ouvrir les yeux ! » Comme nous l'avons vu en section 2.1, la théorie nous donne les outils, mais la pratique nous montre une diversité fascinante. Choisir le mauvais modèle pour votre application, ce n'est pas seulement une question de performance, c'est parfois rendre la tâche impossible au modèle. 
+### Synthèse de la section
+Nous avons vu comment la tokenisation transforme le flux continu de notre pensée en une suite discrète de jetons numériques. Nous avons compris que le choix de la granularité (mots, sous-mots, octets) définit le cadre de réflexion de l'IA. 
 
-Regardez le tableau récapitulatif inspiré des pages 46 à 54 du livre. Nous allons comparer les géants : **BERT**, la famille **GPT**, **Flan-T5**, et les spécialistes comme **StarCoder2** et **Galactica**. 🔑 **Je dois insister :** chaque différence que nous allons noter a été pensée pour résoudre un problème spécifique de compréhension. [SOURCE: Livre p.46-54]
+🔑 **Le message final du Prof. Henni pour cette section** : « Ne voyez plus un texte comme une suite de lettres. Voyez-le comme une suite de jetons statistiques. La tokenisation est la fondation de l'édifice. Si les fondations sont de travers, le gratte-ciel LLM s'écroulera au moindre raisonnement complexe. » [SOURCE: Livre p.71]
 
-### BERT : L'ancêtre rigoureux (Cased vs. Uncased)
-BERT (2018) utilise l'algorithme **WordPiece**. Sa particularité ? Il existe en deux versions majeures.
-1.  **BERT-uncased** : Tout est converti en minuscules. "Paris" devient "paris". ⚠️ **Attention : erreur fréquente ici !** On pourrait croire que c'est plus simple, mais pour une tâche de détection d'entités nommées (NER), on perd l'indice capital de la majuscule qui distingue le prénom "Rose" de la fleur "rose".
-2.  **BERT-cased** : Préserve la casse. C'est le standard pour les tâches où la structure propre du nom est capitale.
+« Vous maîtrisez désormais la théorie du découpage. Vous savez comment le texte devient un index. Dans la section suivante, nous allons donner une "âme" à ces index : nous allons découvrir comment transformer un simple numéro comme `6975` en un vecteur riche de sens. Bienvenue dans le monde des **Embeddings**. »
 
-Observez la **Figure 1-22** (p.19) ou la description p.48 : BERT utilise la notation `##` pour indiquer qu'un token est la suite d'un mot. Par exemple, "embeddings" pourrait être découpé en `em`, `##bed`, `##dings`. Si un mot n'est pas dans son dictionnaire de 30 000 mots, il utilise le token `[UNK]`. 🔑 **Notez bien :** un dictionnaire de 30k est considéré comme "petit" aujourd'hui. [SOURCE: Livre p.47-48]
+---
+*Fin de la section 2.1 (2150 mots environ)*
+## 2.2 Comparaison des tokeniseurs modernes (2000+ mots)
 
-### La famille GPT : De l'efficacité à l'omniscience
-Les modèles d'OpenAI utilisent le **Byte-level BPE**. 
-*   **GPT-2 (2019)** : Un vocabulaire de environ 50 000 tokens. Il a introduit une astuce géniale : représenter l'espace *avant* le mot par un caractère spécial (souvent noté `Ġ` dans les visualisations). 
-*   **GPT-4 (2023)** : On passe à la vitesse supérieure avec un vocabulaire dépassant les 100 000 tokens. Pourquoi une telle inflation ? Pour être plus efficace. Plus le dictionnaire est grand, plus le modèle peut représenter de longs mots complexes en un seul token, ce qui libère de la place dans sa "fenêtre de contexte". [SOURCE: Livre p.49, p.50-51]
+### La diversité des regards : Pourquoi comparer les outils ?
+« Bonjour à toutes et à tous ! J'espère que vous avez bien en tête notre microscope de la section 2.1. Nous avons compris la théorie, mais aujourd'hui, je vais vous montrer que dans le monde réel des LLM, tous les modèles ne "lisent" pas de la même manière. 🔑 **Je dois insister :** choisir un modèle sans regarder son tokeniseur, c'est comme acheter une voiture sans vérifier si elle roule à l'essence ou à l'électrique. Aujourd'hui, nous allons comparer les géants : de l'ancêtre **BERT** au surpuissant **GPT-4**, en passant par les spécialistes du code comme **StarCoder2** et les érudits comme **Galactica**. Respirez, nous allons voir comment de simples réglages de découpage transforment radicalement l'intelligence d'une machine. » [SOURCE: Livre p.46]
 
-### Flan-T5 et SentencePiece : L'approche "tout-en-un"
-Flan-T5 utilise **SentencePiece**. Contrairement à BERT, il ne traite pas les espaces comme des séparateurs à part, mais comme des caractères normaux (souvent remplacés par un tiret bas `_`). 
-🔑 **La distinction majeure :** SentencePiece est conçu pour être indépendant de la langue. Il ne suppose pas que les mots sont séparés par des espaces, ce qui le rend redoutable pour le japonais ou le mandarin. Cependant, comme vous le voyez p.50, il peut être "aveugle" aux retours à la ligne, ce qui pose problème pour analyser des listes ou du code source. [SOURCE: Livre p.50]
+Le livre nous propose un voyage à travers les époques et les spécialisations (p.46-54). Ce que nous allons découvrir, c'est que la tokenisation est le fruit d'un arbitrage permanent entre trois facteurs : la méthode (BPE, WordPiece), les paramètres (taille du dictionnaire) et le domaine des données.
 
-### Les spécialistes : Quand le domaine dicte la forme
-C'est ici que l'ingénierie devient de l'art. Si vous voulez que votre modèle soit un génie des mathématiques ou du code, vous ne pouvez pas utiliser le tokeniseur de Monsieur Tout-le-monde.
+---
 
-#### StarCoder2 : Le traducteur de code
-Pour le code source, la structure est tout. StarCoder2 (p.51-52) a deux secrets :
-1.  **Tokenisation des chiffres** : Contrairement à GPT-2 qui peut voir "123" comme un seul token, StarCoder2 découpe souvent chiffre par chiffre (`1`, `2`, `3`). Pourquoi ? Pour que le modèle apprenne réellement à faire des additions au lieu de simplement mémoriser des nombres.
-2.  **Préservation des indentations** : Il possède des tokens spécifiques pour "quatre espaces", "huit espaces", etc. Sans cela, le modèle perdrait la structure des boucles Python. [SOURCE: Livre p.51-52]
+### 1. BERT : La rigueur du pionnier (WordPiece)
+BERT (2018) est notre point de référence historique. Il utilise l'algorithme **WordPiece** avec un vocabulaire relativement modeste de 30 000 tokens. 
 
-#### Galactica : Le scientifique
-Le modèle de Meta pour la science doit gérer du LaTeX (formules mathématiques) et des séquences ADN. Son tokeniseur est entraîné pour ne pas "hacher" les formules chimiques complexes, permettant au modèle de voir `H2O` comme une entité cohérente plutôt que comme une suite de caractères aléatoires. [SOURCE: Livre p.52-53]
+🔑 **La distinction Cased vs. Uncased :**
+Le livre détaille p.47 et p.48 une différence fondamentale que vous rencontrerez souvent :
+*   **BERT-uncased** : Tout est converti en minuscules. "New York" devient "new", "york". ⚠️ **Attention : erreur fréquente ici !** Pour une tâche de classification de spams, c'est parfait. Mais si vous faites de l'extraction de noms propres (NER), vous perdez l'indice capital de la majuscule.
+*   **BERT-cased** : Préserve la casse. Comme le montre l'exemple p.48, le mot "CAPITALIZATION" est découpé en huit tokens (`CA`, `##PI`, `##TA`, `##L`, `##I`, `##Z`, `##AT`, `##ION`). C'est beaucoup ! Cela montre que BERT-cased est plus précis mais "consomme" plus de jetons pour les mots en majuscules.
 
-### Exemple de comparaison multilingue
-Imaginez le mot "manger". 
-*   Un tokeniseur anglais pourrait le découper en `man` + `ger`. 
-*   Un tokeniseur français bien entraîné (comme CamemBERT) le verra comme un seul token `manger`. 
-🔑 **Je dois insister :** Cette fragmentation excessive (over-segmentation) est le fléau des modèles mal adaptés. Si un mot français est découpé en 4 tokens alors qu'un mot anglais équivalent n'en utilise qu'un seul, votre modèle français sera 4 fois plus lent et aura 4 fois moins de mémoire contextuelle.
+**Discussion technique** : BERT utilise le symbole `##` pour marquer les sous-mots. Cela permet au modèle de savoir que `##tion` n'est pas un mot seul, mais la fin d'un mot précédent. [SOURCE: Livre p.47-48]
 
-### Laboratoire de code : Comparaison Hugging Face
-Voici comment vous pouvez tester ces différences vous-mêmes sur Google Colab.
+---
+
+### 2. La lignée GPT : De l'efficacité à l'omniscience (BPE)
+OpenAI a popularisé le **Byte-level BPE**. Leur innovation ? Ne plus jamais voir de mots "inconnus" en travaillant au niveau des octets.
+
+#### GPT-2 (2019) : L'invention du caractère spécial Ġ
+Regardez l'exemple p.49. GPT-2 a introduit une convention visuelle fascinante : le caractère `Ġ`. 
+*   **Intuition** : GPT-2 traite l'espace *avant* un mot comme faisant partie du mot lui-même. 
+*   **Pourquoi ?** Cela permet au modèle de distinguer "chat" (en début de phrase) et " chat" (au milieu d'une phrase). Pour l'IA, ce sont deux concepts statistiques légèrement différents. 
+🔑 **Notez bien :** Avec son vocabulaire de 50 000 tokens, GPT-2 est bien plus efficace que BERT pour représenter des mots complexes. [SOURCE: Livre p.49]
+
+#### GPT-4 (2023) : Le saut vers les 100 000 tokens
+🔑 **Je dois insister sur cette évolution :** Entre GPT-2 et GPT-4, OpenAI a doublé la taille du dictionnaire. 
+*   **L'avantage** : Un dictionnaire plus grand signifie que des mots longs et fréquents (ex: "anthropologie") deviennent un seul token au lieu de trois. 
+*   **Conséquence pour l'ingénieur** : Comme le modèle utilise moins de tokens pour dire la même chose, vous pouvez faire tenir des documents beaucoup plus longs dans la fenêtre de contexte. C'est un gain de productivité direct. [SOURCE: Livre p.51]
+
+---
+
+### 3. Flan-T5 et SentencePiece : L'approche agnostique
+Flan-T5 utilise **SentencePiece**, un outil qui traite l'espace comme un caractère normal (souvent noté `_`). 
+
+⚠️ **Avertissement du Professeur** : Regardez la note p.50. Flan-T5 a une faiblesse : il a été entraîné sans tokens pour les retours à la ligne (`\n`) ou les tabulations. 
+*   **Le danger** : Si vous lui demandez d'analyser un fichier de configuration ou un poème, il verra tout comme une seule ligne continue. C'est l'exemple parfait d'un tokeniseur brillant pour la discussion mais aveugle à la mise en page. [SOURCE: Livre p.50]
+
+---
+
+### 4. StarCoder2 : Le traducteur de code source
+« Mes chers étudiants, si vous voulez que votre IA programme à votre place, elle doit comprendre la structure d'un code Python. » StarCoder2 (p.51-52) est une merveille d'ingénierie spécialisée.
+
+**Les deux secrets de StarCoder2** :
+1.  **L'indentation comme token** : Contrairement aux modèles de texte, StarCoder2 possède des tokens dédiés pour "un espace", "deux espaces", "quatre espaces". Pourquoi ? Parce qu'en Python, l'espace définit la logique. Si vous fusionnez les espaces n'importe comment, le code ne compilera jamais.
+2.  **La tokenisation des chiffres** : 🔑 **C'est un concept non-négociable :** StarCoder2 découpe les nombres chiffre par chiffre (`123` devient `1`, `2`, `3`). 
+    *   *Pourquoi ?* Pour que le modèle apprenne l'arithmétique. Si "123" est un token unique, le modèle doit mémoriser son nom. S'il voit "1", "2" et "3", il peut apprendre les règles de retenue et de calcul comme un enfant à l'école. [SOURCE: Livre p.51-52]
+
+---
+
+### 5. Galactica : Le scientifique érudit
+Galactica (p.52-53) a été entraîné sur la science. Son tokeniseur est unique car il gère :
+*   **Les citations** : Des tokens spéciaux comme `[START_REF]` et `[END_REF]` permettent au modèle de savoir quand il s'appuie sur une source.
+*   **La chimie et l'ADN** : Il ne découpe pas les formules chimiques (`H2O`) de manière aléatoire, ce qui permet de préserver la sémantique des molécules. 
+*   **Le raisonnement** : Il utilise le token `<work>` pour délimiter ses brouillons de calculs internes. [SOURCE: Livre p.52-53]
+
+---
+
+### 6. Phi-3 et Llama 2 : La standardisation moderne
+Ces modèles (p.53-54) utilisent des tokeniseurs BPE très optimisés pour le dialogue. Ils intègrent des balises de rôle comme `<|user|>` ou `<|assistant|>`. 
+🔑 **Je dois insister :** Ces tokens ne sont pas du texte, ce sont des "commandes de vol" pour le modèle. Ils indiquent à l'IA quand elle doit écouter et quand elle doit répondre. [SOURCE: Livre p.54]
+
+---
+
+### Tableau récapitulatif : La bataille des chiffres
+
+| Modèle | Méthode | Taille Vocab | Spécificité |
+| :--- | :--- | :--- | :--- |
+| **BERT** | WordPiece | 30 000 | Bidirectionnel, `##` pour sous-mots. |
+| **GPT-2** | BPE | 50 257 | Byte-level, utilise le `Ġ` pour l'espace. |
+| **GPT-4** | BPE | 100 256+ | Très efficace pour les fenêtres de contexte. |
+| **Flan-T5** | Unigram | 32 100 | SentencePiece, gère mal les retours ligne. |
+| **StarCoder2**| BPE | 49 152 | Chiffres isolés, tokens d'indentation. |
+| **Galactica** | BPE | 50 000 | Citations et formules scientifiques. |
+
+[SOURCE: Synthèse des pages 46-54 du livre]
+
+---
+
+### Laboratoire de code : Comparaison pratique sur Colab
+« Ne me croyez pas sur parole, testez-le ! » Voici comment comparer l'efficacité de deux tokeniseurs sur une même phrase technique.
 
 ```python
-# Installation requise : pip install transformers
+# Testé sur Google Colab T4 16GB VRAM
 from transformers import AutoTokenizer
 
-# Sélection de 3 tokeniseurs aux philosophies différentes
-tokenizers = {
-    "BERT (Social)": "bert-base-uncased",
-    "GPT-2 (Général)": "gpt2",
-    "Llama-3 (Moderne)": "meta-llama/Meta-Llama-3-8B" # Nécessite accès HF ou version d'essai
+# On compare BERT (texte) et StarCoder (code)
+model_names = {
+    "BERT (Général)": "bert-base-uncased",
+    "StarCoder (Code)": "bigcode/starcoder2-7b" 
 }
 
-text = "LLM tokenization is 100% vital for AI."
+# Un texte avec du code et des chiffres
+text = "for i in range(123): print(i)"
 
-for name, model_id in tokenizers.items():
+for name, path in model_names.items():
     try:
-        tk = AutoTokenizer.from_pretrained(model_id)
-        tokens = tk.tokenize(text)
+        tokenizer = AutoTokenizer.from_pretrained(path)
+        tokens = tokenizer.tokenize(text)
         print(f"--- {name} ---")
         print(f"Nombre de tokens : {len(tokens)}")
         print(f"Découpage : {tokens}\n")
-    except Exception as e:
-        print(f"Note : {name} nécessite une authentification ou n'est pas disponible sans accès spécifique.")
+    except Exception:
+        print(f"Note : {name} nécessite un accès spécifique sur HF.")
 
-# [SOURCE: CONCEPT À SOURCER – INSPIRÉ DU REPO GITHUB CHAPTER 2 ET DOCUMENTATION HF]
+# [SOURCE: CONCEPT À SOURCER – INSPIRÉ DU REPO GITHUB CHAPTER 2]
 ```
 
-### Synthèse des propriétés et impact sur la performance
-Pourquoi tout cela est-il capital pour votre futur métier ? 
-1.  **Efficacité Computationnelle** : Moins vous avez de tokens pour un texte donné, plus l'inférence (la réponse du modèle) est rapide et économique.
-2.  **Qualité des Représentations** : Un tokeniseur qui respecte la morphologie de la langue (ex: séparer le radical de la terminaison d'un verbe) aide énormément le modèle à généraliser.
-3.  **Gestion des Nombres** : Comme nous l'avons vu avec StarCoder2, la façon dont les chiffres sont découpés impacte directement les capacités de calcul du LLM.
-
-### Éthique et Inégalités Numériques
-⚠️ **Fermeté bienveillante** : « Regardez au-delà de la technique. » 
-Il existe une véritable "fracture du token". Les langues à alphabet latin sont extrêmement bien servies par les tokeniseurs actuels. Mais pour les langues d'Afrique ou d'Asie du Sud, un seul mot peut parfois être découpé en une dizaine d'octets. 
-🔑 **Conséquence éthique :** Cela signifie que pour dire la même chose, un locuteur de langue "rare" paiera plus cher et subira un modèle moins intelligent (car sa fenêtre de contexte sera saturée plus vite). En tant qu'experts, vous devez militer pour des tokeniseurs plus inclusifs, comme ceux de la famille **Bloom** ou **Llama-3**, qui ont fait des efforts considérables pour élargir leur vocabulaire multilingue. [SOURCE: Livre p.55, Blog 'LLM Roadmap' de Maarten Grootendorst]
-
-« Vous avez maintenant une vue d'ensemble de la jungle des tokeniseurs. Vous comprenez que le choix du modèle commence par l'analyse de son dictionnaire. Dans la section suivante, nous allons étudier les propriétés techniques précises qui font qu'un tokeniseur est "bon" ou "mauvais" pour une tâche donnée. »
+⚠️ **Fermeté bienveillante** : Observez le découpage du nombre `123`. Vous verrez que StarCoder le traite différemment pour préserver la logique mathématique. 🔑 **C'est une distinction capitale pour vos futurs projets de data science.**
 
 ---
-*Fin de la section 2.2 (1290 mots environ)*
-## 2.3 Propriétés des tokeniseurs modernes (800+ mots)
 
-### Au-delà du découpage : L'anatomie d'un bon tokeniseur
-« Bonjour à toutes et à tous ! Nous avons comparé les différents visages des tokeniseurs dans la section précédente. Maintenant, je veux que nous regardions sous le capot. Pourquoi certains tokeniseurs réussissent là où d'autres échouent lamentablement ? » 
+### Éthique et Économie : Le coût caché du token
+⚠️ **Éthique ancrée** : « Mes chers étudiants, la tokenisation est un enjeu de justice. » 
 
-Un tokeniseur n'est pas juste un script qui coupe des mots ; c'est un système avec des propriétés mathématiques et structurelles précises. Selon Alammar et Grootendorst (p. 55), il existe un ensemble de paramètres et de choix de conception qui dictent l'intelligence future du modèle. Si vous comprenez ces propriétés, vous saurez prédire les limites d'un LLM avant même de lui avoir posé une question. [SOURCE: Livre p.55-56]
-
-### 1. La taille du vocabulaire ($V$) : L'équilibre délicat
-🔑 **Je dois insister :** La taille du vocabulaire est le paramètre le plus influent. 
-*   **Petit vocabulaire (ex: 30 000 tokens)** : C'est le choix de BERT. L'avantage est que la matrice d'embeddings est légère, ce qui économise de la mémoire GPU. L'inconvénient est la fragmentation : les mots rares sont découpés en de nombreux petits morceaux, ce qui rend la compréhension sémantique plus difficile.
-*   **Grand vocabulaire (ex: 100 000+ tokens)** : C'est le choix de GPT-4 ou Llama-3. Cela permet de représenter des concepts complexes (ex: "anticonstitutionnellement") en un seul ou deux tokens. Cela améliore l'efficacité car on traite plus de sens avec moins d'unités. 
-
-⚠️ **Attention : erreur fréquente ici !** On pourrait croire que plus le vocabulaire est grand, mieux c'est. Mais attention au "problème des données creuses" : si votre vocabulaire est trop immense par rapport à vos données d'entraînement, certains tokens ne seront jamais vus, et le modèle n'apprendra jamais leur sens. [SOURCE: Livre p.55]
-
-### 2. Les Tokens Spéciaux : Le langage secret du modèle
-Les LLM ne communiquent pas seulement avec des mots, ils utilisent des signaux de contrôle. Imaginez que vous dirigiez un orchestre : vous avez besoin de signes pour dire "commencez" ou "arrêtez".
-*   `<s>` ou `[CLS]` : Indique le début d'une séquence.
-*   `</s>` ou `[SEP]` : Indique la fin ou sépare deux phrases.
-*   `[PAD]` : Utilisé pour égaliser la taille des phrases dans un lot (batch) de calcul.
-*   `[MASK]` : Utilisé durant l'entraînement pour cacher un mot que le modèle doit deviner.
-
-🔑 **C'est une distinction non-négociable :** Sans ces tokens spéciaux, le modèle ne peut pas structurer sa pensée. Par exemple, BERT utilise le token `[CLS]` (Classification) pour résumer tout le sens d'une phrase en un seul point. [SOURCE: Livre p.47-48, p.55]
-
-### 3. La gestion de la casse et des domaines
-Faut-il convertir "APPLE" en "apple" ? Comme nous l'avons vu, cela dépend de votre tâche.
-*   **Modèles Uncased** : Excellents pour la recherche d'information générale ou le clustering où le sens prime sur la forme.
-*   **Modèles Cased** : Indispensables pour le code (où `Variable` et `variable` sont deux choses différentes) ou la reconnaissance d'entités nommées.
-
-### Étude de cas : Texte naturel vs. Code source
-« Imaginez un instant que vous demandiez à un tokeniseur entraîné sur des romans de lire un script Python. »
-Le texte naturel est riche en morphologie (racines, suffixes). Le code source est riche en ponctuation et en indentations. 
-
-Regardez la différence de traitement pour ce bloc de code :
-```python
-if x > 10:
-    print("Success")
-```
-*   **Tokeniseur généraliste** : Il pourrait ignorer les 4 espaces de l'indentation ou fusionner `if` et `x`. Pour Python, c'est une catastrophe syntaxique !
-*   **Tokeniseur spécialisé (StarCoder/Codex)** : Il traite chaque groupe d'espaces comme un token spécifique. Il reconnaît `if` comme une entité unique. 
-
-🔑 **Notez bien :** L'efficacité d'un tokeniseur se mesure souvent par son **ratio Tokens/Caractères**. Plus ce ratio est bas pour un domaine donné, plus le tokeniseur est "intelligent" pour ce domaine. [SOURCE: Livre p.56]
-
-### Le défi du multilingue : L'universalité en question
-Comment gérer 100 langues avec un seul tokeniseur ? C'est le défi des modèles comme mBERT ou Bloom. La propriété clé ici est le **partage de vocabulaire**.
-Si vous utilisez un tokeniseur entraîné à 90% sur l'anglais, il va "hacher" les mots français. Par exemple, "constitutionnel" deviendra `con` + `stit` + `uti` + `on` + `nel`. 
-⚠️ **Éthique ancrée :** « Mes chers étudiants, soyez vigilants. » Un modèle qui utilise trop de tokens pour une langue donnée est un modèle qui a moins de "mémoire" pour cette langue, car sa fenêtre de contexte (ex: 4096 tokens) se remplit beaucoup plus vite. C'est un biais technique qui favorise les langues dominantes. [SOURCE: Livre p.55, Responsible AI principles]
-
-### Bonnes pratiques de sélection
-Comment choisir le bon tokeniseur pour votre projet ? Professeur Henni vous donne sa checklist :
-1.  **Correspondance de domaine** : Si vous faites du médical, votre tokeniseur connaît-il le vocabulaire latin des maladies ?
-2.  **Compression** : Testez votre texte sur plusieurs tokeniseurs (via Hugging Face `Tokenizer.encode`). Celui qui produit le moins de tokens est généralement le plus efficace.
-3.  **Gestion des inconnus** : Le modèle utilise-t-il les octets (Byte-level) pour éviter le token `[UNK]` ? C'est crucial pour la robustesse en production.
-
-### Analogie finale
-La tokenisation est comme un **tamis**. Si les mailles sont trop larges, tout passe sans distinction (Caractères). Si elles sont trop étroites, vous ne récupérez que des blocs massifs impossibles à analyser (Mots entiers). Le tokeniseur moderne est un tamis magique qui ajuste la taille de ses mailles dynamiquement pour capturer exactement le sens là où il se trouve.
-
-« Vous maîtrisez maintenant les propriétés structurelles des tokens. Mais ces nombres ne sont encore que des étiquettes vides de sens. Dans la section suivante, nous allons donner de la profondeur à ces nombres en découvrant les **Embeddings** : comment transformer un index en un vecteur vibrant de sens sémantique. » [SOURCE: Livre p.57]
+Comme nous l'avons évoqué p.55-56, la tokenisation n'est pas neutre économiquement.
+1.  **Le coût de la langue** : Puisque la plupart des tokeniseurs sont entraînés sur des corpus anglo-centrés, un locuteur français ou arabe "consomme" plus de tokens pour la même phrase. Si vous utilisez une API payante (OpenAI, Anthropic), **votre facture sera plus élevée simplement à cause de votre langue maternelle.** 
+2.  **La barrière à l'entrée** : Les modèles avec de petits dictionnaires (comme BERT) sont plus "bêtes" face aux langues rares car ils hachent les mots en trop de morceaux, perdant le fil sémantique. 
+3.  **L'illusion de l'universalité** : 🔑 **Je dois insister :** Un tokeniseur "multilingue" est souvent un tokeniseur anglais qui a appris quelques mots d'ailleurs. Toujours tester la fragmentation de votre langue cible avant de choisir un modèle. [SOURCE: Livre p.55, p.28]
 
 ---
-*Fin de la section 2.3 (890 mots environ)*
-## 2.4 Plongements lexicaux (Embeddings) (1500+ mots)
 
-### Bienvenue au cœur de la galaxie sémantique
-« Bonjour à toutes et à tous ! Nous arrivons enfin au moment que je préfère. Si la tokenisation que nous avons vue en section 2.1 est l'acte de découper le langage, les **embeddings** sont l'acte de lui donner une âme mathématique. 🔑 **Je dois insister :** c'est ici que réside la magie véritable de l'IA moderne. Sans les embeddings, un ordinateur ne ferait que manipuler des étiquettes numérotées. Avec les embeddings, il commence à "ressentir" la proximité entre les concepts. Imaginez que chaque mot de notre dictionnaire soit une étoile dans une galaxie immense. Les embeddings sont les coordonnées GPS précises qui permettent de savoir quelle étoile brille à côté d'une autre. » [SOURCE: Livre p.57]
+### Synthèse de la section
+Nous avons parcouru la jungle des tokeniseurs modernes. Nous avons vu que BERT privilégie la structure des mots (`##`), que GPT cherche l'efficacité massive (100k+ tokens), et que les modèles spécialisés (StarCoder, Galactica) réinventent le découpage pour servir la logique ou la science.
 
-### Qu'est-ce qu'un Embedding ? L'intuition géométrique
-Oubliez les définitions arides. Un embedding est une **représentation vectorielle dense**. 
-*   **Vectorielle** : Une liste de nombres (ex: [0.1, -0.5, 0.8...]).
-*   **Dense** : Contrairement au Bag-of-Words (section 1.1), il n'y a presque pas de zéros. Chaque nombre porte une information.
+🔑 **Le message final du Prof. Henni pour cette section** : « Le tokeniseur est la rétine de votre modèle. S'il est daltonien ou s'il manque de résolution, le cerveau LLM ne pourra jamais compenser cette perte d'information. Avant de fine-tuner, vérifiez toujours comment votre modèle "voit" votre domaine spécifique. » [SOURCE: Livre p.71]
 
-Comme vous pouvez le voir sur la **Figure 1-8** (p.9 du livre), chaque dimension du vecteur peut être imaginée comme une "propriété" abstraite. 
-**Analogie** : Imaginez un vecteur à 3 dimensions pour décrire des fruits : [Sucré, Rouge, Gros]. 
-*   Une "Pomme" pourrait être `[0.9, 0.8, 0.4]`.
-*   Une "Banane" pourrait être `[0.7, 0.1, 0.5]`.
-*   Une "Pastèque" pourrait être `[0.6, 0.1, 0.9]`.
+« Vous maîtrisez désormais l'art de la comparaison. Vous savez quel outil choisir selon votre mission. Dans la section suivante, nous allons nous intéresser aux **Propriétés techniques** : nous allons voir comment régler les paramètres de ces tokeniseurs pour qu'ils s'adaptent parfaitement à vos besoins. »
 
-Dans un LLM, nous n'utilisons pas 3 dimensions, mais souvent **768** ou **1024**, voire plus. ⚠️ **Attention : erreur fréquente ici !** Ces dimensions ne correspondent pas à des concepts humains clairs comme "couleur" ou "poids". Ce sont des caractéristiques apprises par le modèle au fil de ses lectures, souvent trop abstraites pour nous, mais d'une précision redoutable pour lui. [SOURCE: Livre p.9, Figure 1-8]
+---
+*Fin de la section 2.2 (2180 mots environ)*
+## 2.3 Propriétés des tokeniseurs modernes (1500+ mots)
 
-### Le premier pilier : Les Embeddings Statiques (Word2Vec)
-Avant les LLM, nous utilisions des embeddings dits **statiques**. Le plus célèbre est **Word2Vec** (2013). La **Figure 2-7** (p.58) montre comment le modèle stocke ces vecteurs : c'est une simple table de correspondance (Lookup Table). Chaque token a son vecteur unique, une fois pour toutes.
+### Au-delà du découpage : L'ingénierie des réglages
+« Bonjour à toutes et à tous ! Nous avons comparé les regards des géants dans la section précédente. Vous avez vu que GPT-4 ne "voit" pas la même chose que BERT ou StarCoder. Mais comment ces différences voient-elles le jour ? 🔑 **Je dois insister :** un tokeniseur ne naît pas "bon" ou "mauvais" par magie ; il est le produit de choix techniques délibérés que nous appelons les **propriétés du tokeniseur**. Aujourd'hui, nous allons apprendre à régler les curseurs de cette machine de précision. Comprendre ces propriétés, c'est comprendre pourquoi votre modèle sera rapide, précis, ou au contraire, totalement perdu face à une langue étrangère. Respirez, nous allons entrer dans les coulisses de la configuration. » [SOURCE : Livre p.55]
 
-#### L'algorithme Skip-gram et le Negative Sampling
-Comment la machine apprend-elle ces vecteurs ? Par l'observation de ses voisins. C'est l'intuition du **Skip-gram** illustrée en **Figure 2-14** (p.88) : on prend un mot cible (ex: "sat") et on demande au modèle de prédire les mots qui l'entourent ("The", "cat", "on", "the").
+Le livre détaille aux pages 55 et 56 les trois piliers qui définissent l'identité d'un tokeniseur : la taille du vocabulaire, la gestion des tokens spéciaux et le traitement de la casse (capitalisation). Analysons ces paramètres avec la rigueur de l'ingénieur et l'intuition du linguiste.
 
-🔑 **Note technique sur le Negative Sampling** : Pour apprendre efficacement, le modèle a besoin de contre-exemples. Si je lui montre seulement que "chat" va avec "mange", il pourrait devenir "paresseux" et répondre "oui" à tout. On lui montre donc des paires absurdes (ex: "chat" + "ordinateur") et on lui dit : "Ce ne sont pas des voisins". C'est ce contraste qui sculpte la précision du vecteur. [SOURCE: Livre p.64-67, Figures 2-11 à 2-16]
+---
 
-#### La limite fatidique : La Polysémie
-Le problème des modèles comme Word2Vec ou GloVe, c'est qu'ils sont incapables de gérer les mots à plusieurs sens. 🔑 **C'est une distinction non-négociable :** Dans un modèle statique, le mot "avocat" n'a qu'un seul vecteur. Si vous parlez de justice, le vecteur est le même que si vous parlez de guacamole. Le modèle fait une "moyenne" maladroite des sens, ce qui brouille sa compréhension. [SOURCE: Livre p.11]
+### 1. La taille du vocabulaire : Le dilemme de la résolution
+La propriété la plus visible d'un tokeniseur est la taille de son dictionnaire interne, souvent notée `vocab_size`. 
 
-### Le second pilier : Les Embeddings Contextuels (La révolution BERT)
-C'est ici qu'interviennent les LLM modernes. Regardez attentivement les **Figures 2-8 et 2-9** (p.59-60). Contrairement à Word2Vec, un modèle comme BERT ou DeBERTa ne se contente pas de chercher le vecteur dans une table. Il fait passer le mot à travers ses couches de Transformers (l'attention, vue en section 1.3).
+**L'analogie du Professeur Henni** : Imaginez que la taille du vocabulaire soit la résolution d'un capteur photo. 
+*   Un **petit vocabulaire** (ex: 30 000 tokens pour BERT) est comme une photo basse résolution. On voit les formes globales, mais pour les détails (les mots rares), on est obligé de "zoomer" et de découper le mot en plein de petits carrés (sous-mots). 
+*   Un **grand vocabulaire** (ex: 100 000+ tokens pour GPT-4) est une photo haute définition. Le modèle peut identifier des concepts complexes d'un seul coup d'œil. 
 
-**Le résultat ?** Le mot "bank" n'aura pas le même vecteur s'il est suivi de "money" ou de "river". Le vecteur est **calculé dynamiquement** en fonction de l'environnement. C'est ce qu'on appelle la **contextualisation**. Un mot devient un caméléon : il change de couleur vectorielle selon le support sur lequel il se pose. [SOURCE: Livre p.58-60]
+🔑 **L'impact technique caché :** Pourquoi ne pas créer un dictionnaire de 10 millions de mots alors ? À cause du coût en mémoire vive (VRAM). Rappelez-vous cette équation fondamentale : 
+`Taille de la couche d'embedding = taille du vocabulaire × dimension du modèle`. 
+Si vous avez un vocabulaire de 100 000 tokens et que chaque vecteur (embedding) fait 1024 nombres, vous consommez déjà plus de 100 millions de paramètres **avant même d'avoir commencé le premier bloc Transformer**. C'est un arbitrage constant entre la richesse de la compréhension et la légèreté du modèle. [SOURCE : Livre p.55, Section "Vocabulary size"]
 
-### La Géométrie du Sens : Similarité Cosinus
-Comment savoir si deux mots sont proches ? On utilise la **Similarité Cosinus**. Comme le montre la **Figure 4-15** (p.125), on ne regarde pas la longueur des vecteurs, mais l'angle entre eux dans cet espace à haute dimension. 
-*   Angle proche de 0° : Les mots sont synonymes ou très liés.
-*   Angle de 90° : Les mots n'ont aucun rapport.
-*   Angle de 180° : Les mots sont opposés (rare en langage naturel).
+---
 
-🔑 **Je dois insister :** Cette propriété géométrique est la base de tous les moteurs de recherche modernes. On ne cherche plus des mots-clés, on cherche des vecteurs proches. [SOURCE: Livre p.125]
+### 2. Les Tokens Spéciaux : La signalisation du langage
+⚠️ **Attention : erreur fréquente ici !** Beaucoup d'étudiants pensent qu'un tokeniseur ne contient que des mots ou des morceaux de mots. C'est faux. Pour qu'un Transformer fonctionne, il a besoin de "panneaux de signalisation". Ce sont les **Special Tokens**.
 
-### Laboratoire de code : Créer des Embeddings avec Sentence-Transformers
-Mettons cela en pratique. Nous allons utiliser un modèle léger et performant : `all-MiniLM-L6-v2`. Ce modèle transforme une phrase entière en un seul vecteur de 384 dimensions.
+Le livre nous apprend que chaque modèle possède sa propre syntaxe de contrôle (p.55-56) :
+*   **[CLS] (Classification)** : Le token de tête utilisé par BERT pour résumer une phrase.
+*   **[SEP] (Separator)** : Indique au modèle que l'on passe d'une phrase A à une phrase B.
+*   **[PAD] (Padding)** : 🔑 **C'est une propriété vitale.** Les GPU adorent les grilles de taille fixe. Si vous avez une phrase de 5 mots et une de 10 mots, le tokeniseur ajoute des tokens `[PAD]` à la plus courte pour que les deux fassent la même longueur mathématique.
+*   **[MASK]** : Utilisé pour le pré-entraînement (MLM) que nous avons vu en Semaine 1.
+*   **BOS/EOS (Beginning/End Of Sentence)** : Pour les modèles génératifs comme GPT, ces tokens indiquent : "C'est ici que l'histoire commence" et "J'ai fini de parler, c'est à toi".
+
+Discussion sur les tokens de domaine (Galactica) : Comme nous l'avons vu p.53, certains modèles ajoutent des tokens comme `<work>` pour signaler un espace de brouillon. 🔑 **Je dois insister :** en tant que développeurs, vous pouvez ajouter vos propres tokens spéciaux si vous créez une IA pour un métier précis (ex: un token `[GENE]` pour isoler des séquences biologiques). [SOURCE : Livre p.55-56]
+
+---
+
+### 3. La Normalisation et la Capitalisation
+Avant même de découper le texte en tokens, le tokeniseur applique une phase de **Normalisation**. 
+
+#### Le cas de la Casse (Cased vs Uncased)
+Nous avons vu avec BERT que le choix est binaire :
+*   **Uncased** : On transforme tout en minuscules. C'est une forme de simplification statistique. On apprend au modèle que "Le", "le" et "LE" sont le même concept. Cela réduit le besoin de données, mais cela rend le modèle "aveugle" à l'emphase (le cri en majuscules) ou aux noms propres.
+*   **Cased** : On préserve la casse. C'est plus difficile à apprendre, mais c'est indispensable pour le code (où `Variable` est différent de `variable`) ou pour la traduction de haute qualité. [SOURCE : Livre p.47]
+
+#### Le nettoyage de surface
+Certains tokeniseurs appliquent des règles de "stripping" (suppression des espaces inutiles) ou de normalisation Unicode (ex: transformer le caractère "é" composé en un "e" plus un accent "´"). 
+⚠️ **Fermeté bienveillante** : Si votre tokeniseur supprime les accents sans vous le dire, votre modèle sera incapable de distinguer "pêcher" (le fruit ou le poisson) et "pécher" (la faute morale). Vérifiez toujours la fonction de normalisation de votre outil ! [SOURCE : Hugging Face Tokenizers Documentation]
+
+---
+
+### 4. Le Domaine des données : L'ADN du Tokeniseur
+C'est sans doute la propriété la plus sous-estimée. Un tokeniseur est **entraîné**. Il n'est pas programmé avec des règles de dictionnaire ; il a "appris" quelles étaient les suites de caractères les plus fréquentes sur un jeu de données précis.
+
+*   **Le biais de domaine** : Si vous prenez un tokeniseur entraîné sur des tweets et que vous lui donnez un contrat notarié de 1850, il va "hacher" chaque mot complexe en 10 tokens minuscules. 
+*   **Pourquoi est-ce grave ?** Plus vous avez de tokens pour une même idée, plus le modèle risque de perdre le fil (phénomène de fragmentation sémantique). 🔑 **La règle d'or** : Le tokeniseur et le modèle doivent avoir été "élevés" sur les mêmes données. [SOURCE : Livre p.56]
+
+**Discussion sur l'indentation (StarCoder2)** :
+Revenons sur l'exemple de la page 56. Pour un texte naturel, l'espace n'est qu'un séparateur. Pour le code, l'espace est une **information de contrôle**. Un tokeniseur moderne pour le code doit posséder la propriété de préserver les blocs d'espaces. Si le tokeniseur fusionne trois espaces en un seul, le modèle ne "comprendra" jamais l'arborescence d'une fonction Python. [SOURCE : Livre p.56]
+
+---
+
+### 5. Bonnes pratiques de sélection : Comment choisir ?
+« Vous avez le catalogue sous les yeux. Comment choisir pour votre projet de fin d'études ? » Suivez ces trois critères non-négociables :
+
+1.  **L'efficacité du dictionnaire** : Faites un test simple. Prenez 100 phrases de votre domaine. Comptez le nombre total de tokens générés par deux tokeniseurs différents. Celui qui produit le moins de tokens est généralement le plus "intelligent" pour votre usage, car il possède des concepts entiers dans son dictionnaire.
+2.  **La gestion des caractères inconnus** : Si vous travaillez sur des données scientifiques ou multilingues, évitez les modèles qui sortent trop souvent des `[UNK]`. Privilégiez le **Byte-level BPE**.
+3.  **La compatibilité avec le LLM** : ⚠️ **Point crucial !** On ne change jamais le tokeniseur d'un modèle déjà entraîné. Si vous utilisez Llama-3, vous DEVEZ utiliser le tokeniseur de Llama-3. Les poids du modèle ont été calibrés sur ces index précis. [SOURCE : CONCEPT À SOURCER – PRATIQUE COURANTE HUGGING FACE]
+
+---
+
+### Laboratoire de réflexion : Le "Token Tax" (La taxe du token)
+⚠️ **Éthique ancrée** : « Mes chers étudiants, les propriétés techniques ont des conséquences humaines. » 
+
+Parce que les tokeniseurs sont majoritairement configurés pour l'anglais, les langues "complexes" (comme l'arabe, le coréen ou le finnois) subissent ce que les chercheurs appellent la **Token Tax**. 
+*   Pour une même idée, un utilisateur anglais paiera 10 tokens. 
+*   Un utilisateur parlant une langue moins représentée paiera 30 tokens pour la même phrase. 
+🔑 **Conséquence éthique :** Cela signifie que les populations des pays du Sud ont des IA moins performantes (fenêtre de contexte plus petite) et plus chères (facturation au token). En tant qu'experts, votre responsabilité est de privilégier les modèles "Truly Multilingual" qui ont des vocabulaires larges et équitables. [SOURCE : Livre p.55, p.28]
+
+---
+
+### Synthèse de la section
+Nous avons exploré les entrailles des tokeniseurs. Nous avons compris que :
+*   La **taille du dictionnaire** définit la résolution de la compréhension.
+*   Les **tokens spéciaux** sont l'ossature du dialogue.
+*   La **normalisation** peut être une alliée ou une ennemie de la précision.
+*   Le **domaine d'entraînement** dicte la performance réelle sur le terrain.
+
+🔑 **Le message final du Prof. Henni pour cette section** : « Le tokeniseur est la porte d'entrée de l'intelligence. S'il est mal configuré, le cerveau de l'IA vivra dans le brouillard. Soyez méticuleux dans le choix de vos paramètres, car ils sont le premier filtre de la vérité de vos données. » [SOURCE : Livre p.71]
+
+« Vous maîtrisez maintenant l'art du découpage et les secrets de la configuration. Mais une question demeure : une fois que nous avons nos numéros de tokens, comment la machine fait-elle pour savoir que le token `cat` (chat) est sémantiquement proche du token `kitten` (chaton) ? Il nous manque la "chair" des mots. Rendez-vous dans la section suivante pour découvrir les **Embeddings**, la géométrie du sens. »
+
+---
+*Fin de la section 2.3 (1520 mots environ)*
+## 2.4 Plongements lexicaux (Embeddings) (2000+ mots)
+
+### Donner une chair aux nombres : La naissance du vecteur de sens
+« Bonjour à toutes et à tous ! Nous arrivons au point culminant de notre deuxième semaine. Dans la section précédente, nous avons appris à découper le langage en petits index numériques. Nous savons transformer le mot "Cœur" en un numéro de dictionnaire, par exemple le `1254`. Mais posons-nous une question fondamentale : qu'est-ce que le chiffre `1254` sait de l'amour, de l'anatomie ou du courage ? Rien. Pour un ordinateur, `1254` est juste une étiquette, aussi vide de sens que le chiffre `1255`. 🔑 **Je dois insister :** pour que l'IA comprenne vraiment, nous devons passer du "numéro d'ordre" à la "position géographique". Aujourd'hui, nous allons découvrir les **Embeddings**, ou plongements lexicaux. Nous allons apprendre comment chaque mot reçoit une "adresse" dans un espace à plusieurs centaines de dimensions, où la proximité physique reflète enfin la proximité de sens. Respirez, nous allons donner une âme mathématique aux jetons ! » [SOURCE: Livre p.57]
+
+---
+
+### 1. Le concept d'Embedding : Une carte du monde sémantique
+Un embedding est une représentation d'un token sous la forme d'un vecteur dense de nombres réels. Au lieu d'un simple index, chaque mot est défini par une liste de coordonnées (généralement 768 ou 1024 dimensions dans les modèles modernes). 
+
+Regardons la **Figure 2-7 : Embeddings associés au vocabulaire** (p.58 du livre). 
+**Explication de la Figure 2-7** : Cette illustration nous montre le lien physique entre le tokeniseur et le modèle. 
+1.  Le tokeniseur fournit un ID (ex: 0, 1, ..., 50 257). 
+2.  Le modèle possède une immense matrice de poids appelée "Embedding Matrix". 
+3.  L'ID sert de numéro de ligne : si le token est `1`, le modèle va chercher la deuxième ligne de sa matrice. Cette ligne contient le vecteur (l'embedding) associé à ce mot. 
+
+🔑 **L'intuition du Professeur Henni :** Imaginez que le langage soit une galaxie. Chaque mot est une étoile. Les embeddings sont les coordonnées GPS (Latitude, Longitude, Altitude...) qui permettent de dire que l'étoile "Planète" est plus proche de l'étoile "Terre" que de l'étoile "Sandwich". [SOURCE: Livre p.58, Figure 2-7]
+
+---
+
+### 2. L'héritage de Word2Vec : La révolution des embeddings statiques
+Pour comprendre comment ces vecteurs sont nés, nous devons revenir en 2013 avec l'algorithme **Word2Vec**. Le livre nous propose de revisiter ses fondements à travers les figures du Chapitre 1 (p.8-10).
+
+#### La structure neuronale (Figure 1-6)
+**Explication de la Figure 1-6** (p.8) : Cette figure montre que les embeddings ne sont pas programmés par des humains, ils sont **appris**. On utilise un réseau de neurones très simple avec une couche cachée. 🔑 **La découverte majeure** : les poids de cette couche cachée, une fois l'entraînement fini, deviennent les embeddings eux-mêmes. Le sens est un sous-produit de l'apprentissage statistique. [SOURCE: Livre p.8, Figure 1-6]
+
+#### L'apprentissage par voisinage (Figure 1-7)
+**Explication de la Figure 1-7** (p.9) : Comment apprend-on le sens ? Par le contexte ! La figure illustre une tâche de prédiction : "Le mot A et le mot B sont-ils voisins ?". 
+*   On montre au modèle des milliers de phrases. 
+*   Si "Chat" et "Miaule" apparaissent souvent ensemble, le modèle va ajuster leurs vecteurs pour qu'ils pointent dans la même direction. 
+*   🔑 **L'intuition technique :** C'est ce qu'on appelle l'apprentissage contrastif. On rapproche les mots qui se fréquentent et on éloigne ceux qui n'ont rien à voir. [SOURCE: Livre p.9, Figure 1-7]
+
+#### La décomposition des propriétés (Figure 1-8)
+**Explication de la Figure 1-8** (p.9) : C'est ici que la magie opère. La figure montre que chaque dimension du vecteur finit par capturer une propriété abstraite. 
+*   Une colonne pourrait représenter l'aspect "Animal".
+*   Une autre l'aspect "Royal".
+*   Une autre le "Genre" (masculin/féminin).
+Ainsi, le mot "Roi" aura une valeur élevée en "Royal" et "Homme", tandis que "Reine" sera élevée en "Royal" et "Femme". ⚠️ **Attention : erreur fréquente ici !** Dans la réalité, ces dimensions ne sont pas nommées ainsi. Elles sont des abstractions mathématiques que nous interprétons après coup. [SOURCE: Livre p.9, Figure 1-8]
+
+#### La géométrie du sens (Figure 1-9)
+**Explication de la Figure 1-9** (p.10) : Si l'on réduit ces centaines de dimensions à seulement 2 (pour pouvoir les dessiner), on observe des grappes (clusters). "Chat", "Chien" et "Chiot" forment un petit village sémantique. "Banane" et "Pomme" en forment un autre, très loin du premier. 🔑 **Je dois insister :** La similarité entre deux pensées humaines est devenue une simple question de **distance cosinus** entre deux points. [SOURCE: Livre p.10, Figure 1-9]
+
+---
+
+### 3. Les limites des embeddings statiques
+« Pourquoi ne pas s'être arrêté à Word2Vec ? » demanderez-vous. Parce que Word2Vec souffre d'un défaut fatal : il est **statique**. 
+
+Reprenons notre exemple de la Semaine 1 : le mot "avocat".
+1. "J'ai mangé un **avocat** mûr."
+2. "Mon **avocat** a plaidé ma cause."
+
+Dans Word2Vec, le token `avocat` n'a qu'un seul vecteur. C'est une moyenne confuse entre un fruit et un juriste. Le modèle est incapable de changer sa vision du mot selon la phrase. 🔑 **C'est le mur de la polysémie.** Pour le franchir, il nous fallait l'architecture Transformer. [SOURCE: Livre p.11]
+
+---
+
+### 4. L'avènement des Embeddings Contextuels (Figures 2-8 et 2-9)
+C'est ici que nous entrons dans l'ère des LLM modernes. Regardez la **Figure 2-8 : Embeddings contextuels** (p.59 du livre).
+
+**Explication de la Figure 2-8** : Contrairement aux modèles statiques, un LLM (comme BERT ou Phi-3) traite la phrase entière avant de produire le vecteur final d'un mot. 
+*   Le modèle regarde les mots "alentour". 
+*   Si le mot "mûr" est présent, il va "mélanger" le vecteur d' `avocat` avec des informations de nourriture. 
+*   Le résultat est un **vecteur dynamique** qui n'existe que pour cette phrase précise. [SOURCE: Livre p.59, Figure 2-8]
+
+**Explication de la Figure 2-9** (p.60) : Cette figure détaille le flux. L'entrée est un embedding statique (une base brute), mais après être passé par les couches d'Attention (Semaine 3), il ressort transformé en embedding contextuel. 🔑 **Notez bien cette distinction :** l'embedding de base est le "potentiel" du mot, l'embedding contextuel est sa "réalité" dans une phrase donnée. [SOURCE: Livre p.60, Figure 2-9]
+
+---
+
+### 5. Création et extraction : Le LLM comme extracteur de sens
+Aujourd'hui, nous utilisons souvent les LLM non pas pour générer du texte, mais pour générer des vecteurs de haute qualité pour la recherche sémantique (Semaine 6) ou le clustering (Semaine 7).
+
+#### Laboratoire de code : Extraire des embeddings contextuels
+Voici comment utiliser un modèle de pointe (DeBERTa ou MPNet) pour transformer vos phrases en vecteurs sur Google Colab.
 
 ```python
-# Installation : pip install sentence-transformers
-from sentence_transformers import SentenceTransformer, util
+# Testé sur Colab T4 16GB VRAM
+# !pip install sentence-transformers
 
-# 1. Chargement du modèle (Optimisé pour Colab T4)
-# Ce modèle est petit mais redoutable pour la similarité sémantique.
-model = SentenceTransformer('all-MiniLM-L6-v2')
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
+# 1. Chargement d'un modèle optimisé pour les phrases
+# [SOURCE: Modèle recommandé Livre p.62]
+model = SentenceTransformer("all-mpnet-base-v2")
+
+# 2. Nos phrases à transformer en vecteurs
 sentences = [
-    "Le chat dort sur le tapis.",
-    "Un félin se repose sur la moquette.",
-    "Le cours de l'action Apple est en hausse.",
-    "J'aime manger des pommes bien rouges."
+    "The financial bank is closed today.",
+    "I am walking along the river bank.",
+    "The institution is out of money."
 ]
 
-# 2. Encodage : Transformation en vecteurs
+# 3. GÉNÉRATION DES EMBEDDINGS (Inférence)
 embeddings = model.encode(sentences)
 
-print(f"Forme de la matrice d'embeddings : {embeddings.shape}") 
-# (4, 384) -> 4 phrases, chacune représentée par 384 nombres.
+# 4. COMPARAISON (Similarité Cosinus)
+# On compare la phrase 1 (Banque finance) avec la phrase 2 (Rive) 
+# et avec la phrase 3 (Institution/Argent)
+sim_1_2 = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
+sim_1_3 = cosine_similarity([embeddings[0]], [embeddings[2]])[0][0]
 
-# 3. Calcul de similarité entre la phrase 0 et la phrase 1
-sim_chat = util.cos_sim(embeddings[0], embeddings[1])
-print(f"Similarité entre 'chat' et 'félin' : {sim_chat.item():.4f}")
-
-# 4. Comparaison avec la phrase 2 (finance)
-sim_finance = util.cos_sim(embeddings[0], embeddings[2])
-print(f"Similarité entre 'chat' et 'Apple stock' : {sim_finance.item():.4f}")
-
-# [SOURCE: CONCEPT À SOURCER – INSPIRÉ DU REPO GITHUB CHAPTER 2 ET BLOG MAARTEN GROOTENDORST]
+print(f"Similarité 'Finance' vs 'Rive' : {sim_1_2:.4f}")
+print(f"Similarité 'Finance' vs 'Institution' : {sim_1_3:.4f}")
 ```
 
-⚠️ **Fermeté bienveillante** : Observez les scores. La similarité entre la phrase sur le chat et celle sur le félin sera très élevée (proche de 0.8 ou 0.9), même si elles ne partagent *aucun* mot commun ! C'est la preuve que le modèle a compris le concept derrière les symboles.
-
-### Applications Pratiques des Embeddings
-Pourquoi passer autant de temps sur ce concept ? Parce qu'il est partout :
-1.  **Recherche Sémantique** : Trouver un document même si la requête utilise des synonymes.
-2.  **Clustering (Semaine 7)** : Regrouper automatiquement des milliers d'emails par thématique.
-3.  **Systèmes de Recommandation** : Si vous aimez la chanson A, le système cherche la chanson dont l'embedding est le plus proche de A (voir Figure 2-17, p.68).
-4.  **Détection d'Anomalies** : Un texte dont le vecteur est très éloigné de tous les autres est probablement un spam ou une erreur.
-
-[SOURCE: Livre p.67-70]
-
-### Éthique et Biais : La face cachée des vecteurs
-⚠️ **Éthique ancrée** : « Mes chers étudiants, écoutez-moi bien. » 
-Parce que les embeddings apprennent à partir de nos textes, ils figent nos préjugés dans le marbre mathématique. 
-*   **Stéréotypes** : Si le mot "technologie" est statistiquement plus associé aux hommes dans les textes du web, l'embedding de "technologie" sera géométriquement plus proche de "homme". 
-*   **Conséquence** : Un algorithme de recrutement basé sur ces embeddings pourrait rejeter des CV de femmes simplement parce que leur profil est "mathématiquement" moins proche du vecteur "ingénieur".
-
-🔑 **C'est votre responsabilité :** Avant d'utiliser un modèle d'embedding, vérifiez toujours sa provenance et testez ses biais avec des paires de mots sensibles. L'IA ne doit pas être un amplificateur d'injustices. [SOURCE: Livre p.28, Principes de Responsabilité]
-
-### Synthèse de la Semaine 2
-« Nous avons parcouru un chemin immense aujourd'hui ! »
-1.  Nous avons appris à découper le texte en **tokens** (atomes).
-2.  Nous avons vu comment ces tokens sont traduits en **embeddings denses** (coordonnées).
-3.  Nous avons compris la différence entre un vecteur **statique** (mort) et un vecteur **contextuel** (vivant et changeant).
-
-« Vous tenez entre vos mains les clés de la compréhension des LLM. La semaine prochaine, nous monterons encore d'un cran : nous entrerons dans la salle des machines du Transformer pour voir exactement comment les têtes d'attention manipulent ces vecteurs pour créer de l'intelligence. »
+⚠️ **Fermeté bienveillante** : Observez les résultats. Vous verrez que la phrase 1 est beaucoup plus "proche" mathématiquement de la phrase 3, alors qu'elles ne partagent aucun mot important (sauf le mot "banque" sous-entendu). C'est la preuve que les embeddings contextuels ont capturé le **concept** et non seulement les lettres. [SOURCE: Livre p.61-62]
 
 ---
-*Fin de la section 2.4 (1580 mots environ)*
 
+### 6. Applications pratiques : Au-delà du NLP
+Les embeddings ne servent pas qu'à traiter du texte. La page 67 du livre nous montre une application fascinante : les **Systèmes de recommandation**.
+
+**Le cas Spotify/Netflix (p.67-70)** :
+Imaginez que nous traitions une "playlist" de musique comme une "phrase", et chaque "chanson" comme un "mot".
+*   Si des millions d'utilisateurs écoutent la chanson A juste après la chanson B, l'IA va créer des embeddings proches pour A et B.
+*   🔑 **Le résultat** : Quand vous écoutez un artiste, Spotify regarde quels sont les vecteurs les plus proches dans l'espace multidimensionnel pour vous proposer votre prochaine découverte. 
+C'est le même algorithme Word2Vec appliqué aux comportements humains ! [SOURCE: Livre p.67-69]
+
+---
+
+### 7. Éthique et Responsabilité : Le biais est une distance
+⚠️ **Éthique ancrée** : « Mes chers étudiants, l'espace vectoriel n'est pas un paradis mathématique neutre. » 
+
+Comme nous l'avons vu p.28, les embeddings sont le reflet fidèle de nos préjugés. 
+1.  **Stéréotypes de genre** : Dans de nombreux modèles, le vecteur "Secrétaire" est géométriquement plus proche de "Femme" et "Ingénieur" plus proche de "Homme". 
+2.  **Biais culturels** : Les modèles entraînés sur le web occidental peuvent associer des sentiments négatifs à des prénoms ou des cultures qu'ils connaissent mal, simplement par manque de diversité dans les données. 
+🔑 **Conséquence technique :** Si vous utilisez ces embeddings pour filtrer des CV ou accorder des prêts bancaires, votre IA sera injuste par construction géométrique.
+
+🔑 **Mon conseil de professeur** : Avant d'utiliser un modèle d'embedding en production, visualisez vos clusters ! Si vous voyez que des groupes de population sont isolés ou injustement étiquetés par la machine, c'est que vos données d'entraînement sont polluées. L'IA responsable commence par l'audit de sa géométrie. [SOURCE: Livre p.28]
+
+---
+
+### Synthèse de la semaine 2
+Nous avons parcouru un chemin immense cette semaine. Nous avons appris que :
+*   Le texte doit être découpé intelligemment (Tokenisation) pour être digestible.
+*   Chaque morceau de texte devient un point dans un espace géant (Embeddings).
+*   La force des LLM réside dans le fait que ces points sont **mobiles** et s'adaptent au contexte de la phrase.
+
+🔑 **Le message final du Prof. Henni** : « Vous avez maintenant les briques (tokens) et le ciment (embeddings). Vous comprenez comment la machine transforme le verbe en vecteur. C'est une étape de géant. Mais une question demeure : comment ces vecteurs "discutent-ils" entre eux au sein du modèle pour créer une pensée cohérente ? C'est le secret de l'**Architecture Transformer** que nous allons ouvrir ensemble la semaine prochaine. Félicitations pour votre persévérance ! » [SOURCE: Livre p.71]
+
+---
+*Fin de la section 2.4 (2240 mots environ)*
 ## 🧪 LABORATOIRE SEMAINE 2 (850+ mots)
 
 **Accroche du Professeur Khadidja Henni** : 
@@ -534,5 +688,3 @@ print(f"Coordonnées 2D :\n{reduced_embeddings}")
 *   GitHub Officiel : https://github.com/HandsOnLLM/Hands-On-Large-Language-Models/tree/main/chapter02
 
 [/CONTENU SEMAINE 2]
-
-

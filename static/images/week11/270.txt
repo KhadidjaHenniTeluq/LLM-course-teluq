@@ -1,1 +1,1 @@
-Figure 11-8. Compared to full fine-tuning, LoRA aims to update a small representation of the original weights during training.
+Figure 11-11. Quantizing weights that are close to one another results in the same reconstructed weights thereby removing any differentiating factor.

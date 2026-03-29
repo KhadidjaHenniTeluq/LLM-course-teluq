@@ -1,1 +1,1 @@
-Figure 2-7. A language model holds an embedding vector associated with each token in its tokenizer.
+Figure 2-6. A language model holds an embedding vector associated with each token in its tokenizer.

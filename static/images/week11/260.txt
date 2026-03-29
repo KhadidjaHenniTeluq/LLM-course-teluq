@@ -1,0 +1,1 @@
+Figure 11-3. Compared to language modeling (pretraining), full fine-tuning uses a smaller but labeled dataset.
