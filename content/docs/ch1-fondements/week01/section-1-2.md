@@ -3,96 +3,156 @@ title: "1.2 Limites des architectures séquentielles : RNN et LSTM"
 weight: 3
 ---
 
-## Le règne de la récurrence : Traiter le langage comme un flux
+{{< katex />}}
 
-Maintenant que nous avons appris à transformer les mots en vecteurs d'adresses dans notre section précédente, une question brûlante se pose : comment faire pour que la machine comprenne une phrase entière ? Pour nous, humains, lire est un processus séquentiel. Nous lisons de gauche à droite, et chaque mot que nous rencontrons modifie notre compréhension globale de l'histoire.
+## Le règne de la récurrence : Quand l'IA apprend à lire de gauche à droite
+Bonjour à toutes et à tous ! Je suis ravie de vous retrouver. Dans notre section précédente (1.1), nous avons découvert comment transformer des mots en "adresses mathématiques" dans un espace vectoriel. C'était une avancée majeure, mais restons lucides : une liste de mots n'est pas une phrase. Le langage est une mélodie, une séquence où l'ordre des notes change tout le sens. 
 
-Pendant des années, la réponse technologique à ce processus a été le **Réseau de Neurones Récurrent (RNN)**. L'idée est élégante : le modèle possède une "mémoire interne" (appelée état caché ou *hidden state*). À chaque étape, il prend un mot (un embedding) et le mélange avec sa mémoire de ce qu'il a lu précédemment. 🔑 **Notez bien cette intuition :** le RNN essaie de condenser tout le passé dans un seul petit vecteur qui évolue à chaque nouveau mot.
+> [!IMPORTANT]
+📌 **Je dois insister :** pendant près de vingt ans, le monde de l'IA a été dominé par une idée fixe : pour comprendre le langage, la machine doit le traiter exactement comme nous, mot après mot, de gauche à droite. C'est ce que nous appelons l'ère des **Réseaux de Neurones Récurrents (RNN)**. 
 
-## Le problème de la disparition du gradient (Vanishing Gradient)
+Mais comme nous allons le voir, cette imitation de la lecture humaine a fini par devenir une prison technologique. Respirez, nous allons analyser pourquoi ces géants aux pieds d'argile ont dû céder la place.
 
-C'est ici que les choses se compliquent.
+---
+## L'intuition du RNN : La mémoire de travail
+Un RNN fonctionne sur un principe de boucle. Imaginez que vous lisiez un livre. Pour comprendre la page 10, vous avez besoin de vous souvenir de ce qui s'est passé à la page 9. 
+*   Le modèle reçoit un mot ($x_t$).
+*   Il possède un "état caché" ($h_t$), qui est sa mémoire interne.
+*   À chaque nouveau mot, il mélange l'information du mot actuel avec sa mémoire du passé pour mettre à jour sa compréhension globale.
 
-{{% hint warning %}}
-**Attention : erreur fréquente ici !** On imagine souvent que les RNN ont une mémoire infinie. C'est faux. En pratique, à cause de la structure mathématique de la rétropropagation (l'algorithme qui permet au modèle d'apprendre), l'information s'estompe très vite.
-{{% /hint %}}
+C'est une structure magnifique sur le papier, car elle respecte la nature temporelle du langage. Mais en pratique, elle s'est heurtée à deux murs infranchissables : **le goulot d'étranglement sémantique** et **la mort du signal (le gradient)**.
 
-**L'analogie du "Téléphone Arabe" (ou Chinese Whispers)** : Imaginez une file de 50 personnes. Vous murmurez une phrase complexe à la première. À la 50ème personne, il est fort probable que le message original soit devenu méconnaissable ou ait totalement disparu. C'est le **Vanishing Gradient** (disparition du gradient). Le modèle n'arrive plus à faire le lien entre un mot situé au début d'un long paragraphe et un mot situé à la fin. Pour un modèle de langage, cela signifie qu'il oublie le sujet de la phrase avant d'avoir atteint le verbe !
-
-## L'architecture Encodeur-Décodeur et le goulot d'étranglement
-
-Pour des tâches comme la traduction, nous avons utilisé des structures plus complexes. Regardez attentivement la **Figure 1-10 : Architecture RNN encoder-decoder**. Le système se divise en deux :
-1.  **L'Encodeur** : Il lit la phrase source (ex: "I love llamas") et tente de transformer tout son sens en un seul et unique vecteur final : le **Context Embedding**.
-2.  **Le Décodeur** : Il prend ce vecteur et essaie de "déplier" la phrase dans une autre langue.
+---
+## L'architecture Encodeur-Décodeur
+Pour des tâches comme la traduction, nous avons utilisé une structure en deux blocs, illustrée par la **Figure 1-10 : Architecture RNN encoder-decoder** .
 
 {{< bookfig src="15.png" week="01" >}}
 
-{{% hint danger %}}
-🔑 **Je dois insister sur cette faille critique :** On appelle cela le **goulot d'étranglement (bottleneck)**. Imaginez que vous deviez résumer tout le sens d'un roman de 500 pages en une seule petite carte postale, puis qu'une autre personne doive réécrire le roman à partir de cette carte postale. C'est impossible sans perdre une quantité massive de détails. Plus la phrase est longue, plus le "Context Embedding" devient une bouillie statistique saturée.
-{{% /hint %}}
+**Explication de la Figure 1-10** : Cette illustration est capitale. Elle montre deux cerveaux distincts.
+1.  **L'Encodeur (à gauche)** : Son rôle est de "digérer" la phrase source (ex: "I love llamas"). Il traite "I", puis "love", puis "llamas". À chaque étape, sa mémoire interne s'enrichit.
+2.  **Le Vecteur de Contexte (Le centre)** : C'est le point critique. Une fois que l'encodeur a fini de lire, il doit résumer TOUT le sens de la phrase dans un seul et unique vecteur final.
+3.  **Le Décodeur (à droite)** : Il reçoit ce vecteur et tente de reconstruire la phrase dans une autre langue (ex: "Ik hou van lama's").
 
-## Le processus Autorégressif : Un token après l'autre
+> [!TIP]
+💡 **Notez bien cette intuition :** L'encodeur est comme un traducteur qui écoute une phrase de 5 minutes, prend une seule petite note sur un post-it, et donne ce post-it au décodeur pour qu'il réécrive le discours entier. 
 
-Une fois que le décodeur a reçu ce vecteur de contexte, il commence la génération. Comme vous pouvez le voir sur la **Figure 1-11 : Processus autoregressive**, la génération n'est pas instantanée. Le modèle prédit le premier mot, puis utilise ce premier mot comme entrée pour prédire le second, et ainsi de suite.
-
-<a id="fig-1-11"></a>
-{{< bookfig src="16.png" week="01" >}}
-
-C'est ce qu'on appelle la nature **autorégressive** des modèles de langage. 🔑 **C'est un concept non-négociable :** presque tous les LLM actuels, y compris les plus puissants, fonctionnent encore sur ce principe de "boucle" où la sortie de l'étape *t* devient l'entrée de l'étape *t+1*. Le problème des RNN est que cette boucle est strictement séquentielle, ce qui rend l'entraînement désespérément lent car on ne peut pas traiter tous les mots en même temps.
-
-## L'évolution vers les LSTM (Long Short-Term Memory)
-
-Pour tenter de sauver les RNN, les chercheurs ont inventé les **LSTM**. Imaginez que dans chaque neurone, nous ajoutions des "portes" (gates) :
-*   Une porte d'oubli (*forget gate*) pour décider ce qui n'est plus utile.
-*   Une porte d'entrée (*input gate*) pour décider quelle nouvelle information stocker.
-*   Une porte de sortie (*output gate*) pour filtrer ce qu'on transmet.
-
-Bien que les LSTM aient permis de traiter des séquences plus longues (voir l'exemple de traduction "I love llamas" → "Ik hou van lama's" dans la **Figure 1-12**), ils n'ont pas résolu le goulot d'étranglement fondamental. Ils ont simplement rendu la carte postale un peu plus lisible, mais elle reste une carte postale limitée.
+---
+## Le Goulot d'étranglement
+C'est ici que l'architecture montre ses limites physiques. Regardez la **Figure 1-11 : Context embedding dans RNN** . 
 
 {{< bookfig src="17.png" week="01" >}}
 
-## Implémentation : Un RNN simple en PyTorch
+**Explication de la Figure 1-11** : La figure montre visuellement que la quantité d'information que l'on peut faire passer entre l'encodeur et le décodeur est fixe. 
+*   Si la phrase fait 3 mots ("I love you"), le vecteur de contexte est à l'aise.
+*   Si la phrase fait 50 mots, avec des propositions subordonnées complexes, le vecteur de contexte sature. 
 
-Pour bien saisir la lourdeur de cette approche, jetons un œil à la structure d'un RNN. Notez bien comment chaque état caché dépend de l'état précédent.
+> [!WARNING]
+⚠️ **Attention : erreur fréquente ici !** Beaucoup d'étudiants pensent qu'il suffit d'augmenter la taille du vecteur. Mais en augmentant la taille, on multiplie les paramètres et le modèle devient impossible à entraîner. 
+
+> C'est ce qu'on appelle le **Bottleneck Problem** (le goulot d'étranglement). L'information est littéralement écrasée et perdue avant d'atteindre le décodeur.
+
+---
+## Le processus Autorégressif
+Une fois que le décodeur commence à parler, il suit une logique particulière. La **Figure 1-12 : Processus autoregressive** nous montre que l'IA ne génère pas la phrase d'un coup.
+
+{{< bookfig src="16.png" week="01" >}}
+
+**Explication de la Figure 1-12** : 
+*   Étape 1 : Le modèle prédit "Ik". 
+*   Étape 2 : Il prend "Ik" comme nouvelle entrée pour prédire "hou". 
+*   Étape 3 : Il prend "Ik hou" pour prédire "van".
+
+> [!IMPORTANT]
+🔑 **C'est un concept non-négociable :** presque tous les LLM, même les plus modernes, sont encore **autorégressifs**. 
+
+> Ils sont prisonniers de cette boucle où la sortie précédente devient l'entrée suivante. Le problème des RNN est que cette boucle est trop dépendante de la qualité du premier vecteur de contexte.
+
+---
+## La Disparition du Gradient : Pourquoi l'IA oublie les débuts de phrase
+Mes chers étudiants, imaginez que vous fassiez une partie de téléphone arabe (Chinese Whispers) avec 100 personnes. À la fin de la chaîne, le message original est déformé. Dans un RNN, c'est la même chose.
+
+Lors de l'entraînement, nous calculons une erreur (la différence entre ce que l'IA a dit et la vérité). Cette erreur doit "remonter" le temps pour dire aux neurones du début de la phrase : "Hé, vous avez mal interprété le sujet !". 
+*   **Vanishing Gradient** (Disparition) : À force de remonter les étapes, le signal mathématique devient si petit qu'il s'évapore. Les neurones du début de la phrase n'apprennent jamais rien. Le modèle oublie le début du texte.
+*   **Exploding Gradient** (Explosion) : À l'inverse, le signal peut devenir infini et faire "planter" les calculs de la machine.
+
+---
+## La solution partielle : LSTM (Long Short-Term Memory)
+En 1997, Hochreiter et Schmidhuber ont inventé le **LSTM** pour tenter de sauver les RNN. Imaginez que dans chaque neurone, nous ajoutions une "autoroute de l'information" protégée par des portes.
+*   **La porte d'oubli** : Elle décide quelle information du passé est devenue inutile (ex: changer de paragraphe).
+*   **La porte d'entrée** : Elle décide quelle nouvelle information est digne d'être mémorisée.
+*   **La porte de sortie** : Elle filtre ce que l'on montre au reste du réseau.
+
+> [!NOTE]
+✍🏻 **Je dois insister :** Les LSTM ont permis de passer de 10 mots de mémoire à environ 100 ou 200 mots. 
+
+> C'était un progrès immense, mais pour lire un livre ou comprendre un contrat juridique, c'était encore bien trop peu. L'architecture restait désespérément **séquentielle**.
+
+---
+## Pourquoi la récurrence empêche le "Scaling" ?
+C'est le point de vue de l'ingénieur de production. Comme chaque mot a besoin du résultat du mot précédent pour être calculé, on ne peut pas utiliser la pleine puissance des cartes graphiques (GPU).
+*   Les GPU adorent faire des milliers de calculs **en même temps** (parallélisation).
+*   Les RNN obligent le GPU à attendre : "J'ai fini le mot 1, donne-moi le mot 2...". 
+C'est pour cela que nous ne pouvions pas entraîner de modèles sur l'intégralité d'Internet avec des RNN. C'était tout simplement trop lent.
+
+---
+## Laboratoire de code : Structure d'un RNN en PyTorch
+Voici une implémentation simplifiée pour que vous puissiez "voir" la dépendance séquentielle. Notez bien le passage de l'état caché (`hidden`).
 
 ```python
 import torch
 import torch.nn as nn
 
-# Structure d'un RNN pour traiter des séquences
-# Testé pour Colab T4
-class SimpleRNN(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, hidden_dim):
-        super(SimpleRNN, self).__init__()
-        # 1. Couche d'embeddings (vue en 1.1)
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+# Un RNN simple pour comprendre la séquence
+# Testé sur Colab T4
+class MyRNN(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(MyRNN, self).__init__()
+        self.hidden_size = hidden_size
         
-        # 2. La cellule RNN (La "mémoire" séquentielle)
-        self.rnn = nn.RNN(embedding_dim, hidden_dim, batch_first=True)
+        # La cellule RNN qui mélange Entrée + Passé
+        # batch_first=True permet de traiter (Batch, Sequence, Features)
+        self.rnn = nn.RNN(input_size, hidden_size, batch_first=True)
         
-        # 3. La tête de classification ou de prédiction
-        self.fc = nn.Linear(hidden_dim, vocab_size)
+        # Couche de sortie pour prédire le mot suivant
+        self.fc = nn.Linear(hidden_size, output_size)
 
-    def forward(self, text):
-        # text: [batch_size, seq_length]
-        embedded = self.embedding(text)
+    def forward(self, x):
+        # Initialisation du premier état caché à zéro
+        h0 = torch.zeros(1, x.size(0), self.hidden_size).to(x.device)
         
-        # Le RNN renvoie l'output de chaque étape et le dernier état caché
-        output, hidden = self.rnn(embedded)
+        # Passage dans le RNN : il traite toute la séquence
+        # Mais en interne, il fait une boucle mot par mot !
+        out, hn = self.rnn(x, h0)
         
-        # On utilise le dernier état caché (le fameux "context embedding")
-        # pour prédire le mot suivant ou la classe
-        return self.fc(hidden.squeeze(0))
+        # On ne garde que le résultat du dernier mot pour la prédiction
+        # C'est notre fameux "Vecteur de Contexte"
+        context_vector = out[:, -1, :]
+        return self.fc(context_vector)
+
 ```
-<!-- TODO: add colab link -->
 
-## Synthèse des faiblesses
+> [!IMPORTANT]
+⚠️ Observez la ligne `out[:, -1, :]`. Nous jetons littéralement tous les calculs des mots précédents pour ne garder que le dernier. Vous comprenez maintenant pourquoi l'information se perd !
 
-Si je devais résumer pourquoi nous avons dû abandonner les RNN au profit de ce que vous utilisez aujourd'hui, je retiendrai trois points critiques :
-1.  **L'oubli des débuts** : Même avec les LSTM, le modèle finit par perdre le contexte lointain (Disparition du gradient).
-2.  **L'impossibilité de paralléliser** : Comme le mot 3 a besoin de l'état du mot 2, qui a besoin du mot 1, on ne peut pas utiliser la pleine puissance des cartes graphiques (GPU) modernes pour l'entraînement. C'est un processus linéaire dans un monde de calcul parallèle.
-3.  **Le Goulot de Contexte** : Essayer de compresser toute une phrase dans un seul vecteur est une stratégie perdante pour la complexité du langage humain.
+---
+## Éthique et Biais : Le biais de primauté
 
-{{% hint info %}}
-C'est dans cette impasse technologique qu'est née une idée folle : et si on arrêtait de forcer la machine à lire de gauche à droite ? Et si on lui donnait un mécanisme pour "regarder" n'importe quelle partie de la phrase instantanément ? C'est le saut quantique vers l'Attention que nous allons découvrir.
-{{% /hint %}}
+> [!CAUTION]
+⚖️ Mes chers étudiants, même l'architecture dicte nos préjugés.
+
+Dans un RNN, les mots du début de la phrase ont moins d'influence sur la fin que les mots récents (à cause de la disparition du gradient). Si vous entraînez un modèle de justice sur des dossiers, et que le RNN "oublie" le contexte initial de l'affaire pour ne se concentrer que sur les derniers mots techniques, vous créez une IA injuste par amnésie. 
+
+> [!IMPORTANT]
+🔑 **La responsabilité de l'ingénieur est de garantir une attention équitable à toute la donnée.** 
+
+---
+## Synthèse de la section
+Nous avons vu comment les RNN et LSTM ont tenté de capturer la mélodie du langage en traitant les mots un par un. Nous avons compris leurs trois péchés originels :
+1.  **Le Goulot d'étranglement** : Tout compresser dans un seul point.
+2.  **L'Oubli** : La perte du signal au fil du temps.
+3.  **La Lenteur** : L'incapacité à calculer en parallèle.
+
+> [!TIP]
+✉️ **Mon message** : Imaginez la frustration des chercheurs en 2016 ! Ils avaient des données, ils avaient des GPU puissants, mais leurs modèles étaient bloqués par cette structure séquentielle. 
+
+> C'est dans ce climat de blocage qu'est née une idée radicale : et si nous arrêtions de lire dans l'ordre ? Et si nous donnions au modèle un moyen de "téléporter" son attention n'importe où, instantanément ? C'est la naissance des Transformers.

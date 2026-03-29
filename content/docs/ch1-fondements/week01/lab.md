@@ -7,7 +7,7 @@ Félicitations ! Vous avez traversé la jungle de l'histoire du NLP. Maintenant,
 
 ---
 
-## 🔹 EXERCICE 1 : Tokenisation manuelle (Niveau basique - Intuition BPE)
+## 🔹 EXERCICE 1 : Tokenisation manuelle (Intuition BPE)
 
 **Objectif** : Comprendre comment un algorithme comme le Byte Pair Encoding (BPE) crée des jetons (tokens) à partir de caractères fréquents.
 
@@ -46,7 +46,7 @@ print(f"La paire à fusionner est : {pair} avec une fréquence de {freq}")
 
 ---
 
-## 🔹 EXERCICE 2 : Analyse comparative (Niveau intermédiaire - Le mur de la polysémie)
+## 🔹 EXERCICE 2 : Analyse comparative (Le mur de la polysémie)
 
 **Objectif** : Démontrer par l'analyse pourquoi les embeddings contextuels ont remplacé le Bag-of-Words.
 
@@ -72,11 +72,11 @@ Considérez les deux phrases suivantes :
 
 ---
 
-## 🔹 EXERCICE 3 : Recherche historique (Niveau avancé - Jalons NLP)
+## 🔹 EXERCICE 3 : Recherche historique (Jalons NLP)
 
 **Objectif** : Synthétiser l'évolution technologique rapide entre 2012 et 2023.
 
-**Consigne** : À l'aide de la **Figure 1-1** et de la **Figure 1-27**, identifiez trois modèles majeurs et expliquez leur apport.
+**Consigne** : À l'aide de la **Figure 1-1** et de la **Figure 1-24**, identifiez trois modèles majeurs et expliquez leur apport.
 
 <details>
 <summary>Voir la réponse</summary>

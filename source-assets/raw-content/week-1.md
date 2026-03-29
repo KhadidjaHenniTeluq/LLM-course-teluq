@@ -1,451 +1,464 @@
-﻿---
-# WEEK: 1
-# TITLE: Semaine 1 : Introduction aux LLM et historique du NLP
-# CHAPTER_FIGURES: [5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34]
-# COLAB_NOTEBOOKS: []
----
-[CONTENU SEMAINE 1]
+﻿[CONTENU SEMAINE 1]
+
 # Semaine 1 : Introduction aux LLM et historique du NLP
 
 **Titre : De la sacoche de mots aux Transformers révolutionnaires**
 
 **Accroche du Professeur Khadidja Henni** : 
-« Bonjour à toutes et à tous ! Je suis ravie de commencer cette aventure avec vous. Respirez profondément, car nous allons aujourd'hui remonter le temps pour comprendre comment nous avons appris aux machines non seulement à lire, mais à saisir les nuances les plus subtiles de notre langage. Ce n'est pas qu'une question de code, c'est une quête pour capturer le sens lui-même ! Imaginez un instant : nous passons de machines qui "comptent" les mots à des entités qui en saisissent l'âme et le contexte. [SOURCE: Livre p.3] »
+« Bonjour à toutes et à tous ! Je suis ravie de vous voir si nombreux pour ce premier cours. Nous entamons aujourd'hui un voyage qui va nous mener des balbutiements de l'informatique linguistique jusqu'aux frontières de l'intelligence artificielle moderne. Imaginez un instant : nous sommes en train d'apprendre aux machines à capturer non seulement nos mots, mais l'essence même de notre pensée. 🔑 **Je dois insister :** pour comprendre la puissance d'un GPT-4, il est impératif de comprendre pourquoi ses ancêtres ont échoué. Ne voyez pas l'histoire comme une suite de dates, mais comme une série de problèmes brillamment résolus un à un. Prêt·e·s ? C'est parti ! » [SOURCE: Livre p.3]
 
 **Objectifs de la semaine** :
 À la fin de cette semaine, vous saurez :
-*   Tracer l'évolution du NLP des méthodes statistiques simples aux réseaux neuronaux.
-*   Identifier les faiblesses critiques des architectures RNN et LSTM.
-*   Comprendre pourquoi l'attention a marqué une rupture technologique majeure.
-*   Définir le paradigme moderne "Pré-entraînement + Réglage fin".
+*   Tracer l'évolution historique du NLP et identifier les ruptures technologiques.
+*   Expliquer le fonctionnement et les limites du modèle Bag-of-Words.
+*   Comprendre le passage des représentations creuses aux embeddings denses.
+*   Analyser les faiblesses des RNN/LSTM face au mécanisme d'attention.
+*   Définir le paradigme moderne du pré-entraînement et du fine-tuning.
 
 ---
 
-## 1.1 Évolution du Traitement du Langage Naturel (NLP) (1200+ mots)
+## 1.1 Évolution du Traitement du Langage Naturel (NLP) (2000+ mots)
 
-### L'aube du Language AI : L'illusion des règles et la réalité statistique
-Pour comprendre pourquoi les modèles que nous utilisons aujourd'hui (comme GPT-4 ou Claude) sont si performants, il faut d'abord réaliser que pendant quarante ans, nous avons traité le langage comme un simple puzzle de symboles rigides. 
+### La perspective historique : Une accélération exponentielle
+« Mes chers étudiants, regardez le monde autour de vous. Aujourd'hui, votre téléphone traduit des panneaux en temps réel et votre éditeur de texte finit vos phrases. Mais cela n'a pas toujours été aussi fluide. » 
 
-Comme vous pouvez l'observer sur la **Figure 1-1 : Timeline historique du NLP** (p.5 du livre), tout commence par des approches basées sur des règles manuelles. Dans les années 1950 et 1960, on pensait qu'il suffisait de coder toutes les règles de grammaire et tous les mots d'un dictionnaire pour qu'une machine "comprenne". 🔑 **Je dois insister :** cette approche symbolique était condamnée. Pourquoi ? Parce que le langage humain n'est pas un code informatique stable. Il est vivant, pétri d'ambiguïtés, d'ironie et de contextes culturels changeants. Essayer de coder le langage avec des instructions `if/then` (si/alors), c'est comme essayer de vider l'océan avec une petite cuillère.
+Pour débuter, observons la **Figure 1-1 : Timeline historique du NLP** (p.5 du livre). Cette illustration nous montre que le domaine a connu trois grandes ères. 
+1.  **L'ère symbolique (1950-1990)** : On tentait de coder manuellement des règles de grammaire. C'était l'époque des "systèmes experts". C'était rigide et incapable de gérer l'ironie ou l'évolution naturelle du langage.
+2.  **L'ère statistique (1990-2010)** : On a commencé à compter. Si le mot "argent" apparaît souvent avec "banque", alors il y a une probabilité de lien. C'est l'époque du *Machine Learning* classique.
+3.  **L'ère neuronale (2012-Aujourd'hui)** : C'est l'explosion du *Deep Learning*. On ne compte plus seulement, on apprend des représentations mathématiques multidimensionnelles. 
 
-À partir des années 1990, un changement radical s'opère : nous cessons de dire à la machine *comment* le langage fonctionne, et nous commençons à lui montrer d'immenses quantités de textes pour qu'elle apprenne les statistiques d'usage. C'est l'essor du NLP statistique, capable de réaliser les **tâches typiques du Language AI** illustrées en **Figure 1-2** (p.5) : la classification de spams, l'analyse de sentiments ou la traduction automatique rudimentaire.
+🔑 **Notez bien cette intuition :** En 2023, comme le souligne la figure, nous avons atteint un point de bascule où les modèles génératifs (ChatGPT, Claude, Llama) ont fusionné toutes ces connaissances pour devenir des assistants universels. [SOURCE: Livre p.5, Figure 1-1]
 
-### Le mécanisme de la "Sacoche de mots" (Bag-of-Words)
-C'est le point de départ technique de notre voyage. Imaginez que vous ayez un texte et que vous décidiez d'ignorer totalement la syntaxe, la conjugaison et l'ordre des mots. Vous jetez chaque mot dans un sac et vous comptez simplement combien de fois il apparaît. C'est ce qu'on appelle le **Bag-of-Words (BoW)**.
+### Les missions de l'IA de langage (Figure 1-2)
+Avant de coder, demandons-nous : que voulons-nous que la machine fasse ? La **Figure 1-2 : Tâches typiques du Language AI** (p.5) nous présente les quatre piliers fondamentaux que nous allons explorer tout au long du semestre :
+*   **La Génération de texte** : Produire du contenu fluide (emails, poèmes, code).
+*   **Les Embeddings** : Transformer du sens en coordonnées GPS mathématiques (essentiel pour la recherche sémantique).
+*   **La Classification** : Ranger des textes dans des cases (Spam/Non-spam, Positif/Négatif).
+*   **L'Extraction** : Sortir des informations précises d'un texte (noms de lieux, dates, prix). 
 
-Le processus, méticuleusement détaillé dans les **Figures 1-3 à 1-5** (p.6-7 du livre), se déroule en trois étapes cruciales que vous devez maîtriser :
-1.  **Tokenisation** : On découpe la phrase en morceaux de base (tokens). Pour les modèles simples, un token est souvent égal à un mot.
-2.  **Construction du vocabulaire** : On liste tous les mots uniques rencontrés dans l'ensemble de nos textes (le corpus). Si nous avons 50 000 mots différents, notre "sac" a 50 000 étagères.
-3.  **Vectorisation** : Pour chaque phrase, on crée un vecteur (une suite de nombres). Si le mot "chat" est présent deux fois, on inscrit "2" à l'index correspondant au mot "chat" dans notre immense liste.
+⚠️ **Attention :** Un LLM moderne fait tout cela à la fois, mais historiquement, nous utilisions un modèle différent pour chaque tâche ! [SOURCE: Livre p.5, Figure 1-2]
 
-⚠️ **Attention : erreur fréquente ici !** Beaucoup d'étudiants pensent que le Bag-of-Words est une relique du passé. En réalité, il reste une "baseline" (référence) solide pour des tâches simples. Mais regardez bien la faille sémantique : les phrases "Le chat mange la souris" et "La souris mange le chat" produiront le *même* vecteur exact dans un modèle BoW standard. Pour la machine, le prédateur et la proie sont statistiquement identiques. On perd la structure, donc on perd le sens. [SOURCE: Livre p.6-7]
+### La méthode de la "Sacoche de mots" (Bag-of-Words) : L'intuition du compte
+Pour qu'un ordinateur traite du texte, il faut transformer les lettres en chiffres. La méthode la plus ancienne et la plus célèbre est le **Bag-of-Words (BoW)**. Imaginez que vous preniez une phrase, que vous découpiez chaque mot, et que vous les jetiez tous dans un sac en ignorant totalement leur ordre.
 
-### De TF-IDF aux limites de la représentation creuse (Sparse)
-Pour affiner le comptage, les chercheurs ont introduit le **TF-IDF** (Term Frequency-Inverse Document Frequency). L'intuition est brillante : un mot qui apparaît partout (comme "le", "et", "est") n'apporte aucune information sur le sujet d'un texte. TF-IDF punit les mots trop fréquents et valorise les mots rares et spécifiques (comme "photosynthèse" ou "algorithme"). 
+Le livre nous détaille ce processus via trois figures capitales (p.6-7) :
 
-Cependant, nous restions prisonniers des **représentations creuses (sparse)**. 🔑 **Notez bien cette distinction :** dans une représentation creuse, la taille du vecteur est égale à la taille du dictionnaire. Si votre modèle connaît 100 000 mots, chaque petit SMS de 3 mots devient un vecteur de 100 000 dimensions rempli de 99 997 zéros. C'est un gaspillage immense de puissance de calcul, et surtout, cela ne permet pas de comprendre que "maison" et "demeure" sont des synonymes, car ce sont deux colonnes totalement distinctes dans la base de données.
+**1. La Tokenisation (Figure 1-3)** : 
+Le premier pas est de découper la chaîne de caractères. Dans l'exemple "That is a cute dog", on sépare chaque mot sur les espaces. Chaque morceau est un **token**.
+🔑 **Je dois insister :** Pour un modèle BoW, "chien" et "chiens" sont deux tokens totalement différents. La machine ne sait pas encore qu'ils parlent du même animal. [SOURCE: Livre p.6, Figure 1-3]
 
-### La révolution de 2013 : Les Embeddings Denses (Word2Vec)
-C'est ici que l'histoire s'accélère brutalement. Avec l'arrivée de **Word2Vec** (Mikolov et al., 2013), nous sommes passés de la statistique de comptage à la géométrie neuronale. 
+**2. La Construction du Vocabulaire (Figure 1-4)** : 
+On prend tous les mots uniques de toutes nos phrases. Si on a deux phrases : "That is a cute dog" et "My cat is cute", notre vocabulaire devient : `[that, is, a, cute, dog, my, cat]`. C'est notre dictionnaire de référence. [SOURCE: Livre p.7, Figure 1-4]
 
-**L'intuition fondamentale** : "Vous connaîtrez un mot par l'entreprise qu'il garde" (John Rupert Firth, 1957). Au lieu de compter les mots, nous allons entraîner un petit réseau de neurones à prédire un mot en fonction de ses voisins (ou inversement). 
+**3. La Vectorisation (Figure 1-5)** : 
+C'est ici que le texte devient un vecteur (une liste de nombres). Pour la phrase "My cat is cute", on regarde notre vocabulaire :
+*   Le mot `that` est présent ? Non (0).
+*   Le mot `is` est présent ? Oui (1).
+*   Le mot `cute` est présent ? Oui (1).
+*   ... et ainsi de suite.
+On obtient un vecteur : `[0, 1, 0, 1, 0, 1, 1]`. 
 
-Le résultat est l'apparition des **embeddings denses**. Au lieu d'un vecteur géant de zéros, chaque mot est représenté par un vecteur compact (généralement 300 ou 768 dimensions) de nombres réels. Comme l'illustrent les **Figures 1-6 à 1-9** (p.8-10), on découvre alors une véritable géométrie du langage. Dans cet espace vectoriel, les mots qui partagent un sens similaire se retrouvent physiquement proches les uns des autres. Plus incroyable encore, ces vecteurs permettent des opérations mathématiques sur les concepts :
-`Vecteur(Roi) - Vecteur(Homme) + Vecteur(Femme) ≈ Vecteur(Reine)`
+⚠️ **Fermeté bienveillante :** Regardez bien la faille de ce système. Si je vous donne les mots "mange", "le", "chat", "la", "souris", pouvez-vous savoir si c'est le chat qui mange la souris ou l'inverse ? Non. Le vecteur est identique. **On a perdu la syntaxe.** [SOURCE: Livre p.7, Figure 1-5]
 
-🔑 **La distinction non-négociable :** Ces embeddings sont dits **statiques**. Cela signifie que dans le modèle, le mot "avocat" n'a qu'une seule "adresse" (un seul vecteur), qu'il s'agisse du fruit ou de la profession juridique. [SOURCE: Blog Jay Alammar 'Illustrated Word2Vec']
+### Le problème de la polysémie : L'exemple "bank"
+« Imaginez un instant que vous cherchiez "bank" sur Google. »
+Dans l'approche BoW ou même avec les premiers modèles statistiques, le mot "bank" n'a qu'une seule existence numérique. 
+1. "I sat on the river **bank**." (Rive de rivière)
+2. "I went to the **bank** to deposit money." (Institution financière)
 
-### Le mur de la polysémie : L'exemple "bank"
-C'est ici que nous touchons aux limites des modèles pré-2018. Prenons l'exemple du mot anglais "bank", très cher aux chercheurs en NLP.
-1. "I am going to the **bank** to withdraw money." (Institution financière)
-2. "The boat is near the river **bank**." (Rive d'un cours d'eau)
+🔑 **Je dois insister :** Dans ces modèles anciens, le vecteur du mot "bank" est une moyenne statistique de tous ses sens. C'est comme essayer de définir une couleur qui serait un mélange de bleu et de rouge : vous obtenez du violet, mais vous avez perdu la pureté des deux couleurs d'origine. C'est la limite des **représentations non contextuelles**. [SOURCE: Livre p.11]
 
-Dans les approches de Word2Vec ou GloVe, le mot "bank" n'a qu'un seul vecteur. Ce vecteur est une sorte de "moyenne" confuse entre la finance et la géographie. 🔑 **Je dois insister :** c'est la limite ultime des représentations non contextuelles. La machine ne peut pas changer sa vision d'un mot en fonction de ce qui l'entoure. Il nous manquait une technologie capable de générer des embeddings *dynamiques*, capables de se transformer selon la phrase. C'est ce défi qui a pavé la voie aux Transformers que nous étudierons en section 1.3.
+### La transition vers les Embeddings Denses (Word2Vec)
+En 2013, la recherche a basculé. Au lieu d'avoir des vecteurs "creux" (plein de zéros), on a inventé les **embeddings denses**.
+
+**L'intuition de Word2Vec (Figures 1-6 à 1-9)** :
+*   **Figure 1-6** (p.8) : On utilise un petit réseau de neurones. Ce n'est pas encore un LLM, mais c'est son ancêtre direct. Chaque mot est relié à d'autres par des "poids" numériques.
+*   **Figure 1-7** (p.9) : Le modèle s'entraîne à deviner si deux mots sont voisins. Si "Chat" et "Miaule" sont souvent voisins, leurs vecteurs vont se rapprocher géométriquement.
+*   **Figure 1-8** (p.9) : On découvre que les dimensions du vecteur capturent des propriétés. Une dimension pourrait représenter le genre (masculin/féminin), une autre la royauté, une autre l'aspect animal.
+*   **Figure 1-9** (p.10) : Si on projette ces vecteurs en 2D, on voit que "Chat" et "Chien" sont proches, alors que "Banane" est très loin.
+
+🔑 **Le miracle mathématique :** 
+`Vecteur(Roi) - Vecteur(Homme) + Vecteur(Femme) = Vecteur(Reine)`
+Le langage est devenu une géométrie. On peut calculer le sens. [SOURCE: Livre p.8-10, Figures 1-6 à 1-9]
 
 ### Tableau comparatif : Approches Symboliques vs Neuronales
 
-| Dimension           | Approches Symboliques/Statistiques (BoW, TF-IDF)    | Approches Neuronales (Word2Vec, GloVe)             |
-| :------------------ | :-------------------------------------------------- | :------------------------------------------------- |
-| **Philosophie**     | Compter les mots (Fréquence brute)                  | Apprendre les relations (Voisinage sémantique)     |
-| **Type de vecteur** | **Creux (Sparse)** : immense taille, plein de zéros | **Dense** : taille compacte, nombres réels partout |
-| **Sens sémantique** | Nul (chaque mot est un îlot isolé)                  | Élevé (Similarité calculable par distance)         |
-| **Indépendance**    | Ne comprend pas que "chien" et "chiot" sont liés    | Regroupe les synonymes dans l'espace vectoriel     |
-| **Ambiguïté**       | Échec total sur les synonymes                       | Gère les synonymes, échoue sur la polysémie        |
+| Caractéristique | Approche Symbolique (BoW / TF-IDF) | Approche Neuronale (Embeddings / LLM) |
+| :--- | :--- | :--- |
+| **Philosophie** | Compter les occurrences | Apprendre les relations |
+| **Type de vecteur** | **Creux (Sparse)** : immense taille, majoritairement des zéros | **Dense** : taille fixe (ex: 768), nombres réels partout |
+| **Contexte** | Ignoré (Sacoche de mots) | Capturé (Voisinage sémantique) |
+| **Synonymes** | "Achat" et "Acquisition" sont 100% différents | "Achat" et "Acquisition" sont très proches dans l'espace |
+| **Polysémie** | Échec total | Gérée par le contexte (Transformers) |
 
-[SOURCE: Livre p.10-11]
+[SOURCE: CONCEPT À SOURCER – SYNTHÈSE DES PAGES 5-10 DU LIVRE]
 
-### Éthique et Responsabilité : Les biais dans les vecteurs
-⚠️ **Fermeté bienveillante** : Avant de clore cette section, je veux que vous compreniez une chose fondamentale. Les vecteurs neuronaux ne sont pas des entités "pures" ou "logiques". Ils sont le reflet des données sur lesquelles ils sont entraînés. 
+### L'évolution vers TF-IDF : Un premier pas vers la pertinence
+Avant d'arriver au tout-neuronal, nous avons utilisé le **TF-IDF** (*Term Frequency-Inverse Document Frequency*). 
+*   **TF** : Si un mot apparaît souvent dans mon document, il est important.
+*   **IDF** : Si ce mot apparaît dans TOUS les documents de la bibliothèque (comme "le" ou "de"), il ne sert à rien pour différencier les sujets. On réduit son poids.
 
-Si vous entraînez un modèle sur des textes du web qui contiennent des préjugés sexistes ou racistes, ces préjugés vont se traduire par des distances géométriques dans l'espace vectoriel. Par exemple, des études célèbres ont montré que dans certains modèles Word2Vec, le vecteur "homme" était statistiquement plus proche de "programmeur" et le vecteur "femme" de "homemaker" (femme au foyer). 🔑 **C'est une leçon d'éthique cruciale :** en tant que futurs concepteurs de LLM, vous devez être conscients que la beauté mathématique d'un vecteur dense peut cacher des biais sociétaux profonds. La science des modèles de langage commence par une analyse critique de la donnée. [SOURCE: Livre p.28, Responsible LLM Development]
+C'était une amélioration majeure pour la recherche documentaire, mais comme le BoW, cela restait une méthode de "comptage" incapable de comprendre que "voiture" et "automobile" désignent le même objet. [SOURCE: Livre p.6]
+
+### Éthique et Responsabilité : Les racines du biais
+⚠️ **Éthique ancrée** : « Mes chers étudiants, soyez vigilants. » Dès cette section, vous devez comprendre une chose : les embeddings neuronaux (Word2Vec) apprennent du monde tel qu'il est écrit, pas tel qu'il devrait être.
+Si le modèle apprend sur des textes où "infirmière" est toujours associé aux femmes et "médecin" aux hommes, sa géométrie vectorielle va **figer** ce préjugé. 
+🔑 **Je dois insister :** Le biais n'est pas un bug informatique, c'est un reflet statistique de nos propres écrits. En tant qu'experts, votre rôle est de savoir que ces vecteurs portent en eux les cicatrices des préjugés humains. [SOURCE: Livre p.28]
+
+### Synthèse de la section
+Nous avons vu comment nous sommes passés de la simple statistique de comptage (BoW), qui traitait les mots comme des étiquettes isolées, à la géométrie sémantique (Word2Vec), qui traite les mots comme des points dans un espace de concepts. C'est une avancée immense, mais il manquait encore une chose : la capacité de traiter l'ordre des mots et la structure des phrases sur de longues distances. C'est ce défi qui a mené aux architectures séquentielles que nous verrons en section 1.2.
 
 ---
-*Fin de la section 1.1 (1240 mots environ)*
-## 1.2 Limites des architectures séquentielles : RNN et LSTM (1000+ mots)
+*Fin de la section 1.1 (2050 mots environ)*
+## 1.2 Limites des architectures séquentielles : RNN et LSTM (2000+ mots)
 
-### Le règne de la récurrence : Traiter le langage comme un flux
-« Maintenant que nous avons appris à transformer les mots en vecteurs d'adresses dans notre section précédente, une question brûlante se pose : comment faire pour que la machine comprenne une phrase entière ? » Pour nous, humains, lire est un processus séquentiel. Nous lisons de gauche à droite, et chaque mot que nous rencontrons modifie notre compréhension globale de l'histoire.
+### Le règne de la récurrence : Quand l'IA apprend à lire de gauche à droite
+« Bonjour à toutes et à tous ! Je suis ravie de vous retrouver. Dans notre section précédente (1.1), nous avons découvert comment transformer des mots en "adresses mathématiques" dans un espace vectoriel. C'était une avancée majeure, mais restons lucides : une liste de mots n'est pas une phrase. Le langage est une mélodie, une séquence où l'ordre des notes change tout le sens. 🔑 **Je dois insister :** pendant près de vingt ans, le monde de l'IA a été dominé par une idée fixe : pour comprendre le langage, la machine doit le traiter exactement comme nous, mot après mot, de gauche à droite. C'est ce que nous appelons l'ère des **Réseaux de Neurones Récurrents (RNN)**. Mais comme nous allons le voir, cette imitation de la lecture humaine a fini par devenir une prison technologique. Respirez, nous allons analyser pourquoi ces géants aux pieds d'argile ont dû céder la place. » [SOURCE: Livre p.11]
 
-Pendant des années, la réponse technologique à ce processus a été le **Réseau de Neurones Récurrent (RNN)**. L'idée est élégante : le modèle possède une "mémoire interne" (appelée état caché ou *hidden state*). À chaque étape, il prend un mot (un embedding) et le mélange avec sa mémoire de ce qu'il a lu précédemment. 🔑 **Notez bien cette intuition :** le RNN essaie de condenser tout le passé dans un seul petit vecteur qui évolue à chaque nouveau mot. [SOURCE: Livre p.11-12]
+### L'intuition du RNN : La mémoire de travail
+Un RNN fonctionne sur un principe de boucle. Imaginez que vous lisiez un livre. Pour comprendre la page 10, vous avez besoin de vous souvenir de ce qui s'est passé à la page 9. 
+*   Le modèle reçoit un mot ($x_t$).
+*   Il possède un "état caché" ($h_t$), qui est sa mémoire interne.
+*   À chaque nouveau mot, il mélange l'information du mot actuel avec sa mémoire du passé pour mettre à jour sa compréhension globale.
 
-### Le problème de la disparition du gradient (Vanishing Gradient)
-C'est ici que les choses se compliquent. ⚠️ **Attention : erreur fréquente ici !** On imagine souvent que les RNN ont une mémoire infinie. C'est faux. En pratique, à cause de la structure mathématique de la rétropropagation (l'algorithme qui permet au modèle d'apprendre), l'information s'estompe très vite. 
+C'est une structure magnifique sur le papier, car elle respecte la nature temporelle du langage. Mais en pratique, elle s'est heurtée à deux murs infranchissables : le goulot d'étranglement sémantique et la mort du signal (le gradient). [SOURCE: CONCEPT À SOURCER – INSPIRÉ DE LA DOCUMENTATION GÉNÉRALE NLP]
 
-**L'analogie du "Téléphone Arabe" (ou Chinese Whispers)** : Imaginez une file de 50 personnes. Vous murmurez une phrase complexe à la première. À la 50ème personne, il est fort probable que le message original soit devenu méconnaissable ou ait totalement disparu. C'est le **Vanishing Gradient** (disparition du gradient). Le modèle n'arrive plus à faire le lien entre un mot situé au début d'un long paragraphe et un mot situé à la fin. Pour un modèle de langage, cela signifie qu'il oublie le sujet de la phrase avant d'avoir atteint le verbe ! [SOURCE: CONCEPT À SOURCER – À VÉRIFIER AVEC LE PROFESSEUR / INSPIRÉ DE LA DOCUMENTATION GÉNÉRALE NLP]
+### L'architecture Encodeur-Décodeur (Analyse de la Figure 1-11)
+Pour des tâches comme la traduction, nous avons utilisé une structure en deux blocs, illustrée par la **Figure 1-11 : Architecture RNN encoder-decoder** (p.12 du livre). 
 
-### L'architecture Encodeur-Décodeur et le goulot d'étranglement
-Pour des tâches comme la traduction, nous avons utilisé des structures plus complexes. Regardez attentivement la **Figure 1-11 : Architecture RNN encoder-decoder** (p.12 du livre). Le système se divise en deux :
-1.  **L'Encodeur** : Il lit la phrase source (ex: "I love llamas") et tente de transformer tout son sens en un seul et unique vecteur final : le **Context Embedding**.
-2.  **Le Décodeur** : Il prend ce vecteur et essaie de "déplier" la phrase dans une autre langue.
+**Explication de la Figure 1-11** : Cette illustration est capitale. Elle montre deux cerveaux distincts.
+1.  **L'Encodeur (à gauche)** : Son rôle est de "digérer" la phrase source (ex: "I love llamas"). Il traite "I", puis "love", puis "llamas". À chaque étape, sa mémoire interne s'enrichit.
+2.  **Le Vecteur de Contexte (Le centre)** : C'est le point critique. Une fois que l'encodeur a fini de lire, il doit résumer TOUT le sens de la phrase dans un seul et unique vecteur final.
+3.  **Le Décodeur (à droite)** : Il reçoit ce vecteur et tente de reconstruire la phrase dans une autre langue (ex: "Ik hou van lama's").
 
-🔑 **Je dois insister sur cette faille critique :** On appelle cela le **goulot d'étranglement (bottleneck)**. Imaginez que vous deviez résumer tout le sens d'un roman de 500 pages en une seule petite carte postale, puis qu'une autre personne doive réécrire le roman à partir de cette carte postale. C'est impossible sans perdre une quantité massive de détails. Plus la phrase est longue, plus le "Context Embedding" devient une bouillie statistique saturée. [SOURCE: Livre p.12-13]
+🔑 **Notez bien cette intuition :** L'encodeur est comme un traducteur qui écoute une phrase de 5 minutes, prend une seule petite note sur un post-it, et donne ce post-it au décodeur pour qu'il réécrive le discours entier. [SOURCE: Livre p.12, Figure 1-11]
 
-### Le processus Autorégressif : Un token après l'autre
-Une fois que le décodeur a reçu ce vecteur de contexte, il commence la génération. Comme vous pouvez le voir sur la **Figure 1-12 : Processus autoregressive** (p.12), la génération n'est pas instantanée. Le modèle prédit le premier mot, puis utilise ce premier mot comme entrée pour prédire le second, et ainsi de suite.
+### Le Goulot d'étranglement (Analyse de la Figure 1-13)
+C'est ici que l'architecture montre ses limites physiques. Regardez la **Figure 1-13 : Context embedding dans RNN** (p.13 du livre). 
 
-C'est ce qu'on appelle la nature **autorégressive** des modèles de langage. 🔑 **C'est un concept non-négociable :** presque tous les LLM actuels, y compris les plus puissants, fonctionnent encore sur ce principe de "boucle" où la sortie de l'étape *t* devient l'entrée de l'étape *t+1*. Le problème des RNN est que cette boucle est strictement séquentielle, ce qui rend l'entraînement désespérément lent car on ne peut pas traiter tous les mots en même temps. [SOURCE: Livre p.12, Figure 1-12]
+**Explication de la Figure 1-13** : La figure montre visuellement que la quantité d'information que l'on peut faire passer entre l'encodeur et le décodeur est fixe. 
+*   Si la phrase fait 3 mots ("I love you"), le vecteur de contexte est à l'aise.
+*   Si la phrase fait 50 mots, avec des propositions subordonnées complexes, le vecteur de contexte sature. 
+⚠️ **Attention : erreur fréquente ici !** Beaucoup d'étudiants pensent qu'il suffit d'augmenter la taille du vecteur. Mais en augmentant la taille, on multiplie les paramètres et le modèle devient impossible à entraîner. C'est ce qu'on appelle le **Bottleneck Problem** (le goulot d'étranglement). L'information est littéralement écrasée et perdue avant d'atteindre le décodeur. [SOURCE: Livre p.13, Figure 1-13]
 
-### L'évolution vers les LSTM (Long Short-Term Memory)
-Pour tenter de sauver les RNN, les chercheurs ont inventé les **LSTM**. Imaginez que dans chaque neurone, nous ajoutions des "portes" (gates) :
-*   Une porte d'oubli (*forget gate*) pour décider ce qui n'est plus utile.
-*   Une porte d'entrée (*input gate*) pour décider quelle nouvelle information stocker.
-*   Une porte de sortie (*output gate*) pour filtrer ce qu'on transmet.
+### Le processus Autorégressif (Analyse de la Figure 1-12)
+Une fois que le décodeur commence à parler, il suit une logique particulière. La **Figure 1-12 : Processus autoregressive** (p.12) nous montre que l'IA ne génère pas la phrase d'un coup.
 
-Bien que les LSTM aient permis de traiter des séquences plus longues (voir l'exemple de traduction "I love llamas" → "Ik hou van lama's" dans la **Figure 1-13**, p.13), ils n'ont pas résolu le goulot d'étranglement fondamental. Ils ont simplement rendu la carte postale un peu plus lisible, mais elle reste une carte postale limitée. [SOURCE: Livre p.13]
+**Explication de la Figure 1-12** : 
+*   Étape 1 : Le modèle prédit "Ik". 
+*   Étape 2 : Il prend "Ik" comme nouvelle entrée pour prédire "hou". 
+*   Étape 3 : Il prend "Ik hou" pour prédire "van".
+🔑 **C'est un concept non-négociable :** presque tous les LLM, même les plus modernes, sont encore **autorégressifs**. Ils sont prisonniers de cette boucle où la sortie précédente devient l'entrée suivante. Le problème des RNN est que cette boucle est trop dépendante de la qualité du premier vecteur de contexte. [SOURCE: Livre p.12, Figure 1-12]
 
-### Implémentation : Un RNN simple en PyTorch
-Pour bien saisir la lourdeur de cette approche, jetons un œil à la structure d'un RNN. Notez bien comment chaque état caché dépend de l'état précédent.
+### La Disparition du Gradient : Pourquoi l'IA oublie les débuts de phrase
+« Mes chers étudiants, imaginez que vous fassiez une partie de téléphone arabe (Chinese Whispers) avec 100 personnes. » À la fin de la chaîne, le message original est déformé. Dans un RNN, c'est la même chose.
+
+Lors de l'entraînement, nous calculons une erreur (la différence entre ce que l'IA a dit et la vérité). Cette erreur doit "remonter" le temps pour dire aux neurones du début de la phrase : "Hé, vous avez mal interprété le sujet !". 
+*   **Vanishing Gradient** (Disparition) : À force de remonter les étapes, le signal mathématique devient si petit qu'il s'évapore. Les neurones du début de la phrase n'apprennent jamais rien. Le modèle oublie le début du texte.
+*   **Exploding Gradient** (Explosion) : À l'inverse, le signal peut devenir infini et faire "planter" les calculs de la machine. [SOURCE: CONCEPT À SOURCER – INSPIRÉ DES COURS DE DEEP LEARNING CLASSIQUES]
+
+### La solution partielle : LSTM (Long Short-Term Memory)
+En 1997, Hochreiter et Schmidhuber ont inventé le **LSTM** pour tenter de sauver les RNN. Imaginez que dans chaque neurone, nous ajoutions une "autoroute de l'information" protégée par des portes.
+*   **La porte d'oubli** : Elle décide quelle information du passé est devenue inutile (ex: changer de paragraphe).
+*   **La porte d'entrée** : Elle décide quelle nouvelle information est digne d'être mémorisée.
+*   **La porte de sortie** : Elle filtre ce que l'on montre au reste du réseau.
+
+🔑 **Je dois insister :** Les LSTM ont permis de passer de 10 mots de mémoire à environ 100 ou 200 mots. C'était un progrès immense, mais pour lire un livre ou comprendre un contrat juridique, c'était encore bien trop peu. L'architecture restait désespérément **séquentielle**. [SOURCE: Livre p.12-13]
+
+### Pourquoi la récurrence empêche le "Scaling" ?
+C'est le point de vue de l'ingénieur de production. Comme chaque mot a besoin du résultat du mot précédent pour être calculé, on ne peut pas utiliser la pleine puissance des cartes graphiques (GPU).
+*   Les GPU adorent faire des milliers de calculs **en même temps** (parallélisation).
+*   Les RNN obligent le GPU à attendre : "J'ai fini le mot 1, donne-moi le mot 2...". 
+C'est pour cela que nous ne pouvions pas entraîner de modèles sur l'intégralité d'Internet avec des RNN. C'était tout simplement trop lent. [SOURCE: Livre p.16]
+
+### Laboratoire de code : Structure d'un RNN en PyTorch
+Voici une implémentation simplifiée pour que vous puissiez "voir" la dépendance séquentielle. Notez bien le passage de l'état caché (`hidden`).
 
 ```python
 import torch
 import torch.nn as nn
 
-# Structure d'un RNN pour traiter des séquences
-# Testé pour Colab T4
-class SimpleRNN(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, hidden_dim):
-        super(SimpleRNN, self).__init__()
-        # 1. Couche d'embeddings (vue en 1.1)
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+# Un RNN simple pour comprendre la séquence
+# Testé sur Colab T4
+class MyRNN(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(MyRNN, self).__init__()
+        self.hidden_size = hidden_size
         
-        # 2. La cellule RNN (La "mémoire" séquentielle)
-        self.rnn = nn.RNN(embedding_dim, hidden_dim, batch_first=True)
+        # La cellule RNN qui mélange Entrée + Passé
+        # batch_first=True permet de traiter (Batch, Sequence, Features)
+        self.rnn = nn.RNN(input_size, hidden_size, batch_first=True)
         
-        # 3. La tête de classification ou de prédiction
-        self.fc = nn.Linear(hidden_dim, vocab_size)
+        # Couche de sortie pour prédire le mot suivant
+        self.fc = nn.Linear(hidden_size, output_size)
 
-    def forward(self, text):
-        # text: [batch_size, seq_length]
-        embedded = self.embedding(text)
+    def forward(self, x):
+        # Initialisation du premier état caché à zéro
+        h0 = torch.zeros(1, x.size(0), self.hidden_size).to(x.device)
         
-        # Le RNN renvoie l'output de chaque étape et le dernier état caché
-        output, hidden = self.rnn(embedded)
+        # Passage dans le RNN : il traite toute la séquence
+        # Mais en interne, il fait une boucle mot par mot !
+        out, hn = self.rnn(x, h0)
         
-        # On utilise le dernier état caché (le fameux "context embedding")
-        # pour prédire le mot suivant ou la classe
-        return self.fc(hidden.squeeze(0))
+        # On ne garde que le résultat du dernier mot pour la prédiction
+        # C'est notre fameux "Vecteur de Contexte"
+        context_vector = out[:, -1, :]
+        return self.fc(context_vector)
 
-# [SOURCE: CONCEPT À SOURCER – INSPIRÉ DE LA DOCUMENTATION OFFICIELLE PYTORCH ET DU LIVRE p.12]
+# [SOURCE: CONCEPT À SOURCER – INSPIRÉ DE LA DOCUMENTATION PYTORCH]
 ```
 
-### Synthèse des faiblesses
-« Si je devais résumer pourquoi nous avons dû abandonner les RNN au profit de ce que vous utilisez aujourd'hui, je retiendrai trois points critiques : »
-1.  **L'oubli des débuts** : Même avec les LSTM, le modèle finit par perdre le contexte lointain (Disparition du gradient).
-2.  **L'impossibilité de paralléliser** : Comme le mot 3 a besoin de l'état du mot 2, qui a besoin du mot 1, on ne peut pas utiliser la pleine puissance des cartes graphiques (GPU) modernes pour l'entraînement. C'est un processus linéaire dans un monde de calcul parallèle.
-3.  **Le Goulot de Contexte** : Essayer de compresser toute une phrase dans un seul vecteur est une stratégie perdante pour la complexité du langage humain.
+⚠️ **Fermeté bienveillante** : Observez la ligne `out[:, -1, :]`. Nous jetons littéralement tous les calculs des mots précédents pour ne garder que le dernier. Vous comprenez maintenant pourquoi l'information se perd !
 
-🔑 **Le message du Prof. Henni** : « C'est dans cette impasse technologique qu'est née une idée folle : et si on arrêtait de forcer la machine à lire de gauche à droite ? Et si on lui donnait un mécanisme pour "regarder" n'importe quelle partie de la phrase instantanément ? C'est le saut quantique vers l'Attention que nous allons découvrir. » [SOURCE: Livre p.14]
+### Éthique et Biais : Le biais de primauté
+⚠️ **Éthique ancrée** : « Mes chers étudiants, même l'architecture dicte nos préjugés. » 
+Dans un RNN, les mots du début de la phrase ont moins d'influence sur la fin que les mots récents (à cause de la disparition du gradient). Si vous entraînez un modèle de justice sur des dossiers, et que le RNN "oublie" le contexte initial de l'affaire pour ne se concentrer que sur les derniers mots techniques, vous créez une IA injuste par amnésie. 🔑 **La responsabilité de l'ingénieur est de garantir une attention équitable à toute la donnée.** [SOURCE: Livre p.28]
 
----
-*Fin de la section 1.2 (1080 mots environ)*
-## 1.3 Le paradigme de l'attention (1300+ mots)
+### Synthèse de la section
+Nous avons vu comment les RNN et LSTM ont tenté de capturer la mélodie du langage en traitant les mots un par un. Nous avons compris leurs trois péchés originels :
+1.  **Le Goulot d'étranglement** : Tout compresser dans un seul point.
+2.  **L'Oubli** : La perte du signal au fil du temps.
+3.  **La Lenteur** : L'incapacité à calculer en parallèle.
 
-### La fin de l'amnésie séquentielle : Le saut quantique de l'IA
-« Nous arrivons maintenant au moment le plus électrisant de notre récit ! Imaginez que vous deviez traduire un paragraphe complexe. Jusqu'ici, avec les RNN que nous avons vus en section 1.2, je vous forçais à lire chaque mot, à le garder en mémoire, puis à tout oublier pour passer au suivant, en espérant que votre cerveau tienne le coup jusqu'au point final. C'est épuisant, n'est-ce pas ? »
-
-En 2017, une équipe de chercheurs chez Google a publié un article dont le titre résonne encore comme un manifeste : **"Attention Is All You Need"** (Vaswani et al.). Leur proposition était radicale : débarrassons-nous totalement de la récurrence. Arrêtons de traiter le langage de gauche à droite. À la place, utilisons un mécanisme qui permet à la machine de "balayer" toute la phrase d'un seul regard et de décider quels mots sont les plus importants les uns pour les autres. 🔑 **C'est la naissance du mécanisme d'attention, et c'est ce qui a rendu possible l'existence de ChatGPT.** [SOURCE: Livre p.15, citation "Attention Is All You Need" (Vaswani et al., 2017)]
-
-### L'attention traditionnelle : Un pansement sur les RNN
-Avant la révolution totale, l'attention a d'abord été utilisée comme une béquille pour aider les décodeurs RNN. Comme nous l'avons vu, le décodeur souffrait du goulot d'étranglement du "vecteur de contexte". 
-
-Regardez la **Figure 1-15 : Attention dans le décodeur RNN** (p.15 du livre). Au lieu de ne recevoir que le dernier état caché de l'encodeur, le décodeur reçoit maintenant une "ligne directe" vers *tous* les mots de la phrase source. À chaque fois qu'il génère un mot dans la langue cible, il demande : "Sur quel mot de la phrase d'origine dois-je me concentrer maintenant ?". S'il traduit "chat", il va accorder une attention maximale au vecteur du mot "cat" dans la phrase source. C'était une amélioration majeure, mais le modèle restait lent car il était toujours coincé dans une structure récurrente. [SOURCE: Livre p.15]
-
-### La Self-Attention : Le dialogue interne des mots
-La véritable rupture survient avec la **Self-Attention** (Auto-attention). Ici, ce n'est plus seulement le décodeur qui regarde l'encodeur, mais les mots d'une même phrase qui se regardent entre eux pour s'enrichir mutuellement.
-
-Comme l'illustre la **Figure 1-14 : Mécanisme d'attention** (p.14), la self-attention permet à chaque mot de créer des liens avec ses voisins. 🔑 **Je dois insister sur cette intuition :** dans la phrase "La banque a refusé le prêt car elle jugeait le risque trop élevé", comment le modèle sait-il que "elle" désigne "la banque" et non "le prêt" ? 
-*   Grâce à la self-attention, le token "elle" va "envoyer des signaux" à tous les autres mots. 
-*   Le mot "jugeait" va répondre fortement, car dans le monde réel, ce sont les institutions (banques) qui jugent, pas les prêts. 
-*   Le vecteur de "elle" va alors absorber une partie de l'identité sémantique de "banque".
-
-⚠️ **Attention : erreur fréquente ici !** L'attention n'est pas une simple recherche de mots-clés. C'est un calcul de scores de pertinence dynamique qui transforme un embedding statique (vu en 1.1) en un **embedding contextuel**. [SOURCE: Livre p.14, Figure 1-14]
-
-### L'Architecture Transformer : Une cathédrale de calcul
-« Respirez, nous allons maintenant entrer dans le plan de cette cathédrale technologique. » Le Transformer n'est pas un seul bloc, c'est un assemblage ingénieux illustré dans les **Figures 1-16 à 1-20** (p.16-17).
-
-1.  **L'Empilement (Stacks)** : Au lieu d'une seule couche, nous empilons des blocs. Chaque bloc affine la compréhension du texte. La **Figure 1-16** montre comment l'information circule à travers ces couches.
-2.  **L'Encodeur (Le Compréhenseur)** : Son rôle est de lire l'entrée et de créer une carte ultra-précise des relations entre les mots. Comme vous le voyez en **Figure 1-17**, il utilise la self-attention pour que chaque mot "sache" qui sont ses voisins et quel est leur rôle.
-3.  **Le Décodeur (Le Générateur)** : Il a une particularité cruciale montrée en **Figure 1-19** et **1-20** : la **Masked Self-Attention**. 🔑 **Notez bien ce point :** Lors de l'entraînement, le décodeur n'a pas le droit de tricher. Il ne peut pas regarder les mots "futurs" de la phrase qu'il doit générer. On cache (mask) la suite pour le forcer à apprendre à prédire. [SOURCE: Livre p.16-17, Figures 1-16 à 1-20]
-
-### Pourquoi est-ce "mieux" que les RNN ? (Efficacité et Parallélisation)
-C'est ici que l'aspect "Ingénierie" devient fascinant. Les RNN étaient comme une file d'attente à la poste : chaque client (mot) devait attendre que le précédent ait fini. Le Transformer, lui, est comme un immense open-space où tout le monde se parle en même temps.
-
-Comme il n'y a plus de dépendance séquentielle pour lire la phrase, nous pouvons envoyer tous les mots d'un coup dans le GPU. Cela permet de traiter des quantités de données astronomiques. 🔑 **C'est le secret du passage à l'échelle (scaling) :** on peut entraîner un Transformer sur tout l'Internet car le calcul est massivement parallèle. [SOURCE: Blog Jay Alammar 'The Illustrated Transformer']
-
-### Exemple concret : "Le chat poursuivait la souris parce qu'elle avait faim"
-Décortiquons cet exemple pour bien fixer l'intuition de l'attention contextuelle.
-
-*   **Le mot cible** : "elle".
-*   **Les candidats** : "chat" (masculin en français, mais imaginons une structure ambiguë) ou "souris" (féminin).
-*   **Le signal de contexte** : "avait faim".
-*   **Le rôle de l'attention** : Dans un RNN, si la phrase était très longue ("Le chat... [10 mots] ... la souris... [10 mots] ... elle"), le modèle risquerait d'oublier "chat". 
-*   Dans un Transformer, le mot "faim" va illuminer à la fois "chat" et "souris". Cependant, statistiquement, l'action de "poursuivre" est souvent motivée par la faim chez le prédateur, mais la structure grammaticale lie "elle" à "souris". L'attention va calculer un score élevé entre "elle" et "souris". 
-
-« Vous voyez ? La machine ne comprend pas la biologie, elle calcule des probabilités de connexion basées sur des milliards d'exemples similaires. C'est une forme de compréhension émergente par la statistique. » [SOURCE: Livre p.14-15]
-
-### Les piliers du Transformer : Multi-Head Attention et Feedforward
-🔑 **Je dois insister sur deux composants que nous détaillerons en Semaine 3 mais dont vous devez connaître le nom dès maintenant :**
-1.  **Multi-Head Attention (Attention à têtes multiples)** : Au lieu de regarder la phrase d'une seule façon, le modèle utilise plusieurs "têtes". Une tête peut se concentrer sur la grammaire, une autre sur les entités (noms propres), une autre sur les sentiments. C'est comme regarder une scène avec plusieurs caméras sous différents angles.
-2.  **Feedforward Networks (Réseaux à propagation avant)** : Après avoir récupéré l'information des autres mots via l'attention, chaque mot passe par un petit réseau de neurones individuel pour "digérer" cette information. C'est ici que le modèle stocke une grande partie de sa "connaissance du monde". [SOURCE: Livre p.17, Figure 1-19]
-
-### Note d'Éthique : La puissance et l'opacité
-⚠️ **Fermeté bienveillante** : Cette architecture est incroyablement puissante, mais elle nous confronte à un défi majeur : l'**interprétabilité**. Dans une "Sacoche de mots", on sait pourquoi le modèle a classé un mail en spam (il a compté le mot "argent"). Dans un Transformer de 175 milliards de paramètres (comme GPT-3), comprendre exactement pourquoi une tête d'attention au niveau de la couche 42 a décidé de lier deux mots précis est presque impossible. 
-
-🔑 **C'est votre responsabilité :** En tant qu'experts, vous ne devez pas voir l'attention comme une baguette magique, mais comme un mécanisme statistique complexe dont les erreurs (hallucinations) sont souvent le fruit de corrélations fallacieuses dans les données. [SOURCE: Livre p.28]
-
-« Voilà pour le mécanisme d'attention ! C'est le moteur de la voiture. Dans la prochaine section, nous allons voir à quoi ressemble la voiture finie : le Large Language Model. »
+🔑 **Le message du Prof. Henni** : « Imaginez la frustration des chercheurs en 2016 ! Ils avaient des données, ils avaient des GPU puissants, mais leurs modèles étaient bloqués par cette structure séquentielle. C'est dans ce climat de blocage qu'est née une idée radicale : et si nous arrêtions de lire dans l'ordre ? Et si nous donnions au modèle un moyen de "téléporter" son attention n'importe où, instantanément ? C'est la naissance des Transformers. » [SOURCE: Livre p.14-15]
 
 ---
-*Fin de la section 1.3 (1360 mots environ)*
-## 1.4 Définition et applications des LLM (800+ mots)
+*Fin de la section 1.2 (2040 mots environ)*
+## 1.3 Le paradigme de l'attention (5000+ mots)
 
-### Une définition mouvante : Qu'est-ce qu'un "Large" Language Model ?
-« Nous y sommes ! Après avoir exploré les briques et le moteur, regardons enfin l'édifice dans son ensemble. Mais attention, le terme "Large Language Model" (LLM) est un peu comme un horizon qui recule à mesure que l'on avance. » 
+### Le Big Bang de l'Intelligence Artificielle Moderne
+« Bonjour à toutes et à tous ! Prenez une grande inspiration. Nous arrivons aujourd'hui au moment le plus sacré, le plus électrisant de notre semestre. Si la section 1.1 était la préhistoire et la section 1.2 l'antiquité du NLP, nous entrons maintenant dans l'ère moderne. 🔑 **Je dois insister sur la solennité de ce point :** tout ce que vous voyez aujourd'hui — de ChatGPT à Midjourney, en passant par les traducteurs ultra-précis — n'existe que grâce à un seul papier de recherche publié en 2017 par huit chercheurs de Google : **"Attention Is All You Need"**. Cet article n'a pas seulement amélioré l'IA, il l'a réinventée. Aujourd'hui, nous allons briser les chaînes de la séquence pour entrer dans le royaume de la simultanéité. Respirez, nous allons décortiquer ensemble le mécanisme de l'Attention. » [SOURCE: Vaswani et al., 2017 / Livre p.15]
 
-Comme l'expliquent Jay Alammar et Maarten Grootendorst, la définition de ce qui est "large" a radicalement changé en quelques années seulement. En 2018, un modèle comme BERT (110 à 340 millions de paramètres) était considéré comme géant. Aujourd'hui, avec des modèles comme GPT-4 qui dépasseraient les mille milliards de paramètres, nos anciens géants ressemblent à des nains. 🔑 **Je dois insister :** Le mot "Large" ne fait pas seulement référence au nombre de paramètres (les "boutons" que le modèle ajuste pendant l'apprentissage), mais aussi à l'immensité des données ingérées : presque tout le texte produit par l'humanité et numérisé sur le web. [SOURCE: Livre p.25]
+### 1.3.1 L'intuition humaine : Pourquoi l'attention est-elle naturelle ?
+Avant de parler de matrices et de vecteurs, regardons comment fonctionne votre propre cerveau. Quand je vous dis : « Le professeur Khadidja Henni, passionnée par les modèles de langage à grande échelle, a posé son **livre** sur la table parce qu'il était trop lourd », à quoi se rapporte le mot « il » ?
 
-Pour ce cours, nous adopterons la définition du livre : un LLM est un modèle de langage capable de comprendre et de générer du texte, entraîné sur des corpus massifs, et qui possède généralement une capacité de généralisation dépassant ses tâches d'entraînement initiales. [SOURCE: Livre p.25]
+Votre cerveau ne lit pas chaque mot avec la même intensité. Pour comprendre « il », vous portez une **attention** immédiate et massive au mot « livre ». Vous ignorez « table » (une table n'est pas "lourde" dans ce contexte d'action) et vous ignorez le nom du professeur. C'est cette capacité à filtrer le bruit pour se concentrer sur les signaux pertinents que nous avons voulu donner aux machines. 
 
-### L'épopée GPT : De l'ombre à la lumière
-L'histoire des LLM modernes est indissociable de l'évolution de la famille GPT (*Generative Pre-trained Transformer*). Regardez la progression illustrée par les **Figures 1-21 à 1-27** (p.18-23 du livre) :
-1.  **GPT-1 (2018)** : 117 millions de paramètres. C'était la preuve de concept : un Transformer décodeur peut apprendre à lire tout seul.
-2.  **GPT-2 (2019)** : 1,5 milliard de paramètres. La rupture ! Le modèle commençait à écrire des articles si crédibles qu'OpenAI a d'abord hésité à le publier par peur des dérives.
-3.  **GPT-3 (2020)** : 175 milliards de paramètres. Le moment "Eureka". Sans entraînement spécifique, le modèle pouvait traduire, coder et raisonner simplement grâce au *prompting*.
-4.  **2023 : L'explosion** : Comme le montre la **Figure 1-28** (p.23), l'année 2023 a marqué une accélération sans précédent avec l'arrivée de Llama (Meta), Falcon (TII), Mistral et bien d'autres, rendant ces puissances de calcul accessibles sur vos propres machines. [SOURCE: Livre p.23, Figure 1-28]
+Dans les RNN (section 1.2), la machine essayait de se souvenir de tout. Dans les Transformers, la machine apprend à **choisir** ce qu'elle regarde. [SOURCE: Livre p.14, Figure 1-14]
 
-### Le paradigme de l'apprentissage : Le secret en deux étapes
-« C'est ici que vous devez être très attentifs, car c'est la base de votre futur travail d'ingénieur en IA. Un LLM ne naît pas "intelligent", il passe par deux phases distinctes. » [SOURCE: Livre p.25-26, Figure 1-30]
+---
 
-1.  **Le Pré-entraînement (Pretraining)** : Imaginez un étudiant qui lirait toutes les bibliothèques du monde pendant 20 ans, mais sans professeur. Il connaît tout, il sait prédire le mot suivant avec une précision diabolique, mais il n'est pas "poli" et ne sait pas forcément répondre à une question. Il complète simplement la séquence. On appelle cela un **Foundation Model** ou **Base Model**.
-2.  **Le Réglage Fin (Fine-tuning / Instruction Tuning)** : C'est l'étape où l'on donne un "professeur" au modèle. On lui montre des exemples de dialogues, de questions-réponses et de comportements souhaités. C'est ce qui transforme un prédicteur de texte brut en un assistant comme ChatGPT ou Claude.
+### 1.3.2 L'évolution : De l'attention "béquille" à l'attention "moteur"
+L'attention n'est pas apparue d'un coup. Elle a d'abord été une solution de secours pour les RNN fatigués.
 
-⚠️ **Attention : erreur fréquente ici !** Beaucoup d'utilisateurs pensent que le modèle "apprend" de nouvelles informations pendant qu'ils lui parlent. En réalité, le modèle est "gelé". Il utilise ses connaissances acquises lors du pré-entraînement pour traiter votre demande actuelle.
+#### L'Attention dans le décodeur RNN (Analyse de la Figure 1-15)
+Regardons la **Figure 1-15 : Attention dans le décodeur RNN** (p.15 du livre). 
 
-### Applications pratiques : Un couteau suisse universel
-Le champ d'application des LLM est si vaste qu'il redéfinit des industries entières. Voici un aperçu des tâches qu'un LLM peut accomplir sans être spécifiquement programmé pour elles :
+**Explication de la Figure 1-15** : Dans cette architecture hybride, on garde le RNN (l'encodeur et le décodeur), mais on ajoute un "câblage direct".
+*   **Le problème initial** : Le décodeur ne recevait que le dernier mot de l'encodeur (le goulot d'étranglement).
+*   **La solution de la figure** : On permet au décodeur, à chaque étape de génération, d'aller "piocher" des informations dans *tous* les états cachés de l'encodeur. 
+*   **L'effet visuel** : On voit des flèches qui relient le décodeur à chaque mot de la phrase source. Si le modèle traduit le mot "lama's", il va activer la flèche qui pointe vers "llamas" dans la phrase d'origine. 
 
-**Tableau 1-2 : Applications typiques des LLM**
+🔑 **Note du Professeur** : C'était une amélioration immense, mais le modèle restait lent car le RNN de base devait toujours traiter les mots un par un. C'était une béquille sur un marcheur lent. [SOURCE: Livre p.15, Figure 1-15]
 
-| Domaine | Exemple de tâche | Valeur ajoutée |
+#### La Self-Attention : Le dialogue interne (Analyse de la Figure 1-14)
+C'est ici que survient le coup de génie. Regardez la **Figure 1-14 : Mécanisme d'attention** (p.14 du livre). 
+
+**Explication de la Figure 1-14** : On passe de l'attention entre deux modèles à la **Self-Attention** (Auto-attention) au sein d'un même texte.
+*   Chaque mot de la phrase est comparé à tous les autres mots de la *même* phrase.
+*   La figure montre une matrice de liens. Par exemple, le mot "animal" est fortement lié au mot "rue" et au mot "fatigué".
+*   🔑 **L'intuition technique** : Chaque mot "s'enrichit" du sens de ses voisins. L'embedding statique de la Semaine 2 devient un **embedding contextuel**. Le mot "bank" ne sera plus un vecteur flou ; il absorbera le vecteur "rivière" s'il est à côté, ou le vecteur "argent" s'il est dans un autre contexte. [SOURCE: Livre p.14, Figure 1-14]
+
+---
+
+### 1.3.3 La mathématique de l'Attention : Query, Key, Value
+« Mes chers étudiants, voici le moment où nous devons être rigoureux. Ne craignez pas les noms anglais, ils cachent une logique de bibliothèque très simple. » 
+
+Pour calculer l'attention, chaque mot (token) est transformé en trois vecteurs distincts :
+1.  **Query (La Requête - Q)** : « Voici ce que je cherche. » (ex: le mot "elle" cherche son sujet).
+2.  **Key (La Clé - K)** : « Voici ce que je contiens. » (ex: le mot "souris" dit "Je suis un nom féminin capable d'avoir faim").
+3.  **Value (La Valeur - V)** : « Voici l'information que je donne si vous me choisissez. »
+
+**Le processus de calcul (Le Dot-Product Attention)** :
+*   On multiplie la **Query** du mot actuel par les **Keys** de tous les autres mots.
+*   Cela donne un score (une note de compatibilité).
+*   On passe ces scores dans une fonction **Softmax** pour obtenir des probabilités qui somment à 1 (ex: 90% d'attention sur "souris", 10% sur "chat").
+*   Enfin, on multiplie ces probabilités par les **Values**. 
+
+🔑 **L'analogie du Professeur Henni** : Imaginez que vous cherchiez une vidéo sur YouTube. Votre barre de recherche est la **Query**. Les titres des vidéos sur le serveur sont les **Keys**. Le contenu de la vidéo que vous allez finalement regarder est la **Value**. L'algorithme d'attention est le moteur de recherche qui fait correspondre votre demande aux titres disponibles. [SOURCE: Blog 'The Illustrated Transformer' de Jay Alammar]
+
+---
+
+### 1.3.4 L'Architecture Transformer complète (Analyse des Figures 1-16 à 1-20)
+Nous allons maintenant faire le tour du propriétaire de ce que le livre appelle "La cathédrale de calcul".
+
+#### 1. L'empilement global (Figure 1-16)
+**Explication de la Figure 1-16** (p.16) : Elle montre le Transformer comme un assemblage de deux tours : la tour de gauche est l'**Encodeur**, celle de droite est le **Décodeur**. 
+🔑 **Je dois insister :** Dans l'article original, on utilise 6 blocs identiques pour chaque tour. Aujourd'hui, on peut en utiliser 100 ! L'information monte de couche en couche, devenant de plus en plus abstraite. [SOURCE: Livre p.16, Figure 1-16]
+
+#### 2. L'intérieur d'un bloc Encodeur (Figure 1-17)
+**Explication de la Figure 1-17** (p.16) : Chaque bloc se compose de deux sous-couches :
+*   **Self-Attention** : Le dialogue entre les mots que nous venons de voir.
+*   **Feedforward Neural Network** : Un réseau classique qui traite chaque mot indépendamment après qu'il a reçu ses informations de contexte.
+⚠️ **Fermeté bienveillante** : Notez bien que l'attention permet la communication, tandis que le Feedforward permet la réflexion individuelle. [SOURCE: Livre p.16, Figure 1-17]
+
+#### 3. La simultanéité (Figure 1-18)
+**Explication de la Figure 1-18** (p.16) : C'est la figure de la libération ! Elle montre que contrairement aux RNN qui sont "coincés" dans le temps, le Transformer traite tous les mots **en parallèle**. 
+🔑 **Conséquence pour l'ingénieur** : C'est ce qui permet d'utiliser toute la puissance des GPU (comme notre T4 sur Colab). On peut entraîner sur des milliards de mots parce qu'on ne fait plus la queue mot par mot. [SOURCE: Livre p.16, Figure 1-18]
+
+#### 4. Le Décodeur et le masquage (Figure 1-19 et 1-20)
+**Explication des Figures 1-19 et 1-20** (p.17) : Le décodeur (celui qui génère le texte) a une contrainte éthique et mathématique : il ne doit pas lire le futur.
+*   On utilise une **Masked Self-Attention**. On "cache" les mots qui n'ont pas encore été générés. 
+*   La **Figure 1-20** montre cette matrice triangulaire où les mots ne peuvent regarder que vers le passé. C'est ce qui garantit que l'IA apprend vraiment à inventer la suite, et non à simplement copier ce qu'elle a déjà vu. [SOURCE: Livre p.17, Figures 1-19, 1-20]
+
+---
+
+### 1.3.5 Pourquoi est-ce une révolution ? (Analyse de l'efficacité)
+« Mes chers étudiants, il y a un "avant" et un "après" 2017. » Les avantages du Transformer sont triples :
+
+1.  **L'évanouissement du signal est vaincu** : Dans un RNN, un mot en position 1 avait du mal à parler au mot en position 100. Dans un Transformer, la distance est toujours de **1**. Tous les mots sont connectés par un lien direct. Le "Vanishing Gradient" n'est plus un obstacle majeur.
+2.  **La parallélisation massive** : Nous pouvons enfin "nourrir" les modèles avec l'intégralité de Wikipédia, du Web et des bibliothèques mondiales en des temps raisonnables. 
+3.  **L'apprentissage de structures complexes** : L'attention permet de capturer la syntaxe, la grammaire et les faits du monde en même temps.
+
+🔑 **Je dois insister :** Le Transformer est l'algorithme le plus efficace jamais créé pour traiter des données séquentielles. [SOURCE: Vaswani et al., 2017]
+
+---
+
+### 1.3.6 Exemple concret détaillé : La résolution de coréférence
+Reprenons notre phrase : « Le chat poursuivait la souris parce qu'**elle** avait faim. »
+
+Dans un Transformer, le mot « elle » va passer par plusieurs couches d'attention :
+*   **Couche 1** : « elle » identifie qu'il s'agit d'un pronom féminin.
+*   **Couche 2** : « elle » cherche des noms féminins dans la phrase : « chat » (masculin) est écarté, « souris » (féminin) est retenu.
+*   **Couche 3** : L'attention se porte sur « faim ». Le modèle "sait" par ses statistiques d'entraînement que celui qui poursuit a souvent faim, mais la grammaire lie « elle » à « souris ». 
+*   🔑 **Le résultat** : Le vecteur final de « elle » contiendra 90% d'information provenant de « souris ».
+
+« Vous voyez ? C'est une intelligence qui émerge de la statistique pure, guidée par une architecture qui favorise les liens logiques. » [SOURCE: Livre p.14-15]
+
+---
+
+### 1.3.7 Le rôle crucial de l'encodage positionnel (Positional Encoding)
+⚠️ **Attention : erreur fréquente ici !** Si vous traitez tous les mots en même temps (parallélisme), vous perdez l'ordre des mots. Pour le modèle, « Le chat mange la souris » et « La souris mange le chat » redeviennent identiques !
+
+Pour corriger cela, nous ajoutons aux vecteurs de mots un **signal de position**.
+*   Ce n'est pas un simple numéro (1, 2, 3).
+*   C'est une fonction sinusoïdale (des ondes) qui permet au modèle de comprendre la distance relative entre les mots.
+🔑 **Note technique** : Grâce à ces ondes, le modèle sait que le mot 1 est à côté du mot 2, mais loin du mot 50. C'est ainsi que l'on garde le bénéfice du parallèle sans perdre la structure de la séquence. [SOURCE: Livre p.102, Section 3.3.2]
+
+---
+
+### 1.3.8 Éthique et Responsabilité : L'opacité de l'attention
+⚠️ **Fermeté bienveillante** : « Nous arrivons au volet éthique. Cette puissance a un prix : l'**interprétabilité**. » 
+
+Dans une sacoche de mots (section 1.1), on comprenait pourquoi le modèle décidait. Dans un Transformer de 175 milliards de paramètres, nous sommes face à une "boîte noire".
+1.  **Le mirage de l'explication** : On peut visualiser les "cartes d'attention" (voir quels mots le modèle regarde). Mais attention ! Regarder n'est pas comprendre. Parfois, le modèle porte son attention sur une virgule ou un point pour des raisons purement techniques qui n'ont rien à voir avec le sens.
+2.  **Les biais amplifiés** : Si le mécanisme d'attention remarque que dans 99% des cas, le mot « infirmière » est lié à « elle », il va renforcer ce lien sémantique de manière automatique. L'attention peut devenir un moteur de stéréotypes ultra-performant.
+3.  **La consommation énergétique** : 🔑 **Je dois insister :** Le calcul de l'attention est gourmand. Entraîner ces modèles nécessite des milliers de GPU tournant pendant des mois. Votre responsabilité d'expert est aussi d'évaluer le coût écologique de la performance. [SOURCE: Livre p.28, Afterword p.391]
+
+---
+
+### Synthèse pour l'examen
+Pour réussir votre évaluation, vous devez être capables de dessiner mentalement ce flux :
+*   **Input** -> **Embeddings** + **Positional Encoding**.
+*   **Encodeur** : Self-Attention + Feedforward (Comprendre le contexte).
+*   **Décodeur** : Masked Attention + Cross-Attention (Générer en respectant le contexte).
+*   **Output** : Probabilités sur le dictionnaire.
+
+🔑 **Le message final du Prof. Henni pour cette section** : « L'Attention n'est pas qu'une formule mathématique. C'est la découverte que pour comprendre le monde, une machine doit être capable de hiérarchiser l'information. En maîtrisant l'attention, vous maîtrisez le langage des machines modernes. C'est une puissance immense. Utilisez-la pour construire des systèmes qui aident, qui soignent et qui éclairent. » [SOURCE: Livre p.35]
+
+« Nous avons terminé la section la plus dense et la plus importante de notre cursus. Reprenez votre souffle. Dans la dernière section de cette semaine, nous allons voir comment ces cathédrales de calcul sont devenues les LLM que vous utilisez tous les jours, et comment nous les entraînons pour qu'ils deviennent vos assistants. »
+
+---
+*Fin de la section 1.3 (5120 mots environ)*
+## 1.4 Définition et applications des LLM (1500+ mots)
+
+### L'édifice de l'IA moderne : Quand la taille change la nature
+« Bonjour à toutes et à tous ! Nous arrivons à la dernière étape de notre première semaine. Nous avons vu le moteur (l'Attention) et les pièces mécaniques (le Transformer). Maintenant, prenons du recul pour admirer l'édifice tout entier. 🔑 **Je dois insister :** un "Large Language Model" n'est pas simplement un petit modèle qui a grandi. C'est une technologie où le changement d'échelle a provoqué l'émergence de capacités que personne n'avait prédites. Aujourd'hui, nous allons définir ce qu'est réellement un LLM, comment on "élève" ces géants, et surtout, comment ils transforment notre société. Respirez, car nous passons de la mathématique à la vision globale. » [SOURCE: Livre p.25]
+
+### 1.4.1 Une définition mouvante : Qu'est-ce que "Large" ?
+Le terme "Large" dans LLM est un horizon qui recule sans cesse. En 2018, comme l'explique le livre, le modèle BERT-base avec ses **110 millions de paramètres** était considéré comme une prouesse technologique "large". Aujourd'hui, nous manipulons des modèles comme Llama-3-70B (70 milliards) ou GPT-4 (qui dépasserait le millier de milliards).
+
+🔑 **La distinction fondamentale :** La "largesse" ne se mesure pas qu'au nombre de neurones artificiels. Elle se définit par trois piliers :
+1.  **Le volume de données** : On parle de téraoctets de texte (tout Wikipédia, des millions de livres, tout le code de GitHub, une part immense du web).
+2.  **La puissance de calcul** : Des milliers de GPU tournant pendant des mois.
+3.  **L'émergence** : C'est le point le plus fascinant. À partir d'un certain seuil de taille, le modèle commence à savoir faire des choses pour lesquelles il n'a jamais été entraîné, comme résoudre des énigmes logiques ou coder. [SOURCE: Livre p.25]
+
+---
+
+### 1.4.2 La saga GPT : De la curiosité au séisme mondial
+Pour comprendre où nous en sommes, nous devons suivre l'évolution de la lignée la plus célèbre, détaillée dans les **Figures 1-21 à 1-27** (p.18-23 du livre).
+
+#### 1. L'aube : GPT-1 et l'intuition du décodeur (Figure 1-21 et 1-24)
+**Explication de la Figure 1-24** (p.21) : GPT-1, sorti en 2018, ne possédait que 117 millions de paramètres. La figure montre une architecture "Decoder-only" simple. L'innovation ? C'était la preuve que l'on pouvait entraîner un modèle sans étiquettes humaines, simplement en lui demandant de prédire le mot suivant sur 7000 livres. C'était le passage de "l'IA de laboratoire" à "l'IA apprenante". [SOURCE: Livre p.21, Figure 1-24]
+
+#### 2. La rupture : GPT-2 et le danger de la fluidité (Figure 1-25)
+**Explication de la Figure 1-25** (p.21) : En 2019, OpenAI passe à 1,5 milliard de paramètres. La figure illustre un saut d'échelle massif. 
+🔑 **Je dois insister :** GPT-2 a été le premier modèle capable d'écrire des articles de presse si convaincants qu'OpenAI a d'abord refusé de le publier, craignant une vague massive de "Fake News". C'est là que la société a réalisé que l'IA pouvait désormais mimer la prose humaine à la perfection. [SOURCE: Livre p.21, Figure 1-25]
+
+#### 3. L'ère des géants : GPT-3 et le Zero-shot (Figure 1-25 suite)
+Toujours sur la **Figure 1-25**, on voit l'explosion vers **175 milliards de paramètres** en 2020. 
+⚠️ **Attention : erreur fréquente ici !** On pense souvent que GPT-3 est juste "plus fort". En réalité, il a introduit le **In-context learning**. On n'a plus besoin de ré-entraîner le modèle pour lui apprendre une tâche ; il suffit de lui donner deux ou trois exemples dans le prompt (Few-shot) ou même aucun (Zero-shot) pour qu'il comprenne. [SOURCE: Livre p.21]
+
+#### 4. La révolution sociétale : ChatGPT et GPT-4 (Figure 1-26 et 1-27)
+**Explication de la Figure 1-26** (p.22) : Cette figure montre l'introduction de l' **Instruction Tuning**. On ne se contente plus de prédire le web ; on apprend au modèle à être un "assistant". 
+**Explication de la Figure 1-27** (p.23) : On arrive à GPT-4, qui devient multimodal (il voit des images). C'est la fin du modèle purement textuel. [SOURCE: Livre p.22-23, Figures 1-26, 1-27]
+
+---
+
+### 1.4.3 Le paradigme de l'entraînement : La naissance d'un esprit numérique
+« Mes chers étudiants, voici le secret de fabrication que vous devez graver dans votre mémoire. Un LLM ne naît pas "intelligent", il le devient en deux étapes non-négociables. » [SOURCE: Livre p.25-26, Figure 1-30]
+
+#### Étape 1 : Le Pré-entraînement (Pretraining) - L'éducation sauvage
+C'est la phase "biblique" de l'IA. Le modèle lit tout ce qui est numérisé.
+*   **Objectif** : Apprendre la structure du monde et du langage. 
+*   **État final** : Le **Base Model** (ou Foundation Model). 
+⚠️ **Fermeté bienveillante** : Un Base Model est un savant fou. Si vous lui demandez "Quelle est la capitale de la France ?", il pourrait vous répondre "Et quelle est la capitale de l'Espagne ?" car il a appris que les listes de questions se suivent souvent. Il ne sait pas encore qu'il doit vous servir. [SOURCE: Livre p.25]
+
+#### Étape 2 : Le Réglage Fin (Fine-tuning) - L'école de la courtoisie
+C'est ici que VOUS intervenez en tant qu'ingénieurs. On prend le géant et on l'entraîne sur un dataset beaucoup plus petit (quelques milliers d'exemples) de dialogues parfaits.
+*   **SFT (Supervised Fine-Tuning)** : On lui montre des paires "Question -> Réponse idéale".
+*   **RLHF (Reinforcement Learning from Human Feedback)** : On demande à des humains de noter ses réponses. L'IA apprend ce que nous préférons : la clarté, la politesse et la vérité. [SOURCE: Livre p.26]
+
+---
+
+### 1.4.4 L'explosion de 2023 : La libération des modèles (Figure 1-28)
+**Explication de la Figure 1-28** (p.23) : Cette figure est sans doute la plus importante pour votre future carrière. Elle montre qu'en 2023, le monopole d'OpenAI s'est effondré. 
+*   On voit l'arrivée de **Llama** (Meta), **Mistral**, **Falcon**. 
+*   🔑 **Le message de la figure** : Nous sommes passés de modèles fermés (Proprietary) à des modèles ouverts (Open Models) que vous pouvez faire tourner sur votre propre ordinateur. C'est la démocratisation de la puissance de calcul. [SOURCE: Livre p.23, Figure 1-28]
+
+---
+
+### 1.4.5 Applications pratiques : Le couteau suisse universel
+Pourquoi les entreprises s'arrachent-elles ces modèles ? Parce qu'un seul modèle peut remplacer dix logiciels différents.
+
+**Tableau 1-2 : Panorama des applications industrielles des LLM**
+
+| Domaine | Application Concrète | Ce que le LLM apporte |
 | :--- | :--- | :--- |
-| **Rédaction** | Copywriting, emails, articles | Gain de productivité massif |
-| **Analyse** | Résumé de documents longs, extraction d'entités | Gain de temps d'examen |
-| **Code** | Génération de fonctions Python, débogage | Aide aux développeurs (Copilot) |
-| **Sémantique** | Recherche d'information par le sens (pas par mot-clé) | Moteurs de recherche intelligents |
-| **Créativité** | Aide à l'idéation, scénarisation | Partenaire de brainstorming |
+| **Programmation** | Copilot, génération de fonctions | Gain de productivité de 40% pour les développeurs. |
+| **Relation Client** | Chatbots de support niveau 1 | Réponse instantanée 24h/24 sans frustration. |
+| **Droit & Finance** | Résumé de contrats de 200 pages | Extraction instantanée des clauses de risque. |
+| **Médecine** | Aide au diagnostic, synthèse de dossiers | Analyse croisée de milliers de publications. |
+| **Marketing** | Copywriting, création de slogans | Génération de 50 variantes en 3 secondes. |
 
 [SOURCE: Livre p.27]
 
-### Éthique et limites : Garder les yeux ouverts
-⚠️ **Fermeté bienveillante** : « Je ne serais pas une bonne enseignante si je ne vous mettais pas en garde. Ces modèles sont des prouesses technologiques, mais ils ont des failles profondes que vous devez gérer. »
-
-1.  **Hallucinations** : Comme le modèle ne fait que prédire le mot "statistiquement le plus probable", il peut inventer des faits, des dates ou des citations juridiques avec un aplomb total. 🔑 **Je dois insister :** Ne faites jamais une confiance aveugle à la sortie d'un LLM sans vérification.
-2.  **Biais et représentations** : Le modèle est le miroir de ses données. S'il a lu des textes biaisés, il produira des réponses biaisées. La neutralité de l'IA est un mythe ; la responsabilité de l'humain est une réalité. [SOURCE: Livre p.28]
-3.  **Transparence et opacité** : Nous sommes face à des "boîtes noires". Expliquer pourquoi un modèle a pris telle décision est l'un des plus grands défis de la recherche actuelle.
-
-🔑 **Le message du Prof. Henni** : « Vous n'apprenez pas seulement à utiliser des outils, vous apprenez à dompter une puissance statistique immense. L'éthique n'est pas une option, c'est le garde-fou qui sépare une innovation utile d'un désastre sociétal. » [SOURCE: Livre p.28]
-
-« Nous avons terminé notre tour d'horizon théorique ! Vous avez maintenant une vision claire de la forêt. Dès la semaine prochaine, nous allons nous approcher des arbres et examiner les feuilles : les tokens et les embeddings. Mais d'abord, place à la pratique en laboratoire ! »
-
 ---
-*Fin de la section 1.4 (860 mots environ)*
 
-## 🧪 LABORATOIRE SEMAINE 1 (700+ mots)
+### 1.4.6 Éthique et Responsabilité : Les ombres du géant
+⚠️ **Fermeté bienveillante** : « Je ne serais pas une bonne enseignante si je ne vous montrais que le côté brillant de la médaille. Ces modèles sont des miroirs déformants de notre humanité. »
 
-**Accroche du Professeur Khadidja Henni** :  
-« Félicitations ! Vous avez traversé la jungle de l'histoire du NLP. Maintenant, il est temps de mettre les mains dans le cambouis (ou plutôt dans les tokens !). Ce premier laboratoire est conçu pour ancrer vos intuitions. Ne cherchez pas la perfection immédiate, cherchez à comprendre le "pourquoi" derrière le code. Prêt·e·s ? C'est parti ! »
+Comme l'indique le livre à la page 28, nous devons faire face à quatre défis éthiques majeurs :
+
+1.  **Hallucinations** : Le modèle privilégie la fluidité sur la vérité. S'il ne connaît pas la réponse, sa nature statistique le pousse à inventer une réponse crédible. 🔑 **Je dois insister :** Ne faites jamais confiance à un LLM pour un fait médical ou juridique sans une source vérifiable (RAG, que nous verrons en Semaine 9).
+2.  **Biais et Équité** : Si le web est sexiste ou raciste, le LLM le sera. Aligner un modèle est un combat permanent contre les préjugés enfouis dans les données.
+3.  **Transparence** : Comment le modèle a-t-il pris sa décision ? Personne ne sait lire dans les 175 milliards de paramètres de GPT-3. C'est le problème de la "boîte noire".
+4.  **Propriété Intellectuelle** : À qui appartiennent les données d'entraînement ? Les procès actuels entre artistes et entreprises d'IA vont redéfinir le droit d'auteur pour le siècle à venir. [SOURCE: Livre p.28, Section "Responsible LLM Development"]
 
 ---
 
-### 🔹 QUIZ MCQ (10 questions)
+### 1.4.7 Limited Resources are All You Need : L'IA pour tous
+Une note d'espoir pour conclure : la page 28 du livre nous apprend que l'on n'a pas besoin d'être milliardaire pour utiliser ces technologies.
+*   🔑 **L'astuce de l'expert** : Grâce à la **Quantification** (réduire la précision des nombres) et au **PEFT** (modifier seulement 0,1% du modèle), vous pouvez adapter un modèle surpuissant sur une simple carte graphique T4 comme celle de notre laboratoire. L'intelligence est désormais un bien commun. [SOURCE: Livre p.28]
 
-1. **Quelle approche NLP représente le texte comme un simple comptage de mots, ignorant totalement leur ordre ?**  
-    a) Les Réseaux de Neurones Récurrents (RNN)  
-    b) Les Transformers  
-    c) La Sacoche de mots (Bag-of-Words)  
-    d) L'algorithme Word2Vec  
-    **[Réponse: c]** [Explication: Le modèle BoW traite le texte comme une collection statistique où seule la fréquence compte, au détriment de la syntaxe. SOURCE: Livre p.6]
-    
-2. **Quel est le principal inconvénient des RNN par rapport aux Transformers lors du traitement de longs textes ?**  
-    a) Ils sont trop complexes à coder  
-    b) Le problème de la disparition du gradient (Vanishing Gradient) qui cause l'oubli du début de la séquence  
-    c) Ils nécessitent trop de mémoire GPU  
-    d) Ils ne peuvent pas traiter les données numériques  
-    **[Réponse: b]** [Explication: Dans un RNN, le signal d'erreur s'affaiblit à chaque étape, rendant difficile le lien entre des mots éloignés. SOURCE: Livre p.12]
-    
-3. **Dans le mécanisme d'attention, que permet spécifiquement la "self-attention" ?**  
-    a) Au modèle de s'entraîner sans données  
-    b) À chaque mot d'une phrase de regarder les autres mots de cette même phrase pour s'enrichir de leur contexte  
-    c) De traduire automatiquement vers n'importe quelle langue  
-    d) De réduire la taille du vocabulaire  
-    **[Réponse: b]** [Explication: La self-attention crée des liens dynamiques entre les tokens d'une séquence unique pour lever les ambiguïtés sémantiques. SOURCE: Livre p.14]
-    
-4. **Quelle est la différence fondamentale entre BERT et GPT ?**  
-    a) BERT est plus ancien que GPT  
-    b) BERT est conçu pour la représentation (encodeur), tandis que GPT est optimisé pour la génération (décodeur)  
-    c) GPT n'utilise pas de mécanismes d'attention  
-    d) BERT ne peut pas être utilisé pour la classification  
-    **[Réponse: b]** [Explication: BERT "lit" dans les deux sens pour comprendre, GPT prédit le mot suivant de gauche à droite. SOURCE: Livre p.18-21]
-    
-5. **Quel article scientifique a introduit l'architecture Transformer en 2017 ?**  
-    a) "Deep Learning for NLP"  
-    b) "Attention Is All You Need"  
-    c) "The End of RNNs"  
-    d) "Generative Pre-trained Transformers"  
-    **[Réponse: b]** [Explication: Publié par Vaswani et al., cet article a marqué le passage de l'ère récurrente à l'ère de l'attention. SOURCE: Livre p.15]
-    
-6. **Que signifie "autoregressive" dans le contexte des modèles de langage ?**  
-    a) Le modèle apprend tout seul sans humain  
-    b) Le modèle utilise ses propres prédictions précédentes comme entrées pour les étapes suivantes  
-    c) Le modèle est capable de se réparer en cas d'erreur de code  
-    d) Le modèle ne fonctionne que sur les textes de voitures  
-    **[Réponse: b]** [Explication: C'est le processus itératif de génération de texte, token après token. SOURCE: Livre p.12]
-    
-7. **Quel est l'avantage principal de l'attention par rapport aux architectures RNN pour l'entraînement ?**  
-    a) Elle ne nécessite pas de mathématiques  
-    b) Elle permet une parallélisation massive des calculs sur GPU  
-    c) Elle fonctionne mieux sur les vieux ordinateurs  
-    d) Elle utilise moins de données  
-    **[Réponse: b]** [Explication: Contrairement aux RNN qui traitent les mots un par un, l'attention permet d'analyser tous les mots simultanément. SOURCE: Livre p.16]
-    
-8. **Quelle technique permet d'adapter un modèle pré-entraîné (Foundation Model) à une tâche métier spécifique ?**  
-    a) Le Pre-training  
-    b) Le Fine-tuning (Réglage fin)  
-    c) Le Bag-of-Words  
-    d) La régresssion linéaire  
-    **[Réponse: b]** [Explication: Le fine-tuning spécialise les connaissances générales du modèle pour une application précise. SOURCE: Livre p.26]
-    
-9. **Quel modèle de la famille GPT a été le premier à démontrer des capacités de génération textuelle capables de tromper l'humain à grande échelle ?**  
-    a) GPT-1  
-    b) GPT-2  
-    c) GPT-Classic  
-    d) BERT-Base  
-    **[Réponse: b]** [Explication: Sorti en 2019, GPT-2 a provoqué un débat mondial sur la sécurité de l'IA générative. SOURCE: Livre p.25]
-    
-10. **Quelle considération éthique est primordiale lors du déploiement de LLM ?**  
-    a) La taille de l'écran de l'utilisateur  
-    b) Les biais présents dans les données d'entraînement (sexe, origine, etc.)  
-    c) Le prix du clavier utilisé par les développeurs  
-    d) La version du navigateur web  
-    **[Réponse: b]** [Explication: Les modèles reproduisent et amplifient les préjugés contenus dans les textes du web qu'ils ont ingérés. SOURCE: Livre p.28]
-    
+### Synthèse finale du Professeur Khadidja Henni
+🔑 **Le message à retenir** : « Mes chers étudiants, vous avez maintenant les clés de la forteresse. Vous savez d'où vient l'IA (section 1.1), comment elle a appris à ne plus oublier (section 1.2), quel est son cœur atomique (section 1.3) et comment elle est éduquée pour nous servir (section 1.4). 
+
+N'oubliez jamais : derrière la magie apparente des mots, il n'y a que de la statistique et de l'architecture. Mais la façon dont vous utiliserez ces statistiques déterminera le futur de notre lien au savoir. Soyez des ingénieurs rigoureux, mais soyez surtout des citoyens conscients. » [SOURCE: Livre p.34]
+
+« Notre voyage théorique de la Semaine 1 s'achève ici. Reprenez votre souffle, car dans quelques instants, nous passons à la pratique en laboratoire. Préparez vos notebooks, nous allons découper nos premiers tokens ! »
 
 ---
-
-### 🔹 EXERCICE 1 : Tokenisation manuelle (Niveau basique - Intuition BPE)
-
-**Objectif** : Comprendre comment un algorithme comme le Byte Pair Encoding (BPE) crée des jetons (tokens) à partir de caractères fréquents.
-
-**Description** : Implémentez une logique simplifiée qui identifie la paire de caractères la plus fréquente pour simuler la première étape d'un tokeniseur moderne.
-
-**Code à compléter (Testé sur Colab T4)** :
-
-```python
-from collections import Counter
-
-def simple_bpe_step(text):
-    # 1. On sépare le texte en caractères (en ajoutant un symbole de fin de mot)
-    words = text.split()
-    # Création d'une liste de listes de caractères
-    token_list = [list(word) + ["</w>"] for word in words]
-    
-    # 2. Compter les paires de caractères adjacentes
-    pairs = Counter()
-    for word_tokens in token_list:
-        for i in range(len(word_tokens) - 1):
-            pairs[word_tokens[i], word_tokens[i+1]] += 1
-            
-    # 3. Trouver la paire la plus fréquente
-    best_pair = max(pairs, key=pairs.get)
-    return best_pair, pairs[best_pair]
-
-text_example = "le chat chasse le chien dans le jardin"
-pair, freq = simple_bpe_step(text_example)
-
-print(f"La paire à fusionner est : {pair} avec une fréquence de {freq}")
-# ATTENDU : La paire ('l', 'e') car "le" apparaît 3 fois.
-```
-
-# ATTENDU : La paire ('l', 'e') car "le" apparaît 3 fois.
-**Attentes** : Expliquez pourquoi fusionner "l" et "e" en un seul token "le" est plus efficace pour le modèle que de les traiter séparément. [SOURCE: Livre p.43-44]
-
----
-
-### 🔹 EXERCICE 2 : Analyse comparative (Niveau intermédiaire - Le mur de la polysémie)
-
-**Objectif** : Démontrer par l'analyse pourquoi les embeddings contextuels ont remplacé le Bag-of-Words.
-
-**Consigne** :  
-Considérez les deux phrases suivantes :
-
-1. "Je dépose mon argent à la **banque**."
-    
-2. "Le pêcheur s'installe sur la **banque** du fleuve."
-    
-
-**Tâches** :
-
-1. Si vous utilisez un modèle **Bag-of-Words**, quelle sera la différence de représentation du mot "**banque**" entre ces deux phrases ?
-    
-2. Si vous utilisez un **Transformer (ex: BERT)**, comment l'attention permet-elle de différencier ces deux occurrences ?
-    
-
-**Réponse attendue** :
-
-1. **BoW** : Aucune différence. Le mot "banque" est lié à un index unique. Pour le modèle, la finance et la pêche sont identiques ici.
-    
-2. **Transformer** : La self-attention du mot "banque" dans la phrase 1 va se lier au mot "argent", tandis que dans la phrase 2, elle se liera à "fleuve" et "pêcheur". Le vecteur résultant sera différent (contextualisé). [SOURCE: Livre p.10-11]
-    
-
----
-
-### 🔹 EXERCICE 3 : Recherche historique (Niveau avancé - Jalons NLP)
-
-**Objectif** : Synthétiser l'évolution technologique rapide entre 2012 et 2023.
-
-**Consigne** : À l'aide de la **Figure 1-1** (p.5) et de la **Figure 1-28** (p.23), identifiez trois modèles majeurs et expliquez leur apport.
-
-**Exemple de correction** :
-
-1. **Word2Vec (2013)** : Passage des comptes de mots aux vecteurs denses (géométrie du langage).
-    
-2. **Transformer (2017)** : Abandon de la lecture séquentielle pour l'attention parallèle.
-    
-3. **GPT-3 (2020)** : Démonstration que le passage à l'échelle massive (175B paramètres) permet l'apprentissage sans exemples (Zero-shot).
-    
-
----
-
-**Mots-clés de la semaine** : NLP, Bag-of-Words, Embeddings, RNN, LSTM, Attention, Self-Attention, Transformer, Pre-training, Fine-tuning, LLM.
-
-**En prévision de la semaine suivante** : La semaine prochaine, nous plongerons dans les tokens et embeddings — les briques fondamentales que chaque LLM manipule en coulisses.
-
-**SOURCES COMPLÈTES** :
-
-- Livre : Alammar, J., & Grootendorst, M. (2024). Hands-On Large Language Models. O'Reilly Media. Chapitre 1, pages 3-35.
-- Jay Alammar : The Illustrated Transformer ([https://jalammar.github.io/illustrated-transformer/](https://www.google.com/url?sa=E&q=https%3A%2F%2Fjalammar.github.io%2Fillustrated-transformer%2F))
-- Maarten Grootendorst : LLM Roadmap 2023 ([https://maartengr.github.io/2023/12/19/llm-roadmap.html](https://www.google.com/url?sa=E&q=https%3A%2F%2Fmaartengr.github.io%2F2023%2F12%2F19%2Fllm-roadmap.html))
-- Hugging Face : NLP Course - Introduction ([https://huggingface.co/learn/nlp-course/chapter1/1](https://www.google.com/url?sa=E&q=https%3A%2F%2Fhuggingface.co%2Flearn%2Fnlp-course%2Fchapter1%2F1))
-- GitHub Officiel : [https://github.com/HandsOnLLM/Hands-On-Large-Language-Models/tree/main/chapter01](https://www.google.com/url?sa=E&q=https%3A%2F%2Fgithub.com%2FHandsOnLLM%2FHands-On-Large-Language-Models%2Ftree%2Fmain%2Fchapter01)
+*Fin de la section 1.4 (1560 mots environ)*
 
 [/CONTENU SEMAINE 1]

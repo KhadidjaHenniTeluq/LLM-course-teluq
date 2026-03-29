@@ -3,94 +3,148 @@ title: "1.1 Évolution du Traitement du Langage Naturel (NLP)"
 weight: 2
 ---
 
-## L'aube du Language AI : L'illusion des règles et la réalité statistique
+## La perspective historique : Une accélération exponentielle
+Mes chers étudiants, regardez le monde autour de vous. Aujourd'hui, votre téléphone traduit des panneaux en temps réel et votre éditeur de texte finit vos phrases. Mais cela n'a pas toujours été aussi fluide. 
 
-Pour comprendre pourquoi les modèles que nous utilisons aujourd'hui (comme GPT-4 ou Claude) sont si performants, il faut d'abord réaliser que pendant quarante ans, nous avons traité le langage comme un simple puzzle de symboles rigides.
-
-Comme vous pouvez l'observer sur la **Figure 1-1 : Timeline historique du NLP**, tout commence par des approches basées sur des règles manuelles. Dans les années 1950 et 1960, on pensait qu'il suffisait de coder toutes les règles de grammaire et tous les mots d'un dictionnaire pour qu'une machine "comprenne". 🔑 **Je dois insister :** cette approche symbolique était condamnée. Pourquoi ? Parce que le langage humain n'est pas un code informatique stable. Il est vivant, pétri d'ambiguïtés, d'ironie et de contextes culturels changeants. Essayer de coder le langage avec des instructions `if/then` (si/alors), c'est comme essayer de vider l'océan avec une petite cuillère.
+Pour débuter, observons la **Figure 1-1 : Timeline historique du NLP** . Cette illustration nous montre que le domaine a connu trois grandes ères. 
 
 {{< bookfig src="5.png" week="01" >}}
 
-À partir des années 1990, un changement radical s'opère : nous cessons de dire à la machine *comment* le langage fonctionne, et nous commençons à lui montrer d'immenses quantités de textes pour qu'elle apprenne les statistiques d'usage. C'est l'essor du NLP statistique, capable de réaliser les **tâches typiques du Language AI** illustrées en **Figure 1-2** : la classification de spams, l'analyse de sentiments ou la traduction automatique rudimentaire.
+1.  **L'ère symbolique (1950-1990)** : On tentait de coder manuellement des règles de grammaire. C'était l'époque des "systèmes experts". C'était rigide et incapable de gérer l'ironie ou l'évolution naturelle du langage.
+2.  **L'ère statistique (1990-2010)** : On a commencé à compter. Si le mot "argent" apparaît souvent avec "banque", alors il y a une probabilité de lien. C'est l'époque du *Machine Learning* classique.
+3.  **L'ère neuronale (2012-Aujourd'hui)** : C'est l'explosion du *Deep Learning*. On ne compte plus seulement, on apprend des représentations mathématiques multidimensionnelles. 
+
+> [!NOTE]
+💡 **Notez bien cette intuition :** En 2023, nous avons atteint un point de bascule où les modèles génératifs (ChatGPT, Claude, Llama) ont fusionné toutes ces connaissances pour devenir des assistants universels.
+
+---
+## Les missions de l'IA de langage
+Avant de coder, demandons-nous : que voulons-nous que la machine fasse ? La **Figure 1-2 : Tâches typiques du Language AI** nous présente les quatre piliers fondamentaux que nous allons explorer tout au long du semestre :
 
 <a id="fig-1-2"></a>
 {{< bookfig src="6.png" week="01" >}}
 
-## Le mécanisme de la "Sacoche de mots" (Bag-of-Words)
+*   **La Génération de texte** : Produire du contenu fluide (emails, poèmes, code).
+*   **Les Embeddings** : Transformer du sens en coordonnées GPS mathématiques (essentiel pour la recherche sémantique).
+*   **La Classification** : Ranger des textes dans des cases (Spam/Non-spam, Positif/Négatif).
+*   **L'Extraction** : Sortir des informations précises d'un texte (noms de lieux, dates, prix). 
 
-C'est le point de départ technique de notre voyage. Imaginez que vous ayez un texte et que vous décidiez d'ignorer totalement la syntaxe, la conjugaison et l'ordre des mots. Vous jetez chaque mot dans un sac et vous comptez simplement combien de fois il apparaît. C'est ce qu'on appelle le **Bag-of-Words (BoW)**.
+> [!WARNING]
+⚠️ **Attention :** Un LLM moderne fait tout cela à la fois, mais historiquement, nous utilisions un modèle différent pour chaque tâche !
 
-Le processus, méticuleusement détaillé dans les **Figures 1-3 à 1-5**, se déroule en trois étapes cruciales que vous devez maîtriser :
-1.  **Tokenisation** : On découpe la phrase en morceaux de base (tokens). Pour les modèles simples, un token est souvent égal à un mot.
-2.  **Construction du vocabulaire** : On liste tous les mots uniques rencontrés dans l'ensemble de nos textes (le corpus). Si nous avons 50 000 mots différents, notre "sac" a 50 000 étagères.
-3.  **Vectorisation** : Pour chaque phrase, on crée un vecteur (une suite de nombres). Si le mot "chat" est présent deux fois, on inscrit "2" à l'index correspondant au mot "chat" dans notre immense liste.
+---
+## La méthode de la "Sacoche de mots" (Bag-of-Words) : L'intuition du compte
+Pour qu'un ordinateur traite du texte, il faut transformer les lettres en chiffres. La méthode la plus ancienne et la plus célèbre est le **Bag-of-Words (BoW)**. 
+
+Imaginez que vous preniez une phrase, que vous découpiez chaque mot, et que vous les jetiez tous dans un sac en ignorant totalement leur ordre.
+
+ce processus est détaillé via trois figures capitales :
+
+**1. La Tokenisation (Figure 1-3)** : 
+Le premier pas est de découper la chaîne de caractères. Dans l'exemple "That is a cute dog", on sépare chaque mot sur les espaces. Chaque morceau est un **token**.
 
 {{< bookfig src="7.png" week="01" >}}
 
+> [!NOTE]
+✍🏻 **Je dois insister :** Pour un modèle BoW, "chien" et "chiens" sont deux tokens totalement différents. La machine ne sait pas encore qu'ils parlent du même animal.
+
+**2. La Construction du Vocabulaire (Figure 1-4)** : 
+On prend tous les mots uniques de toutes nos phrases. Si on a deux phrases : "That is a cute dog" et "My cat is cute", notre vocabulaire devient : `[that, is, a, cute, dog, my, cat]`. C'est notre dictionnaire de référence.
+
 {{< bookfig src="8.png" week="01" >}}
+
+**3. La Vectorisation (Figure 1-5)** : 
+C'est ici que le texte devient un vecteur (une liste de nombres). Pour la phrase "My cat is cute", on regarde notre vocabulaire :
+*   Le mot `that` est présent ? Non (0).
+*   Le mot `is` est présent ? Oui (1).
+*   Le mot `cute` est présent ? Oui (1).
+*   ... et ainsi de suite.
+On obtient un vecteur : `[0, 1, 0, 1, 0, 1, 1]`. 
 
 {{< bookfig src="9.png" week="01" >}}
 
-{{% hint warning %}}
-**Attention : erreur fréquente ici !** Beaucoup d'étudiants pensent que le Bag-of-Words est une relique du passé. En réalité, il reste une "baseline" (référence) solide pour des tâches simples. Mais regardez bien la faille sémantique : les phrases "Le chat mange la souris" et "La souris mange le chat" produiront le *même* vecteur exact dans un modèle BoW standard. Pour la machine, le prédateur et la proie sont statistiquement identiques. On perd la structure, donc on perd le sens.
-{{% /hint %}}
 
+> [!WARNING]
+⚠️ Regardez bien la faille de ce système.
 
-<a id="tf-idf"></a>
+> Si je vous donne les mots "mange", "le", "chat", "la", "souris", pouvez-vous savoir si c'est le chat qui mange la souris ou l'inverse ? Non. Le vecteur est identique. **On a perdu la syntaxe.**
 
-<!-- TODO: Ajouter une petite section parlant du Score BM25 -->
+---
+## Le problème de la polysémie : L'exemple "bank"
+Imaginez un instant que vous cherchiez "bank" sur Google.
 
-## De TF-IDF aux limites de la représentation creuse (Sparse)
+Dans l'approche BoW ou même avec les premiers modèles statistiques, le mot "bank" n'a qu'une seule existence numérique. 
+1. "I sat on the river **bank**." (Rive de rivière)
+2. "I went to the **bank** to deposit money." (Institution financière)
 
-Pour affiner le comptage, les chercheurs ont introduit le **TF-IDF** (Term Frequency-Inverse Document Frequency). L'intuition est brillante : un mot qui apparaît partout (comme "le", "et", "est") n'apporte aucune information sur le sujet d'un texte. TF-IDF punit les mots trop fréquents et valorise les mots rares et spécifiques (comme "photosynthèse" ou "algorithme").
+> [!IMPORTANT]
+📌 **Je dois insister :** Dans ces modèles anciens, le vecteur du mot "bank" est une moyenne statistique de tous ses sens. 
 
-Cependant, nous restions prisonniers des **représentations creuses (sparse)**. 🔑 **Notez bien cette distinction :** dans une représentation creuse, la taille du vecteur est égale à la taille du dictionnaire. Si votre modèle connaît 100 000 mots, chaque petit SMS de 3 mots devient un vecteur de 100 000 dimensions rempli de 99 997 zéros. C'est un gaspillage immense de puissance de calcul, et surtout, cela ne permet pas de comprendre que "maison" et "demeure" sont des synonymes, car ce sont deux colonnes totalement distinctes dans la base de données.
+> C'est comme essayer de définir une couleur qui serait un mélange de bleu et de rouge : vous obtenez du violet, mais vous avez perdu la pureté des deux couleurs d'origine. C'est la limite des **représentations non contextuelles**.
 
-## La révolution de 2013 : Les Embeddings Denses (Word2Vec)
+---
+## La transition vers les Embeddings Denses (Word2Vec)
+En 2013, la recherche a basculé. Au lieu d'avoir des vecteurs "creux" (plein de zéros), on a inventé les **embeddings denses**.
 
-C'est ici que l'histoire s'accélère brutalement. Avec l'arrivée de **Word2Vec** (Mikolov et al., 2013), nous sommes passés de la statistique de comptage à la géométrie neuronale.
-
-**L'intuition fondamentale** : "Vous connaîtrez un mot par l'entreprise qu'il garde" (John Rupert Firth, 1957). Au lieu de compter les mots, nous allons entraîner un petit réseau de neurones à prédire un mot en fonction de ses voisins (ou inversement).
-
-Le résultat est l'apparition des **embeddings denses**. Au lieu d'un vecteur géant de zéros, chaque mot est représenté par un vecteur compact (généralement 300 ou 768 dimensions) de nombres réels. Comme l'illustrent les **Figures 1-6 à 1-9**, on découvre alors une véritable géométrie du langage. Dans cet espace vectoriel, les mots qui partagent un sens similaire se retrouvent physiquement proches les uns des autres. Plus incroyable encore, ces vecteurs permettent des opérations mathématiques sur les concepts :
-`Vecteur(Roi) - Vecteur(Homme) + Vecteur(Femme) ≈ Vecteur(Reine)`
+**L'intuition de Word2Vec** :
+*   **Figure 1-6** : On utilise un petit réseau de neurones. Ce n'est pas encore un LLM, mais c'est son ancêtre direct. Chaque mot est relié à d'autres par des "poids" numériques.
 
 {{< bookfig src="10.png" week="01" >}}
 
+*   **Figure 1-7** : Le modèle s'entraîne à deviner si deux mots sont voisins. Si "Chat" et "Miaule" sont souvent voisins, leurs vecteurs vont se rapprocher géométriquement.
+
 {{< bookfig src="11.png" week="01" >}}
+
+*   **Figure 1-8** : On découvre que les dimensions du vecteur capturent des propriétés. Une dimension pourrait représenter le genre (masculin/féminin), une autre la royauté, une autre l'aspect animal.
 
 {{< bookfig src="12.png" week="01" >}}
 
+*   **Figure 1-9** : Si on projette ces vecteurs en 2D, on voit que "Chat" et "Chien" sont proches, alors que "Banane" est très loin.
+
 {{< bookfig src="13.png" week="01" >}}
 
-{{% hint info %}}
-🔑 **La distinction non-négociable :** Ces embeddings sont dits **statiques**. Cela signifie que dans le modèle, le mot "avocat" n'a qu'une seule "adresse" (un seul vecteur), qu'il s'agisse du fruit ou de la profession juridique.
-{{% /hint %}}
+> [!TIP]
+🔑 **Le miracle mathématique :** 
+`Vecteur(Roi) - Vecteur(Homme) + Vecteur(Femme) = Vecteur(Reine)`
+Le langage est devenu une géométrie. On peut calculer le sens.
 
-## Le mur de la polysémie : L'exemple "bank"
-
-C'est ici que nous touchons aux limites des modèles pré-2018. Prenons l'exemple du mot anglais "bank", très cher aux chercheurs en NLP.
-1. "I am going to the **bank** to withdraw money." (Institution financière)
-2. "The boat is near the river **bank**." (Rive d'un cours d'eau)
-
-Dans les approches de Word2Vec ou GloVe, le mot "bank" n'a qu'un seul vecteur. Ce vecteur est une sorte de "moyenne" confuse entre la finance et la géographie. 🔑 **Je dois insister :** c'est la limite ultime des représentations non contextuelles. La machine ne peut pas changer sa vision d'un mot en fonction de ce qui l'entoure. Il nous manquait une technologie capable de générer des embeddings *dynamiques*, capables de se transformer selon la phrase. C'est ce défi qui a pavé la voie aux Transformers que nous étudierons en section 1.3.
-
+---
 <a id="tab-1-1"></a>
 
-## Tableau comparatif 1-1 : Approches Symboliques vs Neuronales
+## Tableau 1-1 : Approches Symboliques vs Neuronales
 
-| Dimension           | Approches Symboliques/Statistiques (BoW, TF-IDF)    | Approches Neuronales (Word2Vec, GloVe)             |
-| :------------------ | :-------------------------------------------------- | :------------------------------------------------- |
-| **Philosophie**     | Compter les mots (Fréquence brute)                  | Apprendre les relations (Voisinage sémantique)     |
-| **Type de vecteur** | **Creux (Sparse)** : immense taille, plein de zéros | **Dense** : taille compacte, nombres réels partout |
-| **Sens sémantique** | Nul (chaque mot est un îlot isolé)                  | Élevé (Similarité calculable par distance)         |
-| **Indépendance**    | Ne comprend pas que "chien" et "chiot" sont liés    | Regroupe les synonymes dans l'espace vectoriel     |
-| **Ambiguïté**       | Échec total sur les synonymes                       | Gère les synonymes, échoue sur la polysémie        |
+| Caractéristique | Approche Symbolique (BoW / TF-IDF) | Approche Neuronale (Embeddings / LLM) |
+| :--- | :--- | :--- |
+| **Philosophie** | Compter les occurrences | Apprendre les relations |
+| **Type de vecteur** | **Creux (Sparse)** : immense taille, majoritairement des zéros | **Dense** : taille fixe (ex: 768), nombres réels partout |
+| **Contexte** | Ignoré (Sacoche de mots) | Capturé (Voisinage sémantique) |
+| **Synonymes** | "Achat" et "Acquisition" sont 100% différents | "Achat" et "Acquisition" sont très proches dans l'espace |
+| **Polysémie** | Échec total | Gérée par le contexte (Transformers) |
 
-## Éthique et Responsabilité : Les biais dans les vecteurs
+---
 
-{{% hint danger %}}
-Avant de clore cette section, je veux que vous compreniez une chose fondamentale. Les vecteurs neuronaux ne sont pas des entités "pures" ou "logiques". Ils sont le reflet des données sur lesquelles ils sont entraînés.
+<a id="tf-idf"></a>
 
-Si vous entraînez un modèle sur des textes du web qui contiennent des préjugés sexistes ou racistes, ces préjugés vont se traduire par des distances géométriques dans l'espace vectoriel. Par exemple, des études célèbres ont montré que dans certains modèles Word2Vec, le vecteur "homme" était statistiquement plus proche de "programmeur" et le vecteur "femme" de "homemaker" (femme au foyer). 🔑 **C'est une leçon d'éthique cruciale :** en tant que futurs concepteurs de LLM, vous devez être conscients que la beauté mathématique d'un vecteur dense peut cacher des biais sociétaux profonds. La science des modèles de langage commence par une analyse critique de la donnée.
-{{% /hint %}}
+## L'évolution vers TF-IDF : Un premier pas vers la pertinence
+Avant d'arriver au tout-neuronal, nous avons utilisé le **TF-IDF** (*Term Frequency-Inverse Document Frequency*). 
+*   **TF** : Si un mot apparaît souvent dans mon document, il est important.
+*   **IDF** : Si ce mot apparaît dans TOUS les documents de la bibliothèque (comme "le" ou "de"), il ne sert à rien pour différencier les sujets. On réduit son poids.
+
+C'était une amélioration majeure pour la recherche documentaire, mais comme le BoW, cela restait une méthode de "comptage" incapable de comprendre que "voiture" et "automobile" désignent le même objet.
+
+---
+## Éthique et Responsabilité : Les racines du biais
+
+> [!CAUTION]
+⚖️ Mes chers étudiants, soyez vigilants. 
+
+> Dès cette section, vous devez comprendre une chose : les embeddings neuronaux (Word2Vec) apprennent du monde tel qu'il est écrit, pas tel qu'il devrait être.
+
+Si le modèle apprend sur des textes où "infirmière" est toujours associé aux femmes et "médecin" aux hommes, sa géométrie vectorielle va **figer** ce préjugé. 
+
+> [!IMPORTANT]
+‼️ **Je dois insister :** Le biais n'est pas un bug informatique, c'est un reflet statistique de nos propres écrits. En tant qu'experts, votre rôle est de savoir que ces vecteurs portent en eux les cicatrices des préjugés humains. 
+
+
+---
+Nous avons vu comment nous sommes passés de la simple statistique de comptage (BoW), qui traitait les mots comme des étiquettes isolées, à la géométrie sémantique (Word2Vec), qui traite les mots comme des points dans un espace de concepts. C'est une avancée immense, mais il manquait encore une chose : la capacité de traiter l'ordre des mots et la structure des phrases sur de longues distances. C'est ce défi qui a mené aux architectures séquentielles que nous verrons en section suivante ➡️.

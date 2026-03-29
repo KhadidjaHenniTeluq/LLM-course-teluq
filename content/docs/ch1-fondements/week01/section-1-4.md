@@ -3,84 +3,138 @@ title: "1.4 Définition et applications des LLM"
 weight: 5
 ---
 
-## Une définition mouvante : Qu'est-ce qu'un "Large" Language Model ?
+## L'édifice de l'IA moderne : Quand la taille change la nature
+Bonjour à toutes et à tous ! Nous arrivons à la dernière étape de notre première semaine. Nous avons vu le moteur (l'Attention) et les pièces mécaniques (le Transformer). Maintenant, prenons du recul pour admirer l'édifice tout entier. 
 
-Nous y sommes ! Après avoir exploré les briques et le moteur, regardons enfin l'édifice dans son ensemble. Mais attention, le terme "Large Language Model" (LLM) est un peu comme un horizon qui recule à mesure que l'on avance.
+> [!IMPORTANT]
+📌 **Je dois insister :** un "Large Language Model" n'est pas simplement un petit modèle qui a grandi. C'est une technologie où le changement d'échelle a provoqué l'émergence de capacités que personne n'avait prédites. 
 
-Comme l'expliquent Jay Alammar et Maarten Grootendorst, la définition de ce qui est "large" a radicalement changé en quelques années seulement. En 2018, un modèle comme BERT (110 à 340 millions de paramètres) était considéré comme géant. Aujourd'hui, avec des modèles comme GPT-4 qui dépasseraient les mille milliards de paramètres, nos anciens géants ressemblent à des nains. 🔑 **Je dois insister :** Le mot "Large" ne fait pas seulement référence au nombre de paramètres (les "boutons" que le modèle ajuste pendant l'apprentissage), mais aussi à l'immensité des données ingérées : presque tout le texte produit par l'humanité et numérisé sur le web.
+Aujourd'hui, nous allons définir ce qu'est réellement un LLM, comment on "élève" ces géants, et surtout, comment ils transforment notre société. Respirez, car nous passons de la mathématique à la vision globale.
 
-Pour ce cours, nous adopterons la définition du livre : un LLM est un modèle de langage capable de comprendre et de générer du texte, entraîné sur des corpus massifs, et qui possède généralement une capacité de généralisation dépassant ses tâches d'entraînement initiales.
+---
+## Une définition mouvante : Qu'est-ce que "Large" ?
+Le terme "Large" dans LLM est un horizon qui recule sans cesse. En 2018, le modèle BERT-base avec ses **110 millions de paramètres** était considéré comme une prouesse technologique "large". Aujourd'hui, nous manipulons des modèles comme Llama-3-70B (70 milliards) ou GPT-4 (qui dépasserait le millier de milliards).
 
-## L'épopée GPT : De l'ombre à la lumière
+> [!NOTE]
+🔑 **La distinction fondamentale :** La "largesse" ne se mesure pas qu'au nombre de neurones artificiels. Elle se définit par trois piliers :
+1.  **Le volume de données** : On parle de téraoctets de texte (tout Wikipédia, des millions de livres, tout le code de GitHub, une part immense du web).
+2.  **La puissance de calcul** : Des milliers de GPU tournant pendant des mois.
+3.  **L'émergence** : C'est le point le plus fascinant. À partir d'un certain seuil de taille, le modèle commence à savoir faire des choses pour lesquelles il n'a jamais été entraîné, comme résoudre des énigmes logiques ou coder.
 
-L'histoire des LLM modernes est indissociable de l'évolution de la famille GPT (*Generative Pre-trained Transformer*). Regardez la progression illustrée par les **Figures 1-20 à 1-26** :
-1.  **GPT-1 (2018)** : 117 millions de paramètres. C'était la preuve de concept : un Transformer décodeur peut apprendre à lire tout seul.
-2.  **GPT-2 (2019)** : 1,5 milliard de paramètres. La rupture ! Le modèle commençait à écrire des articles si crédibles qu'OpenAI a d'abord hésité à le publier par peur des dérives.
-3.  **GPT-3 (2020)** : 175 milliards de paramètres. Le moment "Eureka". Sans entraînement spécifique, le modèle pouvait traduire, coder et raisonner simplement grâce au *prompting*.
-4.  **2023 : L'explosion** : Comme le montre la **Figure 1-27**, l'année 2023 a marqué une accélération sans précédent avec l'arrivée de Llama (Meta), Falcon (TII), Mistral et bien d'autres, rendant ces puissances de calcul accessibles sur vos propres machines.
+---
+## La saga GPT : De la curiosité au séisme mondial
+Pour comprendre où nous en sommes, nous devons suivre l'évolution de la lignée la plus célèbre, détaillée ci-dessous.
 
-{{< bookfig src="25.png" week="01" >}}
-
-{{< bookfig src="26.png" week="01" >}}
-
-{{< bookfig src="27.png" week="01" >}}
+### 1. L'aube : GPT-1 et l'intuition du décodeur (Figure 1-20)
 
 {{< bookfig src="28.png" week="01" >}}
 
+**Explication** : GPT-1, sorti en 2018, ne possédait que 117 millions de paramètres. La figure montre une architecture "Decoder-only" simple. L'innovation ? C'était la preuve que l'on pouvait entraîner un modèle sans étiquettes humaines, simplement en lui demandant de prédire le mot suivant sur 7000 livres. C'était le passage de "l'IA de laboratoire" à "l'IA apprenante". 
+
+### 2. La rupture : GPT-2 et le danger de la fluidité (Figure 1-21)
+
 {{< bookfig src="29.png" week="01" >}}
+
+**Explication** : En 2019, OpenAI passe à 1,5 milliard de paramètres. La figure illustre un saut d'échelle massif.
+
+> [!NOTE]
+✍🏻 **Je dois insister :** GPT-2 a été le premier modèle capable d'écrire des articles de presse si convaincants qu'OpenAI a d'abord refusé de le publier, craignant une vague massive de "Fake News". 
+
+C'est là que la société a réalisé que l'IA pouvait désormais mimer la prose humaine à la perfection.
+
+### 3. L'ère des géants : GPT-3 et le Zero-shot (Figure 1-21 suite)
+Toujours sur la **Figure 1-21**, on voit l'explosion vers **175 milliards de paramètres** en 2020. 
+
+> [!WARNING]
+⚠️ **Attention : erreur fréquente ici !** On pense souvent que GPT-3 est juste "plus fort". En réalité, il a introduit le **In-context learning**. 
+
+On n'a plus besoin de ré-entraîner le modèle pour lui apprendre une tâche ; il suffit de lui donner deux ou trois exemples dans le prompt (Few-shot) ou même aucun (Zero-shot) pour qu'il comprenne.
+
+### 4. La révolution sociétale : ChatGPT et GPT-4
 
 {{< bookfig src="30.png" week="01" >}}
 
-{{< bookfig src="31.png" week="01" >}}
+**Explication de la Figure 1-22** : Cette figure montre l'introduction de l' **Instruction Tuning**. On ne se contente plus de prédire le web ; on apprend au modèle à être un "assistant". 
+
+{{< bookfig src="198.png" week="01" >}}
+
+**Explication de la Figure 1-23** : On arrive à GPT-4, qui devient multimodal (il voit des images). C'est la fin du modèle purement textuel.
+
+---
+## Le paradigme de l'entraînement : La naissance d'un esprit numérique
+Mes chers étudiants, voici le secret de fabrication que vous devez graver dans votre mémoire. Un LLM ne naît pas "intelligent", il le devient en deux étapes non-négociables.
+
+### Étape 1 : Le Pré-entraînement (Pretraining) - L'éducation sauvage
+C'est la phase "biblique" de l'IA. Le modèle lit tout ce qui est numérisé.
+*   **Objectif** : Apprendre la structure du monde et du langage. 
+*   **État final** : Le **Base Model** (ou Foundation Model). 
+
+> [!IMPORTANT]
+⚠️ Un Base Model est un savant fou. 
+
+> Si vous lui demandez "Quelle est la capitale de la France ?", il pourrait vous répondre "Et quelle est la capitale de l'Espagne ?" car il a appris que les listes de questions se suivent souvent. Il ne sait pas encore qu'il doit vous servir.
+
+### Étape 2 : Le Réglage Fin (Fine-tuning) - L'école de la courtoisie
+C'est ici que VOUS intervenez en tant qu'ingénieurs. On prend le géant et on l'entraîne sur un dataset beaucoup plus petit (quelques milliers d'exemples) de dialogues parfaits.
+*   **SFT (Supervised Fine-Tuning)** : On lui montre des paires "Question -> Réponse idéale".
+*   **RLHF (Reinforcement Learning from Human Feedback)** : On demande à des humains de noter ses réponses. L'IA apprend ce que nous préférons : la clarté, la politesse et la vérité.
+
+---
+## L'explosion de 2023 : La libération des modèles
 
 {{< bookfig src="32.png" week="01" >}}
 
-## Le paradigme de l'apprentissage : Le secret en deux étapes
+**Explication de la Figure 1-24** : Cette figure est sans doute la plus importante pour votre future carrière. Elle montre qu'en 2023, le monopole d'OpenAI s'est effondré. 
+*   On voit l'arrivée de **Llama** (Meta), **Mistral**, **Falcon**.
 
-C'est ici que vous devez être très attentifs, car c'est la base de votre futur travail d'ingénieur en IA. Un LLM ne naît pas "intelligent", il passe par deux phases distinctes.
+> [!TIP]
+✉️ **Le message de la figure** : Nous sommes passés de modèles fermés (Proprietary) à des modèles ouverts (Open Models) que vous pouvez faire tourner sur votre propre ordinateur. **C'est la démocratisation de la puissance de calcul**!
 
-1.  **Le Pré-entraînement (Pretraining)** : Imaginez un étudiant qui lirait toutes les bibliothèques du monde pendant 20 ans, mais sans professeur. Il connaît tout, il sait prédire le mot suivant avec une précision diabolique, mais il n'est pas "poli" et ne sait pas forcément répondre à une question. Il complète simplement la séquence. On appelle cela un **Foundation Model** ou **Base Model**.
-2.  **Le Réglage Fin (Fine-tuning / Instruction Tuning)** : C'est l'étape où l'on donne un "professeur" au modèle. On lui montre des exemples de dialogues, de questions-réponses et de comportements souhaités. C'est ce qui transforme un prédicteur de texte brut en un assistant comme ChatGPT ou Claude.
+---
+## Applications pratiques : Le couteau suisse universel
+Pourquoi les entreprises s'arrachent-elles ces modèles ? Parce qu'un seul modèle peut remplacer dix logiciels différents.
 
-{{< bookfig src="34.png" week="01" >}}
+**Tableau 1-2 : Panorama des applications industrielles des LLM**
 
-{{% hint warning %}}
-**Attention : erreur fréquente ici !** Beaucoup d'utilisateurs pensent que le modèle "apprend" de nouvelles informations pendant qu'ils lui parlent. En réalité, le modèle est "gelé". Il utilise ses connaissances acquises lors du pré-entraînement pour traiter votre demande actuelle.
-{{% /hint %}}
-
-## Applications pratiques : Un couteau suisse universel
-
-Le champ d'application des LLM est si vaste qu'il redéfinit des industries entières. Voici un aperçu des tâches qu'un LLM peut accomplir sans être spécifiquement programmé pour elles :
-
-**Tableau 1-2 : Applications typiques des LLM**
-
-| Domaine | Exemple de tâche | Valeur ajoutée |
+| Domaine | Application Concrète | Ce que le LLM apporte |
 | :--- | :--- | :--- |
-| **Rédaction** | Copywriting, emails, articles | Gain de productivité massif |
-| **Analyse** | Résumé de documents longs, extraction d'entités | Gain de temps d'examen |
-| **Code** | Génération de fonctions Python, débogage | Aide aux développeurs (Copilot) |
-| **Sémantique** | Recherche d'information par le sens (pas par mot-clé) | Moteurs de recherche intelligents |
-| **Créativité** | Aide à l'idéation, scénarisation | Partenaire de brainstorming |
+| **Programmation** | Copilot, génération de fonctions | Gain de productivité de 40% pour les développeurs. |
+| **Relation Client** | Chatbots de support niveau 1 | Réponse instantanée 24h/24 sans frustration. |
+| **Droit & Finance** | Résumé de contrats de 200 pages | Extraction instantanée des clauses de risque. |
+| **Médecine** | Aide au diagnostic, synthèse de dossiers | Analyse croisée de milliers de publications. |
+| **Marketing** | Copywriting, création de slogans | Génération de 50 variantes en 3 secondes. |
 
-## Éthique et limites : Garder les yeux ouverts
+---
+## Éthique et Responsabilité : Les ombres du géant
 
-{{% hint danger %}}
-Je ne serais pas une bonne enseignante si je ne vous mettais pas en garde. Ces modèles sont des prouesses technologiques, mais ils ont des failles profondes que vous devez gérer.
+> [!CAUTION]
+‼️ Je ne serais pas une bonne enseignante si je ne vous montrais que le côté brillant de la médaille. Ces modèles sont des miroirs déformants de notre humanité.
 
-1.  **Hallucinations** : Comme le modèle ne fait que prédire le mot "statistiquement le plus probable", il peut inventer des faits, des dates ou des citations juridiques avec un aplomb total. 🔑 **Je dois insister :** Ne faites jamais une confiance aveugle à la sortie d'un LLM sans vérification.
-2.  **Biais et représentations** : Le modèle est le miroir de ses données. S'il a lu des textes biaisés, il produira des réponses biaisées. La neutralité de l'IA est un mythe ; la responsabilité de l'humain est une réalité.
-3.  **Transparence et opacité** : Nous sommes face à des "boîtes noires". Expliquer pourquoi un modèle a pris telle décision est l'un des plus grands défis de la recherche actuelle.
-{{% /hint %}}
+Nous devons faire face à quatre défis éthiques majeurs :
 
-{{% hint info %}}
-Vous n'apprenez pas seulement à utiliser des outils, vous apprenez à dompter une puissance statistique immense. L'éthique n'est pas une option, c'est le garde-fou qui sépare une innovation utile d'un désastre sociétal.
-{{% /hint %}}
+1.  **Hallucinations** : Le modèle privilégie la fluidité sur la vérité. S'il ne connaît pas la réponse, sa nature statistique le pousse à inventer une réponse crédible. 
+>> [!IMPORTANT]
+>📌 **Je dois insister :** Ne faites jamais confiance à un LLM pour un fait médical ou juridique sans une source vérifiable (RAG, que nous verrons en Semaine 9).
 
-Nous avons terminé notre tour d'horizon théorique ! Vous avez maintenant une vision claire de la forêt. Dès la semaine prochaine, nous allons nous approcher des arbres et examiner les feuilles : les tokens et les embeddings. Mais d'abord, place à la pratique en laboratoire !
+2.  **Biais et Équité** : Si le web est sexiste ou raciste, le LLM le sera. Aligner un modèle est un combat permanent contre les préjugés enfouis dans les données.
 
-## **SOURCES COMPLÈTES**
+3.  **Transparence** : Comment le modèle a-t-il pris sa décision ? Personne ne sait lire dans les 175 milliards de paramètres de GPT-3. C'est le problème de la "boîte noire".
 
-- Jay Alammar : The Illustrated Transformer ([https://jalammar.github.io/illustrated-transformer/](https://jalammar.github.io/illustrated-transformer/))
-- Maarten Grootendorst : LLM Roadmap 2023 ([https://maartengr.github.io/2023/12/19/llm-roadmap.html](https://maartengr.github.io/2023/12/19/llm-roadmap.html))
-- Hugging Face : NLP Course - Introduction ([https://huggingface.co/learn/nlp-course/chapter1/1](https://huggingface.co/learn/nlp-course/chapter1/1))
-- GitHub Officiel : [https://github.com/HandsOnLLM/Hands-On-Large-Language-Models/tree/main/chapter01](https://github.com/HandsOnLLM/Hands-On-Large-Language-Models/tree/main/chapter01)
+4.  **Propriété Intellectuelle** : À qui appartiennent les données d'entraînement ? Les procès actuels entre artistes et entreprises d'IA vont redéfinir le droit d'auteur pour le siècle à venir.
+
+---
+## Limited Resources are All You Need : L'IA pour tous
+Une note d'espoir pour conclure : *On n'a pas besoin d'être milliardaire pour utiliser ces technologies.*
+
+> [!TIP]
+💡 **L'astuce de l'expert** : Grâce à la **Quantification** (réduire la précision des nombres) et au **PEFT** (modifier seulement 0,1% du modèle), vous pouvez adapter un modèle surpuissant sur une simple carte graphique T4 comme celle de notre laboratoire. L'intelligence est désormais un bien commun.
+
+---
+## Synthèse finale
+> [!IMPORTANT]
+✉️ **Le message à retenir** : Mes chers étudiants, vous avez maintenant les clés de la forteresse. Vous savez d'où vient l'IA (section 1.1), comment elle a appris à ne plus oublier (section 1.2), quel est son cœur atomique (section 1.3) et comment elle est éduquée pour nous servir (section 1.4). 
+
+N'oubliez jamais : derrière la magie apparente des mots, il n'y a que de la statistique et de l'architecture. Mais la façon dont vous utiliserez ces statistiques déterminera le futur de notre lien au savoir. Soyez des ingénieurs rigoureux, mais soyez surtout des citoyens conscients.
+
+---
+Notre voyage théorique de la Semaine 1 s'achève ici. Reprenez votre souffle, car dans quelques instants, nous passons à la pratique en laboratoire. Préparez vos notebooks, nous allons découper nos premiers tokens !
