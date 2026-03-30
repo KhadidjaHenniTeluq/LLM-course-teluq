@@ -10,12 +10,11 @@ Bonjour à nouveau ! J'espère que vous avez les yeux bien ouverts, car nous pas
 
 ---
 
-## 🔹 EXERCICE 1 : Classification de sentiments avec Pipeline (Niveau Basique)
+## 🔹 EXERCICE 1 : Classification de sentiments avec Pipeline
 
 **Objectif** : Apprendre à charger et utiliser une pipeline Hugging Face sur le GPU T4 de Colab pour une classification immédiate.
 
 ```python
-# --- CODE FOURNI (QUESTION) ---
 from transformers import pipeline
 from datasets import load_dataset
 
@@ -33,12 +32,12 @@ test_data = load_dataset("rotten_tomatoes", split="test").select(range(3))
 ⚠️ Notez bien que le score représente la confiance du modèle. Un score de 0.51 signifie que BERT est presque aussi confus que nous devant une critique sarcastique !
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 <!-- TODO: add solution colab link -->
 
 ```python
-# --- RÉPONSE COMPLÈTE (CORRIGÉ) ---
+# --- RÉPONSE ---
 # Initialisation de la pipeline avec un modèle RoBERTa spécialisé
 pipe = pipeline("sentiment-analysis", 
                 model="cardiffnlp/twitter-roberta-base-sentiment-latest", 
@@ -55,12 +54,11 @@ for text in test_data["text"]:
 
 ---
 
-## 🔹 EXERCICE 2 : Embeddings + Classifieur Scikit-Learn (Niveau Intermédiaire)
+## 🔹 EXERCICE 2 : Embeddings + Classifieur Scikit-Learn
 
 **Objectif** : Implémenter la Stratégie 2 (Frozen Layers) en extrayant des caractéristiques avec `sentence-transformers` et en entraînant un modèle linéaire.
 
 ```python
-# --- CODE FOURNI (QUESTION) ---
 from sentence_transformers import SentenceTransformer
 from sklearn.linear_model import LogisticRegression
 from datasets import load_dataset
@@ -82,11 +80,10 @@ model = SentenceTransformer("all-mpnet-base-v2")
 🔑 **Je dois insister :** BERT a déjà fait tout le travail de compréhension du langage pendant son pré-entraînement ; notre classifieur ne fait que tracer une ligne entre les points.
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 <!-- TODO: add solution colab link -->
 
 ```python
-# --- RÉPONSE COMPLÈTE (CORRIGÉ) ---
 # 1. Extraction des caractéristiques (On transforme le texte en vecteurs)
 X_train = model.encode(train_subset["text"])
 y_train = train_subset["label"]
@@ -105,12 +102,11 @@ print(f"Précision sur l'échantillon d'entraînement : {score*100:.2f}%")
 
 ---
 
-## 🔹 EXERCICE 3 : Logique de classification Zero-shot (Niveau Avancé)
+## 🔹 EXERCICE 3 : Logique de classification Zero-shot
 
 **Objectif** : Implémenter manuellement la classification Zero-shot en utilisant la similarité cosinus entre un document et des étiquettes textuelles.
 
 ```python
-# --- CODE FOURNI (QUESTION) ---
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
@@ -130,11 +126,11 @@ candidate_labels = ["technical issue", "billing question", "general praise"]
 ⚠️ Si vous remplacez "technical issue" par "computer problem", le score changera. Le Zero-shot est un art de la précision sémantique !
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 <!-- TODO: add solution colab link -->
 
 ```python
-# --- RÉPONSE COMPLÈTE (CORRIGÉ) ---
+# --- RÉPONSE ---
 # 1. Encodage du document et des étiquettes (labels)
 doc_embedding = model.encode([doc])
 label_embeddings = model.encode(candidate_labels)

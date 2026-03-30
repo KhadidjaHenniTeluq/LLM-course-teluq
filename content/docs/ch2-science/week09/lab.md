@@ -5,12 +5,12 @@ weight: 6
 
 Bonjour à toutes et à tous ! Nous passons maintenant aux travaux pratiques de notre semaine sur le RAG. C'est ici que vous allez donner une "mémoire documentaire" à votre IA. 
 > [!NOTE]
-🔑 **Je dois insister :** ne voyez pas le RAG comme une simple recherche Google améliorée. 
+✍🏻 **Je dois insister :** ne voyez pas le RAG comme une simple recherche Google améliorée. 
 
 C'est une architecture de confiance. Nous allons apprendre à transformer un modèle qui "devine" en un expert qui "prouve". Soyez méticuleux dans votre découpage de texte, car c'est là que se joue la pertinence de votre futur système. Prêt·e·s à construire votre premier assistant ancré dans la réalité ?
 
 
-## 🔹 EXERCICE 1 : Pipeline RAG de base avec LangChain (Niveau 1)
+## 🔹 EXERCICE 1 : Pipeline RAG de base avec LangChain
 
 **Objectif** : Implémenter un flux complet : Ingestion -> Indexation -> Question/Réponse ancrée.
 
@@ -22,7 +22,7 @@ from langchain_community.llms import HuggingFacePipeline
 from transformers import pipeline
 import torch
 
-# 1. PRÉPARATION DU SAVOIR (QUESTION CODE)
+# 1. PRÉPARATION DU SAVOIR
 texts = [
     "The internal project 'Aegis' was started in 2023 to improve cloud security.",
     "Project 'Aegis' team is led by Dr. Sarah Chen.",
@@ -36,6 +36,7 @@ texts = [
 <summary><b>Voir la réponse</b></summary>
 
 ```python
+# RÉPONSE
 # 2. Création de la mémoire vectorielle
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 vector_db = FAISS.from_texts(texts, embeddings)
@@ -66,7 +67,7 @@ print(f"Question: {query}\nRéponse: {response['result']}")
 
 ---
 
-## 🔹 EXERCICE 2 : Reranking pour la précision (Niveau 2)
+## 🔹 EXERCICE 2 : Reranking pour la précision
 
 **Objectif** : Ajouter une étape de reranking pour filtrer les résultats d'une recherche vectorielle.
 
@@ -112,7 +113,7 @@ for score, doc in results:
 
 ---
 
-## 🔹 EXERCICE 3 : Audit de fidélité avec Ragas (Niveau 3)
+## 🔹 EXERCICE 3 : Audit de fidélité avec Ragas
 
 **Objectif** : Simuler une évaluation de type "Faithfulness" pour détecter une hallucination.
 
@@ -132,7 +133,7 @@ for score, doc in results:
 4.  **Résultat** : Score de **Faithfulness = 0.0**. 
 
 > [!NOTE]
-🔑 **Note** : C'est ainsi que nous protégeons nos utilisateurs. Même si la phrase est jolie, le score de fidélité dénonce le mensonge.
+‼️ **Note** : C'est ainsi que nous protégeons nos utilisateurs. Même si la phrase est jolie, le score de fidélité dénonce le mensonge.
 
 </details>
 

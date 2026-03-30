@@ -9,12 +9,11 @@ Bonjour à toutes et à tous ! Nous passons maintenant à la phase de "sculpture
 🔑 **Je dois insister :** l'IA est un miroir de votre clarté. Si votre prompt est flou, sa pensée le sera aussi. Nous allons apprendre à transformer des réponses banales en raisonnements brillants et à dompter l'imprévisibilité de la machine pour obtenir des données structurées. Prêt·e·s à murmurer à l'oreille des modèles ? C'est parti !
 
 
-## 🔹 EXERCICE 1 : Optimisation de prompt par le raisonnement (Niveau 1)
+## 🔹 EXERCICE 1 : Optimisation de prompt par le raisonnement
 
 **Objectif** : Transformer un prompt "Zero-shot" qui échoue en un prompt "Chain-of-Thought" réussi.
 
 ```python
-# --- (QUESTION) ---
 from transformers import pipeline
 import torch
 
@@ -32,10 +31,10 @@ print("--- TEST 1 : RÉPONSE DIRECTE ---")
 ```
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 ```python
-# --- RÉPONSE (CORRIGÉ) ---
+# --- RÉPONSE ---
 # 1. Test sans raisonnement (le modèle risque de répondre 27 ou 29 par confusion)
 prompt_direct = f"<|user|>\nQuestion: {question}\nAnswer:<|assistant|>\n"
 res1 = pipe(prompt_direct, max_new_tokens=10, do_sample=False)
@@ -57,12 +56,11 @@ print(f"CoT: {res2[0]['generated_text'].split('assistant|>')[-1].strip()}")
 
 ---
 
-## 🔹 EXERCICE 2 : Few-shot prompting pour l'extraction (Niveau 2)
+## 🔹 EXERCICE 2 : Few-shot prompting pour l'extraction
 
 **Objectif** : Apprendre au modèle un format d'extraction personnalisé et complexe sans fine-tuning.
 
 ```python
-# --- CODE (QUESTION) ---
 # On veut extraire le NOM et la COULEUR des fruits dans un format "Fruit: [Nom] | Color: [Couleur]"
 
 messy_text = "I have a big red apple and a small yellow banana in my basket."
@@ -71,10 +69,10 @@ messy_text = "I have a big red apple and a small yellow banana in my basket."
 ```
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 ```python
-# --- RÉPONSE (CORRIGÉ) ---
+# --- RÉPONSE ---
 few_shot_prompt = [
     {"role": "user", "content": "Extract: A green lime and an orange orange."},
     {"role": "assistant", "content": "Fruit: lime | Color: green\nFruit: orange | Color: orange"},
@@ -98,12 +96,11 @@ print(output[0]['generated_text'].split("<|assistant|>")[-1].strip())
 
 ---
 
-## 🔹 EXERCICE 3 : Validation de sortie JSON (Niveau 3)
+## 🔹 EXERCICE 3 : Validation de sortie JSON
 
 **Objectif** : Utiliser un prompt de structuration pour obtenir un objet JSON valide et le charger en Python.
 
 ```python
-# --- CODE (QUESTION) ---
 import json
 
 # TÂCHE : Créez un prompt qui génère les statistiques d'un personnage de RPG.
@@ -111,10 +108,10 @@ import json
 
 ```
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 ```python
-# --- RÉPONSE (CORRIGÉ) ---
+# --- RÉPONSE ---
 prompt_json = """<|user|>
 Create a fantasy character profile. 
 Output ONLY valid JSON code. No conversation.
@@ -143,7 +140,9 @@ except:
 
 **Explications détaillées** :
 *   **Attentes** : Le modèle doit renvoyer uniquement le bloc de code `{ ... }`. 
-*   **Avertissement du Professeur** : Sans "Constrained Sampling" matériel (GBNF), le modèle peut parfois ajouter du texte ("Voici le JSON..."). 
+
+> [!WARNING]
+⚠️ **Avertissement** : Sans "Constrained Sampling" matériel (GBNF), le modèle peut parfois ajouter du texte ("Voici le JSON..."). 
 
 > [!TIP]
 🔑 **L'astuce d'ingénieur** : Si `json.loads` échoue, utilisez une expression régulière (Regex) pour extraire uniquement ce qui se trouve entre les accolades `{}`.

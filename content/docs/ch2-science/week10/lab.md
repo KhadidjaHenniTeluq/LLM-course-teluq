@@ -9,12 +9,11 @@ Bonjour à toutes et à tous ! Nous passons maintenant aux travaux pratiques de 
 🔑 **Je dois insister :** la multimodalité demande une rigueur particulière sur la gestion de la mémoire. Nous allons utiliser des modèles de pointe comme CLIP et BLIP-2 sur notre GPU T4. Ne vous contentez pas de générer des légendes : essayez de comprendre comment le modèle "traduit" les pixels en concepts. Prêt·e·s à ouvrir les yeux de vos algorithmes ? C'est parti !
 
 ---
-### 🔹 EXERCICE 1 : CLIP pour la recherche d'images (Niveau 1)
+### 🔹 EXERCICE 1 : CLIP pour la recherche d'images
 
 **Objectif** : Utiliser CLIP pour identifier quelle description textuelle correspond le mieux à une image donnée.
 
 ```python
-# --- CODE (QUESTION) ---
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import requests
@@ -36,7 +35,7 @@ texts = ["a photo of a cat", "a photo of a dog", "a photo of a car"]
 <summary><b>Voir la réponse</b></summary>
 
 ```python
-# --- RÉPONSE (CORRIGÉ) ---
+# --- RÉPONSE ---
 # 2. Prétraitement simultané
 inputs = processor(text=texts, images=image, return_tensors="pt", padding=True)
 
@@ -57,12 +56,11 @@ for i, text in enumerate(texts):
 </details>
 
 ---
-### 🔹 EXERCICE 2 : BLIP-2 Captioning (Niveau 2)
+### 🔹 EXERCICE 2 : BLIP-2 Captioning
 
 **Objectif** : Générer une description automatique pour une image en utilisant BLIP-2 et la quantification pour économiser la VRAM.
 
 ```python
-# --- CODE (QUESTION) ---
 from transformers import Blip2Processor, Blip2ForConditionalGeneration
 import torch
 
@@ -73,7 +71,7 @@ import torch
 <summary>Voir la réponse</summary>
 
 ```python
-# --- RÉPONSE (CORRIGÉ) ---
+# --- RÉPONSE ---
 # 1. Chargement optimisé pour Colab T4
 model_id = "Salesforce/blip2-opt-2.7b"
 processor = Blip2Processor.from_pretrained(model_id)
@@ -95,12 +93,11 @@ print(f"Légende générée : {caption}")
 </details>
 
 ---
-### 🔹 EXERCICE 3 : VQA (Visual Question Answering) complexe (Niveau 3)
+### 🔹 EXERCICE 3 : VQA (Visual Question Answering) complexe
 
 **Objectif** : Poser une question nécessitant un raisonnement sur l'image à BLIP-2.
 
 ```python
-# --- CODE (QUESTION) ---
 # TÂCHE : Demandez au modèle combien de chats sont présents sur l'image.
 ```
 
@@ -108,7 +105,7 @@ print(f"Légende générée : {caption}")
 <summary>Voir la réponse</summary>
 
 ```python
-# --- RÉPONSE (CORRIGÉ) ---
+# --- RÉPONSE ---
 # 1. Construction du prompt de question
 question = "Question: How many cats are there in this picture? Answer:"
 

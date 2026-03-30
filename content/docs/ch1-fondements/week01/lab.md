@@ -18,8 +18,21 @@ Félicitations ! Vous avez traversé la jungle de l'histoire du NLP. Maintenant,
 ```python
 from collections import Counter
 
-def simple_bpe_step(text):
-    # 1. On sépare le texte en caractères (en ajoutant un symbole de fin de mot)
+TEXT_EXAMPLE = "le chat chasse le chien dans le jardin"
+
+def simple_bpe_step(text = TEXT_EXAMPLE):
+    # VOTRE CODE ICI
+
+```
+<!-- TODO: add colab link -->
+
+**Attentes** : Expliquez pourquoi fusionner "l" et "e" en un seul token "le" est plus efficace pour le modèle que de les traiter séparément.
+
+<details>
+<summary><b>Voir la réponse</b></summary>
+
+```python
+# 1. On sépare le texte en caractères (en ajoutant un symbole de fin de mot)
     words = text.split()
     # Création d'une liste de listes de caractères
     token_list = [list(word) + ["</w>"] for word in words]
@@ -38,11 +51,11 @@ text_example = "le chat chasse le chien dans le jardin"
 pair, freq = simple_bpe_step(text_example)
 
 print(f"La paire à fusionner est : {pair} avec une fréquence de {freq}")
-# ATTENDU : La paire ('l', 'e') car "le" apparaît 3 fois.
-```
-<!-- TODO: add colab link -->
 
-**Attentes** : Expliquez pourquoi fusionner "l" et "e" en un seul token "le" est plus efficace pour le modèle que de les traiter séparément.
+# ATTENDU : La paire ('l', 'e') car "le" apparaît 3 fois.
+
+```
+</details>
 
 ---
 
@@ -63,7 +76,7 @@ Considérez les deux phrases suivantes :
 2. Si vous utilisez un **Transformer (ex: BERT)**, comment l'attention permet-elle de différencier ces deux occurrences ?
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 1. **BoW** : Aucune différence. Le mot "banque" est lié à un index unique. Pour le modèle, la finance et la pêche sont identiques ici.
 
@@ -79,7 +92,7 @@ Considérez les deux phrases suivantes :
 **Consigne** : À l'aide de la **Figure 1-1** et de la **Figure 1-24**, identifiez trois modèles majeurs et expliquez leur apport.
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 1. **Word2Vec (2013)** : Passage des comptes de mots aux vecteurs denses (géométrie du langage).
 

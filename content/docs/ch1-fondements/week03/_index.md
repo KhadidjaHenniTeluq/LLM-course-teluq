@@ -36,7 +36,7 @@ Pour maîtriser cette semaine complexe, vous devez avoir consolidé :
 ## 📚 Ressources utiles pour les concepts de la semaine
 
 ### 🌐 Articles et Blogs de référence
-*   **Jay Alammar** : [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/) – L'explication visuelle la plus célèbre au monde pour comprendre les matrices Q, K, V. (Vérifié : Fonctionnel).
+*   **Jay Alammar** : [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/) – L'explication visuelle la plus célèbre au monde pour comprendre les matrices Q, K, V.
 *   **Lilian Weng (OpenAI)** : [Transformer Improvements](https://lilianweng.github.io/posts/2023-01-27-the-transformer-family-v2/) – Une excellente synthèse sur RoPE, SwiGLU et RMSNorm.
 *   **Hugging Face Blog** : [FlashAttention, GQA, and more](https://huggingface.co/blog/optimize-llm) – Pour comprendre comment on rend l'attention plus rapide sur GPU.
 

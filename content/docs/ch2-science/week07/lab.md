@@ -6,16 +6,15 @@ weight: 6
 Bonjour à toutes et à tous ! Nous y sommes : le moment de transformer une montagne de documents illisibles en une carte thématique structurée. Dans ce laboratoire, nous allons mettre en pratique notre "vision panoramique". 
 
 > [!IMPORTANT]
-🔑 **Je dois insister :** ne vous contentez pas de regarder les jolies bulles colorées. Un bon scientifique de la donnée est celui qui va fouiller dans les "outliers" (les points gris) pour comprendre ce que la machine n'a pas réussi à classer. Prêt·e·s à organiser le chaos ? C'est parti !
+‼️ **Je dois insister :** ne vous contentez pas de regarder les jolies bulles colorées. Un bon scientifique de la donnée est celui qui va fouiller dans les "outliers" (les points gris) pour comprendre ce que la machine n'a pas réussi à classer. Prêt·e·s à organiser le chaos ? C'est parti !
 
 ---
 
-## 🔹 EXERCICE 1 : Pipeline de clustering complet (Niveau 1)
+## 🔹 EXERCICE 1 : Pipeline de clustering complet
 
 **Objectif** : Implémenter manuellement le pipeline (Embedding -> UMAP -> HDBSCAN) pour découvrir des structures dans un petit corpus.
 
 ```python
-# --- (QUESTION) ---
 from sentence_transformers import SentenceTransformer
 from umap import UMAP
 from hdbscan import HDBSCAN
@@ -35,10 +34,10 @@ docs = [
 
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 ```python
-# --- RÉPONSE (CORRIGÉ) ---
+# --- RÉPONSE ---
 # 1. Embeddings (On utilise un modèle léger pour la démo)
 model = SentenceTransformer("all-MiniLM-L6-v2")
 embeddings = model.encode(docs)
@@ -65,7 +64,7 @@ print(f"Clusters assignés : {clusters}")
 
 ---
 
-## 🔹 EXERCICE 2 : BERTopic avancé avec Reranking (Niveau 2)
+## 🔹 EXERCICE 2 : BERTopic avancé avec Reranking
 
 **Objectif** : Utiliser la modularité de BERTopic pour affiner la représentation des sujets avec KeyBERTInspired.
 
@@ -82,7 +81,7 @@ from bertopic.representation import KeyBERTInspired
 ```
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 ```python
 # --- RÉPONSE (CORRIGÉ) ---
@@ -108,7 +107,7 @@ print(topic_model.get_topic(0)[:5])
 
 ---
 
-## 🔹 EXERCICE 3 : Visualisation et gestion du bruit (Niveau 3)
+## 🔹 EXERCICE 3 : Visualisation et gestion du bruit
 
 **Objectif** : Générer une visualisation et analyser le cluster des "outliers".
 
@@ -117,7 +116,7 @@ print(topic_model.get_topic(0)[:5])
 2. Identifiez le nombre de documents classés en `-1` (bruit) via `topic_model.get_topic_info()`.
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 **Réponse typique et analyse** :
 *   **Action** : `topic_model.visualize_hierarchy()` affiche un dendrogramme montrant comment les sujets se regroupent.

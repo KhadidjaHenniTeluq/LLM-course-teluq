@@ -10,7 +10,7 @@ Bonjour à toutes et à tous ! J'espère que vous avez fait le plein d'énergie,
 
 ---
 
-## 🔹 EXERCICE 1 : Génération contrôlée et Température (Niveau Basique)
+## 🔹 EXERCICE 1 : Génération contrôlée et Température
 
 **Objectif** : Expérimenter l'impact de la température sur la diversité des réponses avec Phi-3-mini.
 
@@ -18,25 +18,24 @@ Bonjour à toutes et à tous ! J'espère que vous avez fait le plein d'énergie,
 from transformers import pipeline
 import torch
 
-# Initialisation de la pipeline (QUESTION CODE)
+# Initialisation de la pipeline
 model_id = "microsoft/Phi-3-mini-4k-instruct"
 pipe = pipeline("text-generation", model=model_id, device_map="auto", torch_dtype=torch.float16)
 
 #VOTRE TÂCHE : Générer une blague avec 3 températures différentes (par exemple: 0.1, 0.7, 1.5)
 ```
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 ```python
 prompt = "Tell me a very short joke about a computer."
 messages = [{"role": "user", "content": prompt}]
 
-# --- RÉPONSE (ANSWER CODE) ---
+# --- RÉPONSE ---
 temperatures = [0.1, 0.7, 1.5]
 
 for temp in temperatures:
     # On utilise do_sample=True pour permettre l'usage de la température
-    # [SOURCE: Paramètres de génération Livre p.172]
     output = pipe(messages, max_new_tokens=30, do_sample=True, temperature=temp)
     print(f"\n--- Température: {temp} ---")
     print(output[0]['generated_text'][-1]['content'])
@@ -52,25 +51,24 @@ for temp in temperatures:
 
 ---
 
-## 🔹 EXERCICE 2 : Prompt Engineering : Persona et Format (Niveau Intermédiaire)
+## 🔹 EXERCICE 2 : Prompt Engineering : Persona et Format
 
 **Objectif** : Utiliser les composants d'un prompt vus en section 5.2 (Instruction, Persona, Format) pour obtenir une réponse structurée.
 
 ```python
 # (On suppose pipe déjà initialisé comme ci-dessus)
 
-# --- CONFIGURATION DU PROMPT (QUESTION CODE) ---
+# --- CONFIGURATION DU PROMPT ---
 # Tâche : Créer un prompt qui demande à l'IA d'agir en tant qu'expert en nutrition
 # et de répondre sous forme de liste JSON.
 
 ```
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 ```python
 # --- RÉPONSE (ANSWER CODE) ---
-# [SOURCE: Anatomie d'un prompt Livre p.173-178]
 system_msg = "You are a professional nutritionist. Always respond in JSON format."
 user_msg = "Give me 3 healthy breakfast ideas with their main ingredient."
 
@@ -89,26 +87,25 @@ print(output[0]['generated_text'][-1]['content'])
 
 ---
 
-## 🔹 EXERCICE 3 : Nucleus Sampling (Top-P) vs Greedy (Niveau Avancé)
+## 🔹 EXERCICE 3 : Nucleus Sampling (Top-P) vs Greedy
 
 **Objectif** : Comparer la richesse lexicale entre un décodage déterministe et un décodage par noyau (Nucleus).
 
 ```python
-# --- CONFIGURATION (QUESTION CODE) ---
+# --- CONFIGURATION ---
 prompt = "In a world where artificial intelligence rules the oceans,"
 messages = [{"role": "user", "content": prompt}]
 ```
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 ```python
-# --- RÉPONSE (ANSWER CODE) ---
+# --- RÉPONSE ---
 # 1. Génération Greedy (Déterministe)
 greedy_out = pipe(messages, max_new_tokens=40, do_sample=False) # do_sample=False force le mot le plus probable
 
 # 2. Génération Nucleus (Top-P)
-# [SOURCE: Nucleus sampling Livre p.171]
 nucleus_out = pipe(messages, max_new_tokens=40, do_sample=True, top_p=0.9, temperature=0.8)
 
 print("--- MODE GREEDY (Plus probable) ---")

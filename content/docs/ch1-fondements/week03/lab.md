@@ -11,136 +11,141 @@ Bonjour à toutes et à tous ! Nous y sommes : le moment de vérité où les éq
 Ne vous contentez pas d'exécuter les cellules : observez comment la structure du modèle dicte sa capacité à comprendre. Prêt·e·s à explorer les entrailles de la machine ? C'est parti !  
 
 ---
-## Exercice 1 : Visualisation de l'attention
+## 🔹 EXERCICE 1 : Visualisation de la structure et de l'attention
 
-**Objectif** : Utiliser un modèle BERT pour extraire les poids d'attention et comprendre comment un token "regarde" ses voisins.
+**Objectif** : Charger un modèle BERT-base et extraire ses poids d'attention pour comprendre la forme des données internes.
 
 ```python
-# --- QUESTION ---
 from transformers import AutoModel, AutoTokenizer
 import torch
 
-# Chargement du modèle avec l'option de retour d'attention
+# 1. INITIALISATION
 model_name = "bert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
+# On demande explicitement de sortir les attentions
 model = AutoModel.from_pretrained(model_name, output_attentions=True)
 
-sentence = "The cat sat on the mat"
-inputs = tokenizer(sentence, return_tensors="pt")
-
-# --- VOTRE TÂCHE : Récupérez les attentions et affichez la forme de la première couche ---
+text = "The cat sat on the mat"
+inputs = tokenizer(text, return_tensors="pt")
 ```
-<!-- TODO: add colab link -->
-
-{{< colab url="" label="Voir la solution sur Colab" >}}
 
 <details>
 <summary><b>Voir la réponse</b></summary>
 
-<!-- TODO: add solution colab link -->
-
 ```python
-outputs = model(**inputs)
-# 'attentions' est un tuple de 12 tenseurs (un par couche)
+# --- RÉPONSE ---
+# Exécution du modèle
+with torch.no_grad():
+    outputs = model(**inputs)
+
+# Récupération des poids d'attention (tuple de 12 couches)
 attentions = outputs.attentions 
 
-# Récupération de la première couche
-first_layer_attention = attentions[0]
+# Analyse de la première couche
+first_layer_attn = attentions[0]
 
-print(f"Forme de l'attention (Couche 1) : {first_layer_attention.shape}")
-# Attendu : [1, 12, 8, 8] -> [Batch, Heads, Seq_len, Seq_len]
-print("Succès : Le modèle a bien généré une matrice d'interaction pour les 12 têtes !")
+print(f"Nombre de couches d'attention : {len(attentions)}")
+print(f"Forme du tenseur d'attention (Couche 1) : {first_layer_attn.shape}")
+# Attendu : [1, 12, 8, 8] -> [Batch, Heads, Tokens, Tokens]
 ```
+**EXPLICATIONS DÉTAILLÉES**
+*   **Résultats** : Vous voyez 12 couches et 12 têtes. La matrice 8x8 correspond aux interactions entre les 8 tokens du texte.
+*   **Justification** : Chaque tête d'attention calcule sa propre matrice d'affinité. Si un mot regarde son voisin, la valeur à l'intersection dans cette matrice sera élevée.
 
 </details>
 
 ---
 
-## Exercice 2 : Analyse de structure interne
+## 🔹 EXERCICE 2 : Analyse de la configuration d'un bloc moderne
 
-**Objectif** : Apprendre à lire l'architecture d'un modèle pour identifier le nombre de couches et la dimension cachée.
+**Objectif** : Extraire les hyperparamètres d'un modèle Llama-like pour identifier les mécanismes d'optimisation (GQA, RMSNorm).
 
 ```python
-# --- QUESTION ---
-from transformers import AutoModelForCausalLM
+from transformers import AutoConfig
 
-# Utilisons un modèle léger pour l'analyse
-model = AutoModelForCausalLM.from_pretrained("gpt2")
-
-# --- VOTRE TÂCHE : Identifiez le nombre de couches et la dimension d'entrée (n_embd) ---
+# 1. CHARGEMENT DE LA CONFIG
+# Utilisons un modèle compact et moderne
+model_id = "microsoft/Phi-3-mini-4k-instruct"
 ```
-<!-- TODO: add colab link -->
-
-{{< colab url="" label="Voir la solution sur Colab" >}}
-<!-- TODO: add solution colab link -->
 
 <details>
 <summary><b>Voir la réponse</b></summary>
 
 ```python
-print(model) # Affiche la structure complète
+# --- RÉPONSE ---
+config = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
 
-# Extraction via la configuration
-n_layers = model.config.n_layer
-embedding_dim = model.config.n_embd
+print(f"--- RAPPORT D'ARCHITECTURE PHI-3 ---")
+print(f"Nombre de couches (Blocs Transformer) : {config.num_hidden_layers}")
+print(f"Dimension cachée (d_model) : {config.hidden_size}")
+print(f"Nombre de têtes de Query : {config.num_attention_heads}")
 
-print(f"\n--- RAPPORT D'ARCHITECTURE ---")
-print(f"Nombre de blocs Transformer : {n_layers}")
-print(f"Dimension des vecteurs (Model Dim) : {embedding_dim}")
+# Vérification du Grouped-Query Attention (GQA)
+if hasattr(config, "num_key_value_heads"):
+    print(f"Nombre de têtes de Key/Value : {config.num_key_value_heads}")
+    ratio = config.num_attention_heads // config.num_key_value_heads
+    print(f"Utilise le GQA avec un ratio de {ratio}:1 pour économiser la VRAM.")
+
 ```
+
+**EXPLICATIONS DÉTAILLÉES**
+*   **Justification** : Si le nombre de têtes K/V est inférieur aux têtes Query, le modèle utilise GQA.
+*   Cela signifie qu'il est optimisé pour les longues conversations en réduisant la taille du KV Cache.
 
 </details>
 
 ---
 
-## Exercice 3 : Mesure de l'impact du KV Cache
+## 🔹 EXERCICE 3 : Profilage du KV Cache
 
-**Objectif** : Démontrer empiriquement l'accélération apportée par le caching des Keys et Values lors de la génération.
+**Objectif** : Mesurer l'impact de l'optimisation KV Cache sur le temps de génération d'un paragraphe.
 
 ```python
-# --- QUESTION ---
 import time
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-model_name = "gpt2"
+# 1. PRÉPARATION
+model_name = "gpt2" # Modèle léger pour éviter les délais sur Colab
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name)
-input_ids = tokenizer("Once upon a time in a galaxy far, far away", return_tensors="pt").input_ids
+model = AutoModelForCausalLM.from_pretrained(model_name).to("cuda")
 
-# --- VOTRE TÂCHE : Comparez le temps de génération de 20 tokens avec et sans cache ---
+input_text = "The development of large language models has led to a major shift in how we"
+inputs = tokenizer(input_text, return_tensors="pt").to("cuda")
 ```
-<!-- TODO: add colab link -->
-
-{{< colab url="" label="Voir la solution sur Colab" >}}
-<!-- TODO: add solution colab link -->
 
 <details>
 <summary><b>Voir la réponse</b></summary>
 
 ```python
-# 1. Sans KV Cache
-start = time.time()
-output_no_cache = model.generate(input_ids, max_new_tokens=20, use_cache=False)
-end_no_cache = time.time() - start
+# --- RÉPONSE ---
+# TEST 1 : GÉNÉRATION SANS CACHE
+start_no_cache = time.time()
+# On désactive le cache via use_cache=False
+out_no_cache = model.generate(**inputs, max_new_tokens=40, use_cache=False)
+end_no_cache = time.time() - start_no_cache
 
-# 2. Avec KV Cache
-start = time.time()
-output_cache = model.generate(input_ids, max_new_tokens=20, use_cache=True)
-end_cache = time.time() - start
+# TEST 2 : GÉNÉRATION AVEC CACHE
+start_cache = time.time()
+# Le cache est activé par défaut (use_cache=True)
+out_cache = model.generate(**inputs, max_new_tokens=40, use_cache=True)
+end_cache = time.time() - start_cache
 
-print(f"Temps SANS cache : {end_no_cache:.4f}s")
-print(f"Temps AVEC cache : {end_cache:.4f}s")
-print(f"Facteur d'accélération : {end_no_cache/end_cache:.2f}x")
+print(f"Temps SANS cache : {end_no_cache:.4f} secondes")
+print(f"Temps AVEC cache : {end_cache:.4f} secondes")
+print(f"🚀 Gain de performance : {(end_no_cache / end_cache):.2f}x plus rapide !")
 ```
 
-> [!WARNING]
-⚠️ **Note :** Sur de très longues séquences, l'écart devient massif !
+**EXPLICATIONS DÉTAILLÉES**
+*   **Résultats** : Vous devriez observer un gain significatif (souvent 2x ou plus).
+*   **Justification** : Sans cache, le modèle doit recalculer l'attention pour TOUTE la phrase à chaque nouvelle lettre. Avec le cache, il ne calcule que pour le dernier mot et "lit" le reste en mémoire. 
 
+> [!IMPORTANT]
+🔔 **Note éthique** : Moins de calcul signifie aussi une consommation électrique réduite !
 
 </details>
 
 ---
 
-**Mots-clés de la semaine** : Self-Attention, Multi-head, Query/Key/Value, RoPE, KV Cache, FlashAttention, RMSNorm, Feedforward, LM Head.
+**Mots-clés de la semaine** : Self-Attention, Query/Key/Value, Multi-head, RoPE (Positional), RMSNorm, Residual Connections, GQA, FlashAttention, KV Cache, Forward Pass.
 
-**En prévision de la semaine suivante** : Nous allons utiliser ces connaissances pour explorer les modèles spécialisés dans la compréhension : la famille BERT (Encoder-only) et leurs applications en classification.
+**En prévision de la semaine prochaine** : Nous allons utiliser ces connaissances pour explorer les modèles spécialisés dans la compréhension pure : les modèles **Encoder-only** (la famille BERT) et leurs applications en classification.
