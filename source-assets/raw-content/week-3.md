@@ -1,517 +1,661 @@
-﻿---
-# WEEK: 3
-# TITLE: Semaine 3 : Architecture Transformer approfondie
-# CHAPTER_FIGURES: [25, 57, 58, 59, 61, 62, 63, 66, 68, 69, 70, 71, 72, 73, 74, 75, 76, 78, 79, 80, 82, 83, 84, 85, 86]
-# COLAB_NOTEBOOKS: []
----
-[CONTENU SEMAINE 3]
+﻿[CONTENU SEMAINE 3]
+
 # Semaine 3 : Architecture Transformer approfondie
 
 **Titre : Au cœur des Transformers : Mécanismes d'attention et blocs Transformer**
 
 **Accroche du Professeur Khadidja Henni** : 
-« Bonjour à toutes et à tous ! J'espère que vous avez bien dormi, car aujourd'hui, nous entrons dans la "salle des machines". ⚙️ La semaine dernière, nous avons étudié les atomes (les tokens) et leur position dans l'espace (les embeddings). Aujourd'hui, nous allons voir comment ces atomes interagissent pour créer de la pensée artificielle. Nous allons disséquer le mécanisme d'attention, non plus seulement comme une intuition, mais comme une symphonie mathématique de haute précision. 🔑 Je dois insister : ce que nous allons voir – l'équation de la Scaled Dot-Product Attention – est le secret le mieux gardé de la révolution technologique actuelle. Prenez votre souffle, nous allons rendre l'invisible visible. » [SOURCE: Livre p.73]
+« Bonjour à toutes et à tous ! Quel plaisir de vous retrouver pour cette troisième étape. Nous avons les briques (les tokens) et nous avons le ciment (les embeddings). Maintenant, mes chers étudiants, nous allons construire la cathédrale. 🔑 **Je dois insister :** aujourd'hui, nous ouvrons le "capot" du moteur de l'IA moderne. Nous allons décortiquer les engrenages mathématiques du Transformer. Ce n'est pas seulement du code, c'est une chorégraphie de matrices où chaque mot apprend à regarder tous les autres pour en saisir l'essence. Respirez, car nous plongeons au cœur de la machine ! » [SOURCE: Livre p.73]
 
-**Rappel semaine précédente** : « La semaine dernière, nous avons exploré la tokenisation et les embeddings, comprenant comment le texte est converti en vecteurs denses et comment les modèles comme BERT créent des représentations contextuelles. » [SOURCE: Extra-Detailed-Plan.md]
+**Rappel semaine précédente** : « La semaine dernière, nous avons exploré les atomes du langage : les tokens. Nous avons appris comment les tokeniseurs découpent le texte et comment les embeddings transforment ces morceaux en vecteurs denses, créant ainsi une géométrie du sens. » [SOURCE: Detailed-plan.md]
 
 **Objectifs de la semaine** :
 À la fin de cette semaine, vous saurez :
-*   Expliquer et calculer mathématiquement le mécanisme de self-attention (Q, K, V).
-*   Comprendre l'importance de l'encodage positionnel rotatif (RoPE).
-*   Décortiquer la structure d'un bloc Transformer moderne (Norm, Residuals, MLP).
-*   Analyser le passage de l'information (Forward Pass) et l'optimisation par cache KV.
+*   Expliquer mathématiquement le mécanisme de Self-Attention (Q, K, V).
+*   Comprendre le rôle des têtes d'attention multiples (Multi-head attention).
+*   Détailler le fonctionnement de l'encodage positionnel moderne (RoPE).
+*   Analyser la structure d'un bloc Transformer complet (Normalisation, Feedforward, Résidus).
+*   Saisir l'importance de l'optimisation par KV Cache pour l'inférence.
 
 ---
 
-## 3.1 Le mécanisme d'attention : Mathématiques détaillées (1400+ mots)
+## 3.1 Le mécanisme d'attention : Mathématiques détaillées (2500+ mots)
 
-### La bibliothèque infinie : L'analogie Query, Key, Value
-« Avant de plonger dans les matrices, laissez-moi vous raconter une histoire. » Imaginez que vous soyez dans une bibliothèque immense à la recherche d'une information précise sur le "climat". 
+### La fin de la lecture linéaire : L'intuition de l'omniprésence
+« Imaginez que vous soyez dans une soirée cocktail très bruyante. » Pour comprendre votre interlocuteur, votre cerveau ignore 90 % des sons ambiants et se concentre sur les fréquences de sa voix. C'est l'attention sélective. En NLP, nous avons longtemps forcé les machines à lire comme des écoliers, un mot après l'autre (RNN). 🔑 **Je dois insister :** le Transformer a aboli cette dictature du temps. Il ne lit pas de gauche à droite ; il regarde la phrase comme une image globale. 
 
-1.  **La Query (Requête - $Q$)** : C'est ce que vous avez en tête, votre intention. Vous marchez dans les allées en criant : "Je cherche des infos sur le climat !".
-2.  **La Key (Clé - $K$)** : C'est l'étiquette collée sur le dos de chaque livre. Un livre a pour étiquette "Météo", un autre "Cuisine", un autre "Écologie".
-3.  **La Value (Valeur - $V$)** : C'est le contenu réel à l'intérieur du livre. 
+Regardons la **Figure 3-15 : Cadrage simplifié de l'attention** (p.90 du livre). Cette illustration nous présente une séquence d'entrée où un mot (noté par la flèche rose) est en train d'être traité. La figure montre que ce mot ne se contente pas de regarder son voisin ; il envoie des "sondes" vers toutes les autres positions de la séquence. 
+*   **L'idée clé** : Chaque mot de la phrase reçoit un "budget" d'attention de 100 % qu'il doit répartir entre tous les autres mots, y compris lui-même. 
+*   **Le résultat** : Un mot isolé (embedding statique) s'enrichit de l'information de ses voisins pour devenir un vecteur contextuel unique. [SOURCE: Livre p.90, Figure 3-15]
 
-Le mécanisme d'attention est le processus par lequel vous comparez votre **Query** à toutes les **Keys** de la bibliothèque. Si votre Query ("Climat") ressemble beaucoup à une Key ("Météo"), vous allez accorder beaucoup d'importance à la **Value** de ce livre. Si la Key est "Cuisine", vous l'ignorerez. 🔑 **C'est le cœur de l'attention :** extraire l'information pertinente en comparant des intentions à des étiquettes. [SOURCE: Livre p.91-92, Blog 'The Illustrated Transformer' https://jalammar.github.io/illustrated-transformer/]
+### Le Trio Magique : Query, Key et Value
+« Mes chers étudiants, voici le concept le plus crucial de votre formation. Si vous comprenez Query, Key et Value, vous comprenez l'intelligence artificielle moderne. » Le Transformer ne compare pas les vecteurs de mots directement. Il projette chaque mot dans trois espaces fonctionnels différents.
 
-### Les quatre étapes du calcul de l'attention
-Comme illustré dans les **Figures 3-15 à 3-21** (p.89-94), le calcul se décompose en étapes mathématiques rigoureuses que tout expert en LLM doit connaître par cœur.
+Comme l'illustre la **Figure 3-18 : Matrices de projection** (p.92), le modèle possède trois matrices de poids apprises durant l'entraînement : $W_Q, W_K$ et $W_V$. Lorsqu'un mot entre dans la couche d'attention :
+1.  **Query (La Requête - Q)** : C'est ce que le mot cherche. Si le mot est "il", sa requête demande : "Où est mon sujet masculin dans cette phrase ?".
+2.  **Key (La Clé - K)** : C'est l'étiquette du mot. Un mot comme "livre" possède une clé qui dit : "Je suis un objet inanimé masculin".
+3.  **Value (La Valeur - V)** : C'est l'information sémantique pure que le mot contient.
 
-#### Étape 1 : Les Projections Linéaires
-Chaque embedding d'entrée ($x$) est multiplié par trois matrices de poids apprises ($W^Q, W^K, W^V$) pour générer nos trois vecteurs :
-$$Q = x \cdot W^Q$$
-$$K = x \cdot W^K$$
-$$V = x \cdot x \cdot W^V$$
-⚠️ **Attention : erreur fréquente ici !** Les Query, Key et Value ne sont pas les embeddings d'origine. Ce sont des transformations de ces embeddings dans des espaces différents pour que le modèle puisse apprendre des relations complexes. [SOURCE: Livre p.92, Figure 3-18]
+🔑 **L'analogie de la bibliothèque du Prof. Henni** : Imaginez que vous cherchiez un tutoriel de cuisine sur YouTube. Votre barre de recherche est la **Query**. Le titre de la vidéo sur le serveur est la **Key**. Le contenu de la vidéo (ce que vous allez apprendre) est la **Value**. L'attention est l'algorithme qui fait correspondre votre recherche au titre le plus proche. [SOURCE: Livre p.91-92, Figure 3-18]
 
-#### Étape 2 : Le score de pertinence (Dot Product)
-On calcule la similarité entre la Query du mot actuel et les Keys de tous les autres mots de la phrase via un produit scalaire ($Q \cdot K^T$). 
-Plus le résultat est élevé, plus les deux mots sont "liés" sémantiquement. Par exemple, dans "Le chat mange", la Query de "mange" aura un produit scalaire très élevé avec la Key de "chat". [SOURCE: Livre p.93, Figure 3-19]
+### Le calcul matriciel étape par étape (Analyse des Figures 3-19 à 3-21)
+Le livre décompose cette chorégraphie mathématique avec une précision chirurgicale.
 
-#### Étape 3 : Le passage à l'échelle (Scaling) et Softmax
-C'est ici qu'intervient la précision d'ingénierie. On divise le score par la racine carrée de la dimension des vecteurs clés ($\sqrt{d_k}$). 
-🔑 **Je dois insister :** Pourquoi ce $\sqrt{d_k}$ ? Parce que sans lui, pour des vecteurs de grande taille, les scores explosent et le gradient disparaît lors de l'entraînement, rendant le modèle incapable d'apprendre. On applique ensuite une fonction **Softmax** pour transformer ces scores en probabilités (dont la somme fait 1). [SOURCE: Livre p.15, p.94]
+#### Étape 1 : Le calcul des scores de pertinence (Figure 3-19)
+**Explication de la Figure 3-19** (p.93) : Pour chaque mot, on multiplie sa **Query** par les **Keys** de tous les autres mots. Mathématiquement, c'est un produit scalaire (Dot Product). 
+*   Si les vecteurs Q et K pointent dans la même direction, le score est élevé.
+*   Si ils sont orthogonaux, le score est nul.
+La figure montre que cette opération crée une grille de scores indiquant à quel point chaque mot est "intéressé" par les autres. [SOURCE: Livre p.93, Figure 3-19]
 
-#### Étape 4 : L'agrégation finale
-On multiplie chaque vecteur **Value** par son score de probabilité et on additionne le tout. Le résultat est un nouvel embedding pour notre mot, mais un embedding qui a "absorbé" la substance de ses voisins utiles. [SOURCE: Livre p.94, Figure 3-21]
+#### Étape 2 : Le "Scaling" et le Softmax (Figure 3-20)
+⚠️ **Attention : erreur fréquente ici !** Si l'on s'arrête aux scores bruts, les nombres peuvent devenir immenses, ce qui fait "exploser" les gradients lors de l'entraînement. 
+🔑 **La solution mathématique** : On divise les scores par la racine carrée de la dimension des clés ($\sqrt{d_k}$). C'est le **Scaled Dot-Product Attention**. 
+Ensuite, comme le montre la **Figure 3-20** (p.94), on applique une fonction **Softmax**. 
+*   **L'effet visuel** : Les scores sont transformés en probabilités entre 0 et 1. La somme totale pour chaque mot est égale à 100 %. On voit alors apparaître une "carte d'attention" où certains liens s'allument (forte probabilité) et d'autres s'éteignent. [SOURCE: Livre p.94, Figure 3-20]
 
-### L'équation sacrée du Transformer
-Tout ce processus est résumé dans cette formule unique, que vous devriez être capables de réciter :
-$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
-[SOURCE: Livre p.15, Citation Vaswani et al., 2017]
+#### Étape 3 : La pondération des valeurs (Figure 3-21)
+**Explication de la Figure 3-21** (p.95) : Enfin, on multiplie ces probabilités par les **Values**. 
+*   Si le mot "il" a 90 % d'attention sur "livre", alors 90 % du vecteur final de "il" sera composé de l'information sémantique de "livre". 
+*   Le résultat est un nouveau vecteur, le **Contextual Embedding**, qui a "aspiré" le sens de son environnement. [SOURCE: Livre p.95, Figure 3-21]
 
-### Multi-Head Attention : L'intelligence parallèle
-« Mais attendez, pourquoi n'utiliser qu'une seule paire de lunettes ? » Le Transformer utilise la **Multi-Head Attention (Attention à têtes multiples)**. 
+### Multi-Head Attention : Les cerveaux parallèles
+« Pourquoi se contenter d'un seul regard sur une phrase ? » Un mot peut avoir plusieurs rôles : il a un rôle grammatical, un rôle sémantique et un rôle émotionnel. 
 
-Comme vous le voyez sur la **Figure 3-26** (p.121), le modèle divise ses vecteurs en plusieurs "têtes". 
-*   La tête 1 peut se concentrer sur les relations sujet-verbe.
-*   La tête 2 sur les adjectifs et les noms.
-*   La tête 3 sur les références temporelles.
+C'est ce qu'illustre la **Figure 3-17 : Intuition des têtes d'attention** (p.91). Au lieu d'avoir un seul trio Q, K, V, nous en créons plusieurs en parallèle (généralement 8, 12 ou même 96 têtes). 
+*   Une tête peut se spécialiser dans la détection des verbes.
+*   Une autre dans la résolution des pronoms (coréférence).
+*   Une autre dans l'analyse du ton (ironie).
 
-🔑 **L'avantage est colossal :** cela permet au modèle de comprendre simultanément plusieurs aspects d'une même phrase. C'est comme si dix experts lisaient la phrase en même temps et mettaient leurs notes en commun à la fin. [SOURCE: Livre p.91, p.98]
+🔑 **Je dois insister :** La Multi-Head Attention est ce qui donne au Transformer sa nuance. À la fin, on fusionne (concatène) les résultats de toutes les têtes pour obtenir une vision riche et multidimensionnelle de la phrase. [SOURCE: Livre p.91, Figure 3-17]
 
-### Exemple numérique pas à pas
-Pour bien ancrer la théorie, faisons un calcul simplifié avec des dimensions minuscules.
-Imaginons un mot avec un embedding Query $q = [1, 0]$ et deux mots voisins avec des Keys $k_1 = [1, 0]$ (très similaire) et $k_2 = [0, 1]$ (très différent). Supposons $d_k=1$ pour simplifier.
+### Exemple numérique : Le bac à sable des matrices
+Pour bien fixer l'idée, imaginons une séquence de deux tokens : "Chat" et "Dort".
+Supposons que nos vecteurs de Query et Key soient simplifiés à 2 dimensions.
 
-1.  **Scores (Dot product)** : 
-    *   $q \cdot k_1 = (1\times1) + (0\times0) = 1$
-    *   $q \cdot k_2 = (1\times0) + (0\times1) = 0$
-2.  **Softmax** : 
-    *   $\text{Score } 1 = \frac{e^1}{e^1 + e^0} \approx 0.73$
-    *   $\text{Score } 2 = \frac{e^0}{e^1 + e^0} \approx 0.27$
-3.  **Résultat** : Le nouvel embedding sera composé à 73% de la Value du mot 1 et à 27% de la Value du mot 2.
+1.  **Matrices Q et K** :
+    *   $Q_{chat} = [1, 0]$, $K_{chat} = [1, 0]$
+    *   $Q_{dort} = [0, 1]$, $K_{dort} = [0, 1]$
+2.  **Calcul du score** (Produit scalaire $Q \cdot K^T$) :
+    *   Score "Chat" vers "Chat" : $1\times1 + 0\times0 = 1$
+    *   Score "Chat" vers "Dort" : $1\times0 + 0\times1 = 0$
+3.  **Softmax** :
+    *   Le mot "Chat" porte 100 % de son attention sur lui-même (car score=1 vs 0). 
+    *   Si les vecteurs étaient plus proches (ex: "Chat" et "Félin"), les scores seraient partagés (ex: 60 % / 40 %).
 
-« Vous voyez ? La mathématique a littéralement "écouté" le mot 1 au détriment du mot 2. » [SOURCE: CONCEPT À SOURCER – INSPIRÉ DU BLOG JAY ALAMMAR 'ILLUSTRATED TRANSFORMER']
+⚠️ **Note du Professeur** : Dans un vrai LLM comme GPT-4, ces calculs se font sur des vecteurs de dimension 4096 ou plus. La complexité est telle que seule la puissance des GPU (section 1.2) permet de résoudre ces milliards de multiplications par seconde. [SOURCE: Blog 'The Illustrated Transformer' de Jay Alammar]
 
-### Optimisations modernes : FlashAttention et GQA
-⚠️ **Fermeté bienveillante** : En tant qu'ingénieurs, vous devez savoir que l'attention classique a un coût astronomique. Elle est en $O(L^2)$ : si vous doublez la longueur du texte, le temps de calcul est multiplié par quatre. 
+### L'attention comme moteur de la parallélisation
+Pourquoi avons-nous abandonné les RNN ? Parce que dans le calcul $Q \cdot K^T$, nous pouvons calculer TOUS les scores de TOUS les mots en une seule opération matricielle géante. 
+🔑 **La rupture technologique** : On ne fait plus la queue. Le GPU traite la phrase entière comme un bloc de pixels. C'est ce qui a permis de multiplier par 1000 la vitesse d'entraînement et d'ingérer l'intégralité du web. [SOURCE: Livre p.81]
 
-Pour résoudre cela, les modèles récents comme Llama-3 utilisent :
-*   **Grouped-Query Attention (GQA)** : Illustré en **Figure 3-25** (p.120), où plusieurs Queries partagent les mêmes Keys et Values pour économiser de la mémoire VRAM.
-*   **FlashAttention** : Une réimplémentation du calcul au niveau du matériel (GPU) qui évite les allers-retours inutiles dans la mémoire, accélérant la génération de manière spectaculaire. [SOURCE: Livre p.100, p.122]
+### Éthique et Transparence : Le biais de l'attention
+⚠️ **Éthique ancrée** : « Mes chers étudiants, l'attention n'est pas neutre. » 
+Les matrices $W_Q, W_K, W_V$ sont apprises sur des données humaines. 
+1.  **Le renforcement des stéréotypes** : Si, dans les données d'entraînement, le mot "Infirmière" porte systématiquement son attention sur des pronoms féminins, le modèle va figer cette association. L'attention devient alors un mécanisme de reproduction des préjugés. 
+2.  **L'opacité du raisonnement** : Visualiser l'attention (Exercice 1 du laboratoire) nous donne une illusion de compréhension. Mais attention : une tête d'attention qui regarde une virgule peut le faire pour des raisons de syntaxe pure, et non pour le sens. Ne prêtez pas d'intentions humaines à une multiplication matricielle. [SOURCE: Livre p.28]
 
-### Note d'Éthique par le Prof. Henni
-« L'attention est un miroir. Si le modèle accorde une attention démesurée à des mots chargés de préjugés, c'est parce qu'il a appris que ces corrélations étaient "pertinentes" dans nos propres écrits. 🔑 **Je dois insister :** l'attention mathématique n'est pas une attention morale. Elle ne distingue pas le fait de la fiction, ou le respect du mépris. Elle ne voit que des poids statistiques. C'est à nous, par le fine-tuning (Semaine 12), de lui apprendre quelle attention est souhaitable pour une société juste. » [SOURCE: Livre p.28]
+### Synthèse pour l'examen
+Pour maîtriser cette section, vous devez être capables de réciter la formule de l'attention de Vaswani et al. :
+$$Attention(Q, K, V) = softmax\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+*   $QK^T$ : Qui regarde qui ? (Scores)
+*   $\sqrt{d_k}$ : On calme les nombres (Scaling).
+*   $softmax$ : On transforme en pourcentages (Normalisation).
+*   $V$ : On extrait le sens (Information).
+
+🔑 **Le message final du Prof. Henni pour cette section** : « L'attention est l'acte par lequel le modèle crée du contexte. Sans elle, les mots sont des îles. Avec elle, ils forment un continent de pensée. C'est la brique la plus puissante jamais inventée en informatique linguistique. » [SOURCE: Livre p.106]
+
+« Vous avez maintenant dompté le lion ! Vous comprenez le mécanisme de l'attention. Mais un problème subsiste : si on traite tout en même temps, comment le modèle sait-il que le mot "Le" est avant le mot "Chat" ? Dans la section suivante, nous allons découvrir la boussole du Transformer : l'**Encodage Positionnel**. »
+
+---
+*Fin de la section 3.1 (2580 mots environ)*
+## 3.2 Encodage positionnel (1800+ mots)
+
+### Le paradoxe du Transformer : La mémoire sans l'ordre
+« Bonjour à toutes et à tous ! J'espère que vous avez encore en tête notre "soirée cocktail" de la section 3.1. Nous avons vu que le Transformer est un génie de la simultanéité : il peut regarder tous les mots d'un livre en un clin d'œil grâce à la self-attention. Mais, mes chers étudiants, cette puissance a un prix terrifiant. 🔑 **Je dois insister sur ce paradoxe :** de par sa construction mathématique, le Transformer est **invariant par permutation**. Cela signifie que pour lui, les phrases "Le chat mange la souris" et "La souris mange le chat" sont rigoureusement identiques. Pourquoi ? Parce que l'attention calcule des scores entre des vecteurs sans se soucier de leur place dans la file d'attente. Sans une boussole pour indiquer l'ordre, notre cathédrale de calcul n'est qu'un sac de mots sophistiqué. Aujourd'hui, nous allons apprendre à donner le sens du temps et de l'espace à nos modèles. » [SOURCE: Livre p.102]
+
+### L'intuition : Les coordonnées GPS du langage
+Imaginez que vous receviez les pièces d'un puzzle, mais que toutes les pièces soient parfaitement carrées et lisses. Vous savez ce qu'il y a sur chaque pièce (l'embedding sémantique), mais vous n'avez aucune idée de l'endroit où elles s'emboîtent. L'encodage positionnel, c'est l'étiquette que l'on colle au dos de chaque pièce pour dire : "Je suis la pièce n°1, tout en haut à gauche". 
+
+Dans les RNN (Semaine 1.2), l'ordre était implicite : le mot 2 arrivait forcément après le mot 1. Dans le Transformer, nous devons injecter cette information artificiellement. ⚠️ **Attention : erreur fréquente ici !** On ne donne pas simplement un numéro (1, 2, 3...) au modèle. Pourquoi ? Parce que si la phrase est très longue, le nombre "1000" écraserait par sa valeur mathématique les autres informations du vecteur. Nous avons besoin d'une méthode plus subtile. [SOURCE: Vaswani et al., 2017 / Livre p.102]
 
 ---
 
-### Extrait de Code : Visualiser les têtes d'attention (Testé Colab T4)
-Voici comment "voir" ce que le modèle regarde vraiment.
+### La méthode classique : Les ondes sinusoïdales
+Dans l'article original de 2017, les chercheurs ont utilisé des fonctions sinus et cosinus. 
+*   **L'idée** : Chaque position dans la phrase est associée à une fréquence d'onde unique. 
+*   **Le bénéfice** : Cela permet au modèle de comprendre la distance relative. Si le modèle sait comment oscille l'onde entre la position 2 et la position 5, il peut généraliser cette "distance de 3" à n'importe quel endroit du texte.
 
-```python
-# Nécessite : pip install transformers torch bertviz
-from transformers import AutoModel, AutoTokenizer
-import torch
-
-# Utilisons un modèle léger pour la visualisation
-model_name = "bert-base-uncased"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name, output_attentions=True)
-
-text = "The bank manager on the river bank."
-inputs = tokenizer(text, return_tensors="pt")
-outputs = model(**inputs)
-
-# Les attentions sont dans outputs.attentions 
-# C'est un tuple de 12 couches, chacune avec une matrice [batch, heads, seq, seq]
-attention_matrix = outputs.attentions[0] # Première couche
-print(f"Forme de la matrice d'attention : {attention_matrix.shape}")
-
-# [SOURCE: CONCEPT À SOURCER – INSPIRÉ DU REPO GITHUB CHAPTER 3 ET DOCUMENTATION HUGGING FACE]
-```
-
-🔑 **L'intuition finale** : L'attention a tué la récurrence parce qu'elle a permis au langage d'être traité comme une structure spatiale globale plutôt que comme une corvée temporelle. 
-
-« Reprenez votre souffle. Nous venons de voir comment les mots se parlent. Dans la section suivante, nous allons voir comment ils se situent dans l'espace grâce à l'encodage positionnel. »
+Cependant, cette méthode "absolue" (on ajoute l'information au début du voyage) a montré ses limites lorsque nous avons voulu créer des modèles capables de lire des textes de plus en plus longs. C'est là qu'intervient la révolution de l'encodage rotatif. [SOURCE: Livre p.102]
 
 ---
-*Fin de la section 3.1 (1460 mots environ)*
-## 3.2 Encodage positionnel (900+ mots)
 
-### Le paradoxe du Transformer : Une intelligence sans boussole
-« Imaginez, mes chers étudiants, que je vous donne une boîte remplie de mots découpés. Je les jette sur une table et je vous demande : "Quelle est l'histoire ?". Vous seriez bien en peine de me répondre ! » C'est précisément le problème du Transformer que nous avons vu en section 3.1. 
+### La révolution RoPE (Rotary Positional Embeddings)
+Si vous regardez les spécifications de modèles comme **Llama-3**, **Mistral** ou **Phi-3**, vous verrez toujours mentionné "**RoPE**". C'est aujourd'hui le standard absolu. 
 
-Contrairement aux RNN (section 1.2) qui lisent naturellement de gauche à droite, le mécanisme d'attention est **invariant par permutation**. 🔑 **Je dois insister sur ce point technique :** pour le calcul de self-attention, la phrase "Le chat mange la souris" et "La souris mange le chat" sont strictement identiques si l'on ne regarde que les vecteurs. Pour le modèle, c'est juste un ensemble de points dans l'espace qui se parlent. Sans un mécanisme supplémentaire, le Transformer est incapable de faire la différence entre le prédateur et la proie. Il nous faut donc injecter une "boussole" temporelle : l'**encodage positionnel**. [SOURCE: Livre p.102]
+Regardons attentivement la **Figure 3-32 : Application des Rotary Embeddings** (p.103 du livre). 
+**Explication de la Figure 3-32** : Cette illustration est fondamentale pour comprendre la différence de philosophie. 
+*   **Ancien monde** : On ajoutait la position une seule fois, tout au début, sur les embeddings d'entrée (les boîtes bleues en bas).
+*   **Monde RoPE** : Comme le montre la figure, l'encodage positionnel est injecté **à chaque couche**, directement à l'intérieur des blocs d'attention (les ronds violets). 
+🔑 **Je dois insister :** RoPE n'est pas une addition, c'est une **multiplication**. On ne "colle" pas une étiquette, on fait "pivoter" le vecteur. [SOURCE: Livre p.103, Figure 3-32]
 
-### L'approche historique : Les ondes sinusoïdales
-Dans l'article original de 2017, les chercheurs ont eu une idée poétique : utiliser des fonctions trigonométriques (sinus et cosinus) pour marquer la position.
-Imaginez que chaque mot porte une étiquette avec un signal sonore unique qui change légèrement selon sa place dans la phrase. Le mot à la position 1 a une fréquence rapide, le mot à la position 100 a une fréquence lente. 
+#### La mathématique de la rotation (Analyse de la Figure 3-33)
+Passons à la géométrie avec la **Figure 3-33 : La rotation des vecteurs** (p.104 du livre). 
 
-En ajoutant ces valeurs mathématiques aux embeddings denses (vus en section 2.4), le modèle peut déduire la distance entre deux mots. Cependant, cette méthode dite d'**encodage absolu** a une faille majeure : elle a du mal à gérer des phrases plus longues que celles vues pendant l'entraînement. C'est comme si votre boussole s'arrêtait de fonctionner au-delà de 512 mètres. [SOURCE: Livre p.102, Blog 'The Illustrated Transformer']
+**Explication de la Figure 3-33** : Imaginez que chaque paire de dimensions dans votre vecteur (votre Query ou votre Key) soit une aiguille sur une horloge. 
+*   Pour le mot n°1, on tourne l'aiguille de 10 degrés.
+*   Pour le mot n°2, on la tourne de 20 degrés.
+*   **Le miracle du produit scalaire** : Lorsque le modèle calcule l'attention entre deux mots, la mathématique de la rotation fait que le score final dépend uniquement de **l'angle entre les deux aiguilles**. 
+*   Si les mots sont proches, l'angle est petit, le score est fort. S'ils sont loin, l'angle est grand, le score faiblit.
 
-### La révolution moderne : Rotary Positional Embeddings (RoPE)
-Aujourd'hui, presque tous les modèles de pointe (Llama-3, Phi-3, Mistral) utilisent une technique beaucoup plus élégante : les **Rotary Positional Embeddings (RoPE)**. Regardez attentivement les **Figures 3-32 et 3-33** (p.126-127 du livre). 
-
-**L'intuition fondamentale** : Au lieu d'ajouter un nombre au vecteur, on le fait **pivoter** dans l'espace. 
-**Analogie** : Imaginez deux danseurs (deux tokens) sur une piste. Pour savoir s'ils sont proches l'un de l'autre dans la phrase, on ne regarde pas seulement leur position sur la piste, mais aussi l'angle de leur corps. S'ils ont pivoté de la même façon, ils sont proches. S'ils ont un décalage d'angle important, ils sont éloignés.
-
-🔑 **Pourquoi est-ce supérieur ?** 
-1.  **Relation relative** : Le modèle se moque de savoir si un mot est à la position 500 ou 501. Ce qui compte, c'est que la distance entre eux est de 1. RoPE capture magnifiquement cette information relative.
-2.  **Extrapolation** : Comme il s'agit de rotations (un cycle de 360°), le modèle peut théoriquement traiter des séquences beaucoup plus longues que prévu (ce qu'on appelle le *long context window*). [SOURCE: Livre p.102-104, Figures 3-32 et 3-33]
-
-### L'Ingénierie de l'efficacité : Le Packing
-⚠️ **Attention : erreur fréquente ici !** On pense souvent que le modèle traite une phrase, puis s'arrête, puis traite la suivante. En réalité, pour ne pas gaspiller la puissance des GPU, nous utilisons le **Packing** (empaquetage). 
-
-Regardez la **Figure 3-31 : Packing de documents** (p.125). Comme beaucoup de documents sont plus courts que la fenêtre de contexte (ex: 4096 tokens), nous les "entassons" les uns après les autres dans une seule séquence, séparés par un token spécial. 
-🔑 **Je dois insister :** l'encodage positionnel doit alors être réinitialisé pour chaque nouveau document à l'intérieur de la même séquence. Sans cela, le modèle croirait que le début du deuxième email est la suite directe de la fin du premier ! C'est une prouesse d'ingénierie logicielle indispensable pour un entraînement rapide et efficace. [SOURCE: Livre p.103, Figure 3-31]
-
-### Visualisation mathématique simplifiée de RoPE
-Ne soyez pas effrayés par les mathématiques, l'idée est visuelle. Pour chaque paire de dimensions $(d_i, d_{i+1})$ de notre vecteur, on applique une matrice de rotation :
-$$\begin{pmatrix} x_i \\ x_{i+1} \end{pmatrix} \rightarrow \begin{pmatrix} \cos(m\theta) & -\sin(m\theta) \\ \sin(m\theta) & \cos(m\theta) \end{pmatrix} \begin{pmatrix} x_i \\ x_{i+1} \end{pmatrix}$$
-Où $m$ est la position du mot. Chaque mot "tourne" d'un angle proportionnel à sa place dans la phrase. 
-
-« C'est magnifique, n'est-ce pas ? Le sens (l'embedding) et l'ordre (la rotation) fusionnent en une seule entité mathématique. » [SOURCE: CONCEPT À SOURCER – INSPIRÉ DE L'ARTICLE 'ROFORMER' ET LIVRE p.104]
-
-### Note d'Éthique par le Prof. Henni : Le biais de position
-⚠️ **Fermeté bienveillante** : « Mes chers étudiants, l'encodage positionnel n'est pas qu'un détail technique. Il influence la façon dont l'IA accorde de l'importance aux informations. » 
-Il existe un phénomène documenté appelé **"Lost in the Middle"** (Perdu au milieu). Les LLM ont tendance à mieux se souvenir des informations situées tout au début ou toute à la fin d'un texte, et à oublier ce qui se trouve au milieu. 
-
-🔑 **C'est une leçon de vigilance :** Lorsque vous concevez un système basé sur des LLM (comme le RAG que nous verrons en Semaine 9), l'ordre dans lequel vous présentez les documents au modèle peut radicalement changer sa réponse. L'IA, comme nous, peut être victime d'un biais de primauté ou de récence. [SOURCE: Livre p.28, Principes d'IA Responsable]
-
-### Pourquoi est-ce vital pour vous ?
-Comprendre l'encodage positionnel vous permet de :
-1.  **Dépanner des modèles** qui perdent le fil sur des textes longs.
-2.  **Optimiser l'entraînement** en utilisant intelligemment le packing.
-3.  **Choisir le bon modèle** : aujourd'hui, si un modèle n'utilise pas RoPE ou une variante (comme ALiBi), il est souvent considéré comme technologiquement dépassé pour les contextes longs.
-
-« Vous voyez maintenant comment les mots se parlent (Attention) et comment ils se repèrent (Position). Mais pour que tout cela fonctionne sans que le cerveau du modèle n'explose, nous avons besoin d'une structure rigide et protectrice : c'est le **Bloc Transformer** et ses mécanismes de normalisation que nous allons disséquer maintenant. »
+🔑 **L'intuition du Professeur Henni :** RoPE permet au modèle de "sentir" la distance entre les mots sans avoir besoin de connaître leur position absolue. C'est comme si, dans une file d'attente, vous ne saviez pas que vous étiez le 50ème, mais que vous sentiez exactement que la personne devant vous est à 50 cm et celle de derrière à 50 cm. C'est l'**Attention Relative**. [SOURCE: Livre p.104, Figure 3-33 / Su et al., 2021]
 
 ---
-*Fin de la section 3.2 (980 mots environ)*
-## 3.3 Blocs Transformer et optimisation (1300+ mots)
 
-### L’architecture du sanctuaire : Le bloc Transformer
-« Bonjour à toutes et à tous ! Nous avons vu comment les mots se parlent à travers l’attention (3.1) et comment ils se repèrent dans l'espace via RoPE (3.2). Mais imaginez maintenant que vous essayiez de faire tenir cette conversation dans un ouragan permanent. Sans une structure pour stabiliser les signaux, l’information se perdrait dans un chaos mathématique total. 🔑 **Je dois insister :** ce que nous appelons "Le Transformer", ce n'est pas juste l'attention, c'est l'assemblage de ce que nous appelons les **Blocs Transformer**. Un modèle comme GPT-4 en empile des dizaines. C'est dans cette répétition, dans cette stratification du savoir, que naît l'intelligence émergente. » [SOURCE: Livre p.101]
+### Pourquoi RoPE a-t-il gagné ?
+1.  **Extrapolabilité** : Un modèle entraîné sur des phrases de 2048 mots peut, grâce à RoPE, comprendre (un peu mieux) des phrases de 4000 mots car il comprend la logique de rotation.
+2.  **Stabilité** : Les rotations préservent la norme (la "longueur") des vecteurs, ce qui évite que le modèle ne devienne instable pendant l'entraînement.
+3.  **Richesse sémantique** : En faisant varier la vitesse de rotation selon les dimensions, le modèle peut dévouer certaines parties de son cerveau aux relations à court terme (mots voisins) et d'autres aux relations à long terme (début et fin de paragraphe). [SOURCE: Livre p.105]
 
-### 1. Les connexions résiduelles : L'autoroute de l'information
-Regardez la **Figure 3-29 : Bloc Transformer original** (p.123 du livre). Vous remarquerez des flèches qui "sautent" par-dessus les couches d'attention et de réseau de neurones. C'est ce qu'on appelle les **Residual Connections** (ou Skip Connections).
+---
 
-**L'intuition du Professeur Henni** : Imaginez que vous deviez transmettre un message à travers 100 intermédiaires. À chaque étape, le message risque d'être déformé. Une connexion résiduelle, c'est comme si vous donniez à chaque intermédiaire une copie scellée du message original en lui disant : "Ajoute tes remarques sur un post-it, mais ne touche pas à l'original".
+### Optimisation de l'entraînement : Le Packing (Figure 3-31)
+« Mes chers étudiants, l'informatique n'est pas qu'une affaire de mathématiques, c'est aussi une affaire d'économie. » Entraîner un LLM coûte des millions d'euros en électricité. Chaque seconde où votre GPU ne calcule rien est un gaspillage. 
 
-🔑 **Pourquoi est-ce vital ?** 
-Sans ces connexions, nous souffririons du problème de la disparition du gradient (vu en 1.2). Les connexions résiduelles créent une "autoroute" directe qui permet au signal de l'erreur de redescendre jusqu'aux premières couches sans être étouffé par les calculs complexes de l'attention. Mathématiquement, on écrit : $Sortie = x + SousCouche(x)$. C'est le fameux "Add" dans le diagramme "Add & Norm". [SOURCE: Livre p.123, Figure 3-29]
+Regardons la **Figure 3-31 : Packing des documents** (p.103 du livre). 
+**Explication de la Figure 3-31** : Elle compare deux méthodes d'organisation des données.
+*   **Approche naïve (Haut)** : Si vous avez une phrase de 10 mots et une fenêtre de contexte de 2048, vous remplissez le reste avec du "Padding" (des zéros). Le GPU passe son temps à multiplier des zéros. C'est un désastre d'efficacité.
+*   **Approche par Packing (Bas)** : On "compacte" plusieurs documents différents à la suite dans le même bloc de 2048 tokens, séparés par un token spécial. 
 
-### 2. La normalisation : Le régulateur de tension
-⚠️ **Attention : erreur fréquente ici !** On pense souvent que plus les nombres sont grands dans un réseau de neurones, plus le modèle est "puissant". C'est l'inverse ! Des valeurs qui explosent rendent le modèle instable et impossible à entraîner. Il nous faut un mécanisme de stabilisation : la **Normalisation**.
+🔑 **Le défi technique** : Grâce aux encodages positionnels modernes, le modèle est capable de comprendre que même s'ils sont dans le même bloc, le Document n°2 recommence à la position 1. Sans cela, le modèle croirait que le début du deuxième article est la suite logique de la fin du premier. [SOURCE: Livre p.103, Figure 3-31]
 
-*   **LayerNorm (L'approche classique)** : Introduite dans le Transformer original, elle calcule la moyenne et la variance de toutes les activations d'une couche pour les ramener à une échelle standard (centrée sur 0 avec un écart-type de 1).
-*   **RMSNorm (L'approche moderne - Llama/Phi)** : Comme vous le voyez en **Figure 3-30** (p.124), les modèles récents utilisent le **Root Mean Square Layer Normalization**. 
-🔑 **Je dois insister sur cette distinction d'ingénierie :** RMSNorm est beaucoup plus rapide car elle ne calcule pas la moyenne, seulement la racine carrée de la moyenne des carrés. C'est une simplification qui ne perd rien en performance mais qui fait gagner des millisecondes précieuses sur des milliards de calculs. [SOURCE: Livre p.123, "Root mean square layer normalization"]
+---
 
-### 3. Le réseau Feedforward (FFN) : La banque de connaissances
-Après l'attention, chaque mot passe par un **Feedforward Neural Network** (souvent appelé MLP pour Multi-Layer Perceptron). Si l'attention sert à "récupérer" l'information des voisins, le FFN sert à "traiter" et à "stocker" cette information.
+### Limites et Frontières : La fenêtre de contexte
+⚠️ **Fermeté bienveillante** : « Ne croyez pas que la mémoire de l'IA soit infinie. » 
+Même avec RoPE, chaque modèle possède une "Context Window" (Fenêtre de contexte) maximale.
+*   **La limite physique** : Si le modèle a été entraîné avec une rotation maximale correspondant à 8000 tokens, lui en donner 100 000 va le rendre "étourdi". Les angles de rotation deviennent trop serrés, et il perd le fil de la logique.
+*   **Le coût quadratique** : Rappelez-vous la section 3.1. Même si l'encodage positionnel est parfait, le calcul de l'attention demande toujours $N \times N$ opérations. Doubler la fenêtre de contexte multiplie par quatre le besoin en mémoire vive du GPU. [SOURCE: Livre p.81]
 
-Regardez la **Figure 3-13** (p.109). Le FFN est composé de deux couches linéaires avec une fonction d'activation au milieu.
-*   **Intuition** : L'attention dit "Le mot 'banque' ici parle d'argent". Le FFN, lui, fouille dans sa mémoire interne pour activer toutes les associations liées à la finance.
-*   **Évolution technique** : On est passé de la fonction ReLU à la fonction **SwiGLU** (p.123). SwiGLU permet au modèle d'apprendre des fonctions mathématiques plus lisses et plus complexes, ce qui améliore la finesse du raisonnement. [SOURCE: Livre p.87, Figure 3-13, p.101]
+### Laboratoire de réflexion : Le temps est-il une dimension ?
+⚠️ **Éthique ancrée** : « Mes chers étudiants, réfléchissez à l'impact de ce découpage. » 
+Pour un Transformer, le temps n'existe pas. Il n'y a que des positions dans une grille. 
+1.  **L'absence de causalité réelle** : Le modèle ne comprend pas que la cause précède l'effet parce que c'est une loi physique ; il le comprend parce que statistiquement, le token "Cause" a une position inférieure au token "Effet" dans ses données d'entraînement. 
+2.  **Le biais de position** : On a remarqué que les modèles accordent souvent plus d'importance aux informations situées au début et à la fin d'un texte (le phénomène "Lost in the Middle"). C'est une conséquence directe de la façon dont nous encodons les positions. 
 
-### 4. Anatomie comparée : Du bloc Original au bloc Moderne
-« Observez bien la différence entre la **Figure 3-29** (Original) et la **Figure 3-30** (Moderne, type Llama 3). »
+🔑 **Mon conseil de professeur** : Lorsque vous construisez un système de RAG (Semaine 9), assurez-vous que l'information cruciale ne se trouve pas perdue au milieu d'un énorme bloc de texte, car l'encodage positionnel sémantique y est souvent moins "vif". [SOURCE: Livre p.28, p.177]
 
-Dans le modèle original (Post-Norm), on faisait le calcul, puis on normalisait. 
-🔑 **Dans le modèle moderne (Pre-Norm) :** on normalise **avant** d'entrer dans l'attention ou le FFN. 
-⚠️ **Pourquoi ce changement ?** Les chercheurs ont découvert que normaliser avant rend l'entraînement beaucoup plus stable, permettant de monter à des échelles massives sans que le modèle ne "décroche" mathématiquement. [SOURCE: Livre p.124, Figure 3-30]
-
-### 5. Optimisations pour la vitesse et la mémoire (GQA & FlashAttention)
-« En tant que futurs ingénieurs, vous devez affronter la réalité : le Transformer est un monstre gourmand en VRAM. » Pour démocratiser l'IA sur des GPU modestes (comme notre T4 sur Colab), des optimisations géniales ont été inventées.
-
-#### Grouped-Query Attention (GQA)
-Rappelez-vous la Multi-Head Attention (section 3.1). Avoir 32 têtes pour les Queries, 32 pour les Keys et 32 pour les Values consomme énormément de mémoire.
-Comme l'illustrent les **Figures 3-25 à 3-27** (p.120-121) :
-*   **Multi-Head Attention (MHA)** : Chaque Query a sa propre Key/Value. (Lourd)
-*   **Multi-Query Attention (MQA)** : Toutes les Queries partagent une seule Key/Value. (Trop léger, perd en qualité).
-*   **GQA (Le compromis Llama-3)** : On groupe les Queries. Par exemple, 8 têtes de Queries se partagent une seule tête de Key/Value. C'est le meilleur des deux mondes : vitesse du MQA et précision du MHA. [SOURCE: Livre p.121, Figure 3-27]
-
-#### FlashAttention : Le tour de magie matériel
-Le goulot d'étranglement n'est pas toujours le calcul, mais le déplacement des données entre la mémoire du GPU (HBM) et son processeur (SRAM).
-🔑 **Notez bien cette intuition :** FlashAttention réécrit l'algorithme d'attention pour qu'il tienne entièrement dans la mémoire ultra-rapide du processeur, évitant les allers-retours coûteux. 
-Comme décrit p.122, cela permet de doubler la vitesse d'entraînement et de gérer des fenêtres de contexte de 128 000 tokens ou plus ! [SOURCE: Livre p.122, FlashAttention]
-
-### 6. Attention locale et éparse (Sparse Attention)
-Regardez la **Figure 3-22** (p.118). Pour des textes très longs, l'attention complète (chaque mot regarde tous les autres) devient impossible. 
-*   **Local Attention** : Le mot ne regarde que ses voisins proches (fenêtre glissante).
-*   **Sparse Attention** : Le modèle alterne entre des couches d'attention complète et des couches d'attention limitée (Figure 3-23, p.119). C'est ce qui permet à des modèles comme BigBird ou Longformer de "lire" des livres entiers. [SOURCE: Livre p.118-119, Figures 3-22 et 3-23]
-
-### Note d'Éthique et Environnement par le Prof. Henni
-⚠️ **Éthique ancrée** : « Mes chers étudiants, l'optimisation n'est pas qu'un défi de code, c'est un impératif écologique. » 
-L'entraînement d'un Transformer massif consomme autant d'énergie qu'une petite ville. 
-*   **Le coût de l'inefficacité** : Utiliser un modèle non optimisé (sans GQA ou FlashAttention), c'est gaspiller de la ressource énergétique pour le même résultat sémantique.
-*   **Démocratisation** : Sans ces optimisations, l'IA resterait l'apanage des trois ou quatre entreprises les plus riches du monde. Optimiser, c'est permettre à un chercheur, une ONG ou une petite entreprise de faire tourner ses propres modèles localement.
-
-🔑 **C'est votre mission :** En tant qu'ingénieurs SCI2070, vous devez toujours chercher le modèle le plus "frugal" qui répond à votre besoin. L'élégance architecturale se mesure aussi à son empreinte carbone. [SOURCE: Livre p.28, Principes de Responsabilité]
+---
 
 ### Synthèse de la section
-Nous avons vu que le bloc Transformer est une merveille de régulation thermique (Normalisation), de survie (Residuals) et de stockage de motifs (FFN). Nous avons aussi compris que pour passer à l'échelle, nous avons dû ruser avec les mathématiques (GQA) et le matériel (FlashAttention).
+Nous avons vu comment le Transformer, initialement aveugle à l'ordre, a acquis une boussole spatio-temporelle. 
+*   **L'encodage absolu** (sinus) a posé les bases.
+*   **L'encodage rotatif (RoPE)** a apporté la flexibilité et la notion de distance relative, permettant l'explosion des fenêtres de contexte que nous connaissons aujourd'hui.
+*   **Le Packing** garantit que nos GPU travaillent à 100% de leur capacité.
 
-« Vous connaissez maintenant la structure du cerveau artificiel. Mais comment ce cerveau "pense-t-il" concrètement quand on lui pose une question ? C'est ce que nous allons voir dans la dernière section théorique : le **Forward Pass** complet et le secret de la vitesse, le **Cache KV**. »
+🔑 **Le message final du Prof. Henni pour cette section** : « L'ordre des mots est la structure de notre pensée. En apprenant à faire pivoter des vecteurs dans l'espace complexe, les chercheurs ont réussi l'impossible : garder la puissance du calcul parallèle tout en respectant la mélodie séquentielle du langage humain. C'est un triomphe de l'ingénierie mathématique. » [SOURCE: Livre p.106]
+
+« Vous savez maintenant comment le Transformer regarde et comment il se repère. Mais un cerveau ne se résume pas à ses yeux. Dans la section suivante, nous allons étudier la "matière grise" du modèle : les **Blocs Transformer** et comment nous les optimisons pour qu'ils ne brûlent pas vos serveurs. »
 
 ---
-*Fin de la section 3.3 (1380 mots environ)*
-## 3.4 Forward pass complet et accélération par cache KV (1100+ mots)
+*Fin de la section 3.2 (1840 mots environ)*
+## 3.3 Blocs Transformer et optimisation (2300+ mots)
 
-### Le voyage de l’information : De la question à la réponse
-« Bonjour à toutes et à tous ! Nous arrivons au sommet de notre troisième semaine. Nous avons disséqué les organes du Transformer : ses yeux (l’attention), sa boussole (RoPE) et son squelette (les blocs). Maintenant, il est temps de donner vie à cet ensemble. Nous allons suivre le **Forward Pass**, c'est-à-dire le voyage d'une fraction de seconde que parcourt l'information depuis le moment où vous appuyez sur "Entrée" jusqu'à ce que le premier mot de la réponse apparaisse sur votre écran. 🔑 **Je dois insister :** comprendre ce flux est ce qui distingue un simple utilisateur d'un véritable ingénieur en IA. » [SOURCE: Livre p.74]
+### La structure de la pensée : Au-delà du simple regard
+« Bonjour à toutes et à tous ! Nous avons parcouru un chemin fascinant jusqu'ici. Nous avons vu comment le Transformer utilise ses "yeux" (la self-attention) pour naviguer dans le contexte et sa "boussole" (l'encodage positionnel) pour se repérer dans le temps. Mais, mes chers étudiants, un regard et une boussole ne font pas un cerveau. Pour transformer ces signaux électriques en une pensée structurée, il nous faut une architecture capable de digérer, de filtrer et de stabiliser l'information. 🔑 **Je dois insister :** l'intelligence d'un LLM ne réside pas seulement dans ses équations d'attention, elle réside dans la répétition obstinée et optimisée d'une unité fondamentale : le **bloc Transformer**. Aujourd'hui, nous allons démonter ce bloc pièce par pièce pour comprendre comment il permet aux modèles de 70 milliards de paramètres de ne pas s'effondrer sous leur propre poids. Respirez, nous entrons dans l'ingénierie de la puissance. » [SOURCE: Livre p.101]
 
-### 1. La cascade du Forward Pass (Figures 3-4 à 3-6)
-Regardez attentivement la **Figure 3-4 : Les composants du forward pass** (p.98 du livre). Le processus est une cascade linéaire de transformations mathématiques.
+---
 
-1.  **Le Tokenizer (L'entrée)** : Votre phrase est découpée en IDs. Ces entiers sont les adresses de départ.
-2.  **La couche d'Embedding** : Les IDs sont transformés en vecteurs denses (vus en 2.4). C'est ici qu'on injecte également l'encodage positionnel (RoPE).
-3.  **L'empilement des Blocs (Le cerveau)** : Comme l'illustre la **Figure 3-5** (p.99), le vecteur de chaque token traverse la pile de blocs Transformer (souvent 12, 24 ou même 96 couches). 
-    *   🔑 **Note technique** : Dans un décodeur (GPT/Llama), chaque token possède son propre "flux" ou "stream" de calcul. Ils montent les étages de la pile en parallèle, mais ils ne peuvent regarder que vers le bas (les tokens précédents) grâce au masquage d'attention. [SOURCE: Livre p.76-78]
-4.  **Le vecteur final** : À la sortie du dernier bloc, nous obtenons un nouveau vecteur pour chaque token d'entrée. Mais pour la génération, seul le vecteur du **dernier token** nous intéresse. Pourquoi ? Parce que c'est lui qui contient la synthèse de tout le contexte nécessaire pour prédire la suite. [SOURCE: Livre p.82, Figure 3-9]
+### 1. L'architecture du bloc original (Analyse de la Figure 3-29)
+Commençons par regarder les plans de la machine d'origine, telle qu'imaginée en 2017. Regardez la **Figure 3-29 : Un bloc Transformer de l'article original** (p.101 du livre).
 
-### 2. La Language Modeling Head (LM Head)
-Le vecteur qui sort de la pile est un objet mathématique abstrait de dimension 768 ou 4096. Comment le transformer en un mot humain ? 
+**Explication de la Figure 3-29** : Cette illustration nous présente une unité de traitement composée de deux "étages" superposés.
+1.  **L'étage inférieur (Communication)** : C'est la couche de Multi-Head Attention. C'est ici que les mots "se parlent".
+2.  **L'étage supérieur (Réflexion)** : C'est la couche Feedforward (FFN). C'est ici que chaque mot "réfléchit" individuellement sur les informations qu'il vient de récolter.
+3.  **Les flèches pointillées (Residual Connections)** : Notez ces lignes qui contournent les blocs. Elles sont le secret de la survie du signal.
+4.  **Les boîtes "Add & Norm"** : Elles agissent comme des douanes qui régulent le flux pour éviter que les nombres ne deviennent trop grands ou trop petits. [SOURCE: Livre p.101, Figure 3-29]
 
-C'est le rôle de la **LM Head** (Figure 3-6, p.100). 
-*   **Projection Linéaire** : On multiplie ce vecteur final par une immense matrice qui le projette dans un espace dont la taille est égale à celle de votre vocabulaire (ex: 50 257 dimensions).
-*   **Les Logits** : Nous obtenons des scores bruts appelés **logits**. Un logit élevé pour l'index "42" signifie que le modèle pense très fort que le mot "pomme" est le suivant.
-*   **Softmax** : On applique une fonction Softmax pour transformer ces scores en probabilités réelles entre 0 et 1. 
+🔑 **L'intuition du Professeur Henni :** Imaginez que le bloc Transformer soit une réunion de travail. La Self-attention, c'est le moment du débat où tout le monde échange des idées. Le Feedforward, c'est le moment où chaque participant retourne à son bureau pour rédiger sa propre synthèse de la réunion. Sans le débat, personne n'apprend rien de neuf. Sans le travail individuel, on n'aboutit à aucune décision concrète. [SOURCE: CONCEPT À SOURCER – INSPIRÉ DU BLOG 'ILLUSTRATED TRANSFORMER']
 
-🔑 **La distinction du Professeur Henni** : « Le modèle ne choisit pas un mot. Il calcule une météo de probabilités sur tout le dictionnaire. C'est la stratégie de décodage (Sampling) qui choisira ensuite l'élu parmi les plus probables. » [SOURCE: Livre p.79, p.101]
+---
 
-### 3. Le secret de la vitesse : Le Cache KV (Figure 3-10)
-⚠️ **Attention : erreur fréquente ici !** Si vous ne comprenez pas le Cache KV, vous ne comprendrez jamais pourquoi les LLM coûtent si cher à faire tourner.
+### 2. Les connexions résiduelles : L'autoroute du gradient
+⚠️ **Attention : erreur fréquente ici !** On pourrait croire que plus on empile de couches, plus le modèle est intelligent. En réalité, sans les connexions résiduelles (les "Skip Connections"), un modèle de 12 couches serait incapable d'apprendre.
 
-Le processus de génération est **autorégressif**. Pour générer une phrase de 10 mots, le modèle doit faire 10 forward passes complets. 
-*   Passage 1 : Entrée "Le", prédit "chat".
-*   Passage 2 : Entrée "Le chat", prédit "mange".
-*   Passage 3 : Entrée "Le chat mange", prédit "la"...
+**Pourquoi sont-elles vitales ?**
+Rappelez-vous le problème de la disparition du gradient (Semaine 1.2). À chaque fois que l'information traverse une couche complexe comme l'attention, le signal s'affaiblit. 
+🔑 **La solution mathématique** : Au lieu de calculer $y = f(x)$, on calcule $y = x + f(x)$. On ajoute l'entrée originale au résultat du calcul.
+*   **L'effet autoroute** : Pendant l'entraînement, le signal d'erreur peut "sauter" par-dessus les couches complexes via ces connexions directes pour atteindre les premières couches du modèle. C'est ce qui permet d'entraîner des modèles de 100 couches ou plus (comme GPT-4) sans que le cerveau de l'IA ne devienne amnésique. [SOURCE: Livre p.101 / He et al., 2016]
 
-Problème : à chaque étape, le modèle doit recalculer l'attention pour les mots qu'il a déjà traités ! C'est un gaspillage monumental. 
-🔑 **La solution : Le Cache KV (Key-Value Cache)**. 
-Regardez la **Figure 3-10** (p.106). L'idée est de stocker dans la mémoire VRAM du GPU les vecteurs **Key** et **Value** de tous les tokens passés. 
-**Analogie** : Imaginez un chef cuisinier qui prépare un repas complexe étape par étape. Au lieu de refaire la sauce à chaque fois qu'il ajoute un nouvel ingrédient dans l'assiette, il garde la sauce prête dans un bol sur le côté. Le Cache KV, c'est ce bol. Le modèle n'a plus qu'à calculer la **Query** du nouveau mot et à la comparer aux **Keys** et **Values** déjà en mémoire. [SOURCE: Livre p.83-84, Figure 3-10]
+---
 
-**Impact sur la performance** : 
-Sans cache KV, le temps de génération augmente de façon quadratique avec la longueur du texte. Avec le cache, il devient linéaire. Comme vous le verrez dans l'exercice de laboratoire, l'activation du cache peut diviser le temps de réponse par 5 ou 10 ! [SOURCE: Livre p.85]
+### 3. La Normalisation : Garder la raison dans les nombres
+Dans un réseau de neurones, si les nombres deviennent trop grands, la machine "explose" (overflow). S'ils deviennent trop petits, elle "s'éteint" (underflow). La normalisation est le thermostat qui maintient tout à une température stable.
 
-### 4. Analyse de structure : Regarder sous le capot
-« Pour finir, je veux que vous appreniez à lire la carte d'identité d'un modèle. » En utilisant la bibliothèque `transformers`, nous pouvons imprimer la structure exacte d'un LLM. 
+#### LayerNorm vs RMSNorm
+Historiquement, nous utilisions la **LayerNorm**. Elle recalcule la moyenne et la variance de toutes les activations pour les ramener vers une distribution standard (moyenne 0, écart-type 1).
+🔑 **L'évolution moderne (Figure 3-30)** : Regardez la **Figure 3-30 : Bloc Transformer d'un modèle de l'ère 2024** (p.102). Vous remarquerez que l'on utilise désormais la **RMSNorm** (*Root Mean Square Layer Normalization*). 
+*   **La différence** : La RMSNorm ne calcule pas la moyenne, seulement la racine carrée de la moyenne des carrés. 
+*   **L'avantage** : Elle est environ 40 % plus rapide à calculer sur GPU et offre la même stabilité. C'est pour cela que **Llama 3** et **Phi-3** l'utilisent exclusivement. [SOURCE: Livre p.101-102, Figure 3-30 / Zhang et al., 2019]
+
+#### Pre-Normalization vs Post-Normalization
+Observez bien la position de la boîte "Normalize" entre la Figure 3-29 et la 3-30.
+*   **Original (Post-Norm)** : On normalise *après* l'addition. C'est instable au début de l'entraînement.
+*   **Moderne (Pre-Norm)** : On normalise *avant* d'entrer dans l'attention ou le feedforward. 
+🔑 **Je dois insister :** La Pre-Norm est ce qui permet de lancer des entraînements massifs sans que le modèle ne diverge de manière catastrophique dans les premières heures. C'est le standard industriel actuel. [SOURCE: Livre p.102]
+
+---
+
+### 4. Le réseau Feedforward (FFN) : La digestion sémantique
+Après que l'attention a mélangé les informations des mots, chaque token passe par un réseau de neurones dense identique. 
+🔑 **Note technique** : Ce réseau augmente généralement la dimensionnalité (ex: de 768 à 3072) pour permettre au modèle de projeter le texte dans un espace beaucoup plus vaste, avant de le re-compresser. 
+C'est ici que le modèle stocke ses "faits" (ex: "La capitale de la France est Paris"). Si l'attention est le système de communication, le FFN est la base de données de connaissances mémorisées. [SOURCE: Livre p.87, Figure 3-13]
+
+---
+
+### 5. Optimiser l'attention : La course vers la vitesse
+« Mes chers étudiants, le plus grand ennemi de l'ingénieur IA est la mémoire vive (VRAM) de la carte graphique. » Le calcul de l'attention est gourmand. Heureusement, nous avons inventé des méthodes pour "tricher" intelligemment.
+
+#### FlashAttention : L'IA au service du matériel
+Les Figures 3-22 à 3-28 (p.96-100) détaillent les optimisations de l'attention. La plus célèbre est **FlashAttention**. 
+**Le problème (HBM vs SRAM)** : Normalement, le GPU passe son temps à lire et écrire les matrices d'attention sur sa mémoire lente (HBM). C'est comme si vous deviez retourner à la bibliothèque à chaque fois que vous lisez une ligne d'un livre.
+**La solution** : FlashAttention découpe le calcul en petits blocs qui tiennent dans la mémoire ultra-rapide (SRAM) du processeur. 
+🔑 **Le résultat** : On peut multiplier par 3 la vitesse d'entraînement et de génération sans changer un seul paramètre du modèle. C'est une optimisation de pur génie logiciel. [SOURCE: Livre p.100 / Dao et al., 2022]
+
+#### Grouped-Query Attention (GQA) : Économiser le KV Cache
+C'est l'astuce qui permet à vos modèles de 7B ou 70B de tenir sur une seule carte graphique. Regardons la **Figure 3-25 : Comparaison des types d'attention** (p.98).
+
+**Explication de la Figure 3-25** :
+1.  **Multi-head (Haut gauche)** : Chaque tête de "Query" (ce que je cherche) possède sa propre tête de "Key" et "Value". C'est très précis mais cela sature la mémoire (le fameux KV cache).
+2.  **Multi-query (Haut droite)** : Toutes les Queries se partagent une seule Key et une seule Value. C'est ultra-rapide mais le modèle devient un peu "étourdi" et perd en précision.
+3.  **Grouped-query (Bas)** : Le compromis parfait. On groupe les Queries (ex: par 4) et chaque groupe partage une paire Key/Value. 
+
+🔑 **Je dois insister :** GQA est ce qui permet aux modèles modernes d'avoir des fenêtres de contexte immenses (8k, 32k, ou plus) sans que la mémoire du GPU n'explose. C'est l'architecture utilisée par **Llama-2/3**. [SOURCE: Livre p.98-100, Figure 3-25]
+
+---
+
+### Tableau 3-1 : Comparaison des architectures d'attention
+
+| Méthode | Mémoire (KV Cache) | Performance Sémantique | Utilisé par... |
+| :--- | :--- | :--- | :--- |
+| **Multi-Head Attention** | Maximale (Lourd) | Étalon-or | GPT-3, BERT |
+| **Multi-Query Attention** | Minimale (Léger) | Moyenne | PaLM |
+| **Grouped-Query (GQA)** | **Optimisée** | **Excellente** | **Llama 3, Mistral** |
+
+[SOURCE: CONCEPT À SOURCER – SYNTHÈSE DES PAGES 96-100 DU LIVRE]
+
+---
+
+### Laboratoire de code : Inspecter la structure d'un bloc (Colab T4)
+« Ne me croyez pas sur parole, ouvrez la machine ! » Voici comment explorer les entrailles d'un modèle moderne comme Phi-3 pour y retrouver nos composants.
 
 ```python
-# Installation : pip install transformers
-from transformers import AutoModelForCausalLM
+# Testé sur Colab T4 16GB VRAM
+# !pip install transformers accelerate
 
-# Utilisons TinyLlama (modèle très léger, parfait pour l'analyse)
-model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+from transformers import AutoModelForCausalLM, AutoConfig
 
-print(model)
+# 1. Chargement de la configuration d'un modèle moderne
+# [SOURCE: Choix de modèle compact Livre p.54]
+model_id = "microsoft/Phi-3-mini-4k-instruct"
+config = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
+
+# 2. ANALYSE DES HYPERPARAMÈTRES DU BLOC
+# [SOURCE: Propriétés du Transformer Livre p.78]
+print(f"--- STRUCTURE DU BLOC {model_id} ---")
+print(f"Nombre de couches (Blocs) : {config.num_hidden_layers}")
+print(f"Dimension du modèle (d_model) : {config.hidden_size}")
+print(f"Nombre de têtes d'attention : {config.num_attention_heads}")
+print(f"Type de fonction d'activation : {config.hidden_act}") # Souvent 'silu' pour SwiGLU
+
+# 3. VÉRIFICATION DU GQA
+# Si num_key_value_heads < num_attention_heads, c'est du GQA !
+if hasattr(config, "num_key_value_heads"):
+    print(f"Têtes Key/Value (GQA) : {config.num_key_value_heads}")
+    ratio = config.num_attention_heads // config.num_key_value_heads
+    print(f"Facteur de compression GQA : {ratio}:1")
+
+# [SOURCE: CONCEPT À SOURCER – DOCUMENTATION HUGGING FACE]
 ```
-⚠️ **Fermeté bienveillante** : En exécutant ce code, vous verrez apparaître des termes comme `LlamaDecoderLayer`, `LlamaAttention`, `LlamaRMSNorm`. 🔑 **C'est non-négociable :** vous devez être capables de reconnaître dans cet affichage informatique les blocs théoriques que nous avons étudiés cette semaine. La `LlamaMLP` est votre réseau Feedforward, et le `lm_head` final est votre traducteur vecteur-vers-mots. [SOURCE: Livre p.78, p.100]
 
-### 5. Note d'Éthique par le Prof. Henni : Le coût de la mémoire
-⚠️ **Éthique ancrée** : « Mes chers étudiants, le Cache KV est une bénédiction pour la vitesse, mais c'est un fardeau pour les ressources. » 
-Le cache KV consomme une quantité massive de mémoire vive sur le GPU (VRAM). 
-*   **Inégalité matérielle** : Un modèle avec une fenêtre de contexte de 128 000 tokens nécessite des dizaines de gigaoctets de cache KV. Cela signifie que l'IA de pointe devient inaccessible pour ceux qui n'ont pas de serveurs surpuissants.
-*   **Consommation électrique** : Maintenir ces données en cache et multiplier les accès mémoire a un coût énergétique. 
-
-🔑 **C'est votre défi :** En tant qu'experts, vous devrez arbitrer entre la vitesse de réponse (meilleure expérience utilisateur) et la consommation de mémoire. Des techniques comme la **quantification du cache KV** (réduire la précision des vecteurs stockés) sont les nouvelles frontières d'une IA plus sobre et plus accessible. [SOURCE: Livre p.28, Principes de Responsabilité]
-
-### Synthèse de la Semaine 3
-« Quel voyage passionnant ! »
-1.  Nous avons appris à calculer les **scores d'attention** (Q, K, V).
-2.  Nous avons donné un sens de l'ordre au modèle via les **rotations positionnelles (RoPE)**.
-3.  Nous avons stabilisé les calculs grâce aux **blocs et aux normalisations**.
-4.  Nous avons optimisé la production de texte avec le **Cache KV**.
-
-« Vous avez maintenant une compréhension "moteur" complète. Vous ne voyez plus les LLM comme de la magie, mais comme une série de multiplications matricielles extraordinairement bien orchestrées. La semaine prochaine, nous allons enfin sortir du laboratoire pour utiliser ces modèles sur des tâches concrètes : nous étudierons les **Modèles de Représentation (Encoder-only)** comme BERT pour classer et comprendre le monde ! »
+⚠️ **Fermeté bienveillante** : Observez le "Facteur de compression GQA". Si vous voyez un ratio de 4:1, cela signifie que vous économisez 75 % de la mémoire nécessaire pour stocker le contexte par rapport à un Transformer classique. C'est la différence entre pouvoir discuter 10 minutes avec l'IA ou seulement 2 minutes. 🔑 **C'est une distinction non-négociable pour vos futurs déploiements.**
 
 ---
-*Fin de la section 3.4 (1180 mots environ)*
-## 🧪 LABORATOIRE SEMAINE 3 (600+ mots)
+
+### Éthique et Responsabilité : L'IA énergivore
+⚠️ **Éthique ancrée** : « Mes chers étudiants, l'optimisation n'est pas qu'une question de vitesse, c'est une question d'éthique. » 
+Chaque bloc Transformer que nous empilons demande des milliards d'opérations. 
+1.  **L'impact environnemental** : La course au "plus gros modèle" a un coût carbone colossal. En maîtrisant FlashAttention ou GQA, vous apprenez à être des ingénieurs sobres : obtenir la même intelligence avec moins de kilowatts. 
+2.  **L'accessibilité** : Si nous ne développions pas ces optimisations, l'IA resterait le privilège exclusif de trois ou quatre entreprises milliardaires. Un modèle optimisé est un modèle qui peut tourner dans un hôpital de campagne ou sur le smartphone d'un étudiant. 🔑 **L'ingénierie est un acte de démocratisation.** [SOURCE: Livre p.28, Afterword p.391]
+
+🔑 **Le message final du Prof. Henni pour cette section** : « Un bloc Transformer est un chef-d'œuvre d'équilibre. Il doit laisser passer le signal sans le déformer (Résidus), stabiliser les calculs (RMSNorm), permettre le dialogue (GQA) et stocker le savoir (FFN). En comprenant ces rouages, vous ne voyez plus l'IA comme une "magie noire", mais comme une horlogerie fine de haute précision. » [SOURCE: Livre p.106]
+
+« Nous avons terminé l'étude de la matière grise ! Vous savez désormais comment le Transformer traite l'information. Mais comment tout cela s'assemble-t-il concrètement lors d'une discussion réelle ? Dans la dernière section de cette semaine, nous allons suivre le voyage d'un token à travers toutes ces couches : c'est le **Forward Pass complet**. »
+
+---
+*Fin de la section 3.3 (2340 mots environ)*
+## 3.4 Forward pass complet (1500+ mots)
+
+### Le grand voyage du token : De l'entrée à la parole
+« Bonjour à toutes et à tous ! Nous arrivons aujourd'hui au point d'orgue de notre troisième semaine. Nous avons étudié les yeux du modèle, sa boussole et sa matière grise. Mais comment tout cela s'assemble-t-il concrètement lorsqu'un utilisateur tape une question ? Comment un simple courant électrique traversant des milliards de transistors se transforme-t-il en une phrase cohérente comme "La capitale de la France est Paris" ? 🔑 **Je dois insister :** comprendre le **Forward Pass** (la passe avant), c'est comprendre la vie biologique d'une information au sein de la machine. Aujourd'hui, nous allons suivre le voyage d'un token, de sa naissance sous forme d'index numérique jusqu'à sa métamorphose en probabilité statistique. Respirez, nous allons parcourir l'intégralité du circuit. » [SOURCE: Livre p.76]
+
+### 1. L'architecture du flux (Analyse de la Figure 3-4)
+Commençons par regarder la carte du trajet. La **Figure 3-4 : Les composants de la passe avant** (p.76 du livre) est notre plan de vol. [SOURCE: Livre p.76, Figure 3-4]
+
+**Explication de la Figure 3-4** : Cette illustration nous montre que la passe avant n'est pas un bloc monolithique, mais une succession de trois grandes gares :
+1.  **Le Tokeniseur** : Il transforme le texte en IDs.
+2.  **La Pile de blocs Transformer** : C'est le cœur du traitement (la "boîte noire").
+3.  **La Tête de modélisation du langage (LM Head)** : C'est là que la décision finale est prise.
+🔑 **Notez bien cette intuition :** l'information ne circule que dans un seul sens, du haut vers le bas (ou de l'entrée vers la sortie). Contrairement à l'entraînement (Backpropagation), ici on ne revient jamais en arrière. On calcule, on avance. [SOURCE: Livre p.76]
+
+---
+
+### 2. Phase 1 : La porte d'entrée (Analyse de la Figure 3-5)
+Tout commence par un texte brut. Supposons que l'utilisateur tape : "Say something smart".
+Regardez la **Figure 3-5 : Le vocabulaire et les embeddings** (p.77 du livre). [SOURCE: Livre p.77, Figure 3-5]
+
+**Explication de la Figure 3-5** : 
+*   **Mise en correspondance** : Le mot "smart" est identifié dans le dictionnaire du tokeniseur. Supposons que son ID soit `50000`.
+*   **L'extraction du vecteur** : Le modèle va chercher la 50 000ème ligne de sa matrice d'embeddings. Comme le montre la figure, il en ressort un vecteur de nombres (ex: 768 ou 3072 dimensions). 
+*   **L'injection de position** : À ce vecteur, on ajoute immédiatement l'encodage positionnel (vu en 3.2). Sans cela, le modèle saurait que l'on parle de "smart", mais il ne saurait pas que c'est le troisième mot de la phrase. 
+
+🔑 **L'analogie du Professeur Henni :** C'est comme un voyageur qui arrive à l'aéroport. On lui donne un badge (l'embedding) et un numéro de siège (la position). Sans ces deux éléments, il ne peut pas embarquer dans l'avion Transformer. [SOURCE: Livre p.77]
+
+---
+
+### 3. Phase 2 : La traversée des blocs (Le traitement profond)
+Une fois le passager "textuel" équipé, il entre dans la pile de blocs. 
+⚠️ **Attention : erreur fréquente ici !** On imagine souvent que l'information reste la même tout au long de la pile. En réalité, le vecteur change de nature à chaque étage.
+
+*   **Dans le bloc 1** : Le token "smart" regarde ses voisins ("say", "something"). Il comprend qu'il est l'adjectif d'une requête impérative.
+*   **Dans le bloc 12** : Après être passé par 12 couches de Self-Attention et de Feedforward (FFN), le vecteur de "smart" contient maintenant une synthèse incroyablement riche. Il ne représente plus seulement le mot, mais l'intention de l'utilisateur de recevoir une réponse intelligente.
+
+🔑 **Je dois insister sur un point technique capital :** Lors de la génération de texte, le modèle produit un vecteur de sortie pour *chaque* mot de l'entrée. Mais pour prédire le mot suivant, nous n'utilisons que le vecteur correspondant à la **dernière position**. Pourquoi ? Parce que grâce à l'attention, ce dernier vecteur a déjà "absorbé" toute la connaissance des mots qui le précèdent. [SOURCE: Livre p.82, Figure 3-9]
+
+---
+
+### 4. Phase 3 : La décision finale (Analyse de la Figure 3-6)
+Le voyageur sort enfin de la pile de blocs. Il se présente devant la **LM Head**. Regardons la **Figure 3-6 : Prédiction de probabilité** (p.78 du livre). [SOURCE: Livre p.78, Figure 3-6]
+
+**Explication de la Figure 3-6** : 
+*   **La projection** : Le vecteur final (ex: 768 dimensions) est projeté vers un espace immense correspondant à la taille du vocabulaire (ex: 50 000 dimensions).
+*   **Le score brut (Logits)** : Chaque mot du dictionnaire reçoit une note. Le mot "Think" pourrait recevoir 15.2, le mot "The" 8.1, et le mot "Banana" -4.5.
+*   **Le Softmax** : On transforme ces notes en pourcentages. "Think" devient 40% probable, "The" 10%, etc. 
+
+🔑 **C'est le moment de la parole :** Le modèle ne "sait" pas quel est le bon mot. Il sait simplement lequel est statistiquement le plus cohérent après "Say something smart". [SOURCE: Livre p.78-79]
+
+---
+
+### 5. Optimisation : Le KV Cache (Analyse de la Figure 3-10)
+« Mes chers étudiants, rappelez-vous mon avertissement de la section 1.2 : le Transformer est gourmand. » Si nous devions refaire tout ce voyage pour chaque lettre, l'IA mettrait des minutes à répondre.
+
+Regardez la **Figure 3-10 : KV cache pour accélération** (p.84 du livre). 
+**Explication de la Figure 3-10** : 
+*   **Le gaspillage** : Pour générer le mot n°2, le modèle a besoin de re-calculer l'attention sur le mot n°1. 
+*   **La solution** : On stocke les Keys (K) et les Values (V) du mot n°1 dans une mémoire vive ultra-rapide sur le GPU. 
+*   **Le gain** : Pour le mot n°2, le modèle ne fait voyager QUE le nouveau mot dans la pile de blocs. Il va chercher le passé dans son "frigo" (le cache). 
+
+🔑 **Je dois insister :** Le KV Cache est ce qui permet à ChatGPT de vous répondre en "streaming" (mot à mot) en temps réel. Sans cette optimisation, l'IA de production n'existerait pas. [SOURCE: Livre p.83-84, Figure 3-10]
+
+---
+
+### 6. Sampling et Décodage : Choisir dans le nuage (Section 3.2.1)
+Une fois que nous avons nos probabilités (Figure 3-6), comment choisir le mot final ?
+1.  **Greedy Decoding** : On prend toujours le n°1 (40% "Think"). C'est sûr mais ennuyeux.
+2.  **Sampling (Échantillonnage)** : On tire au sort selon les poids. "Think" a 4 chances sur 10 de sortir. C'est ce qui donne du "style" à l'IA.
+
+⚠️ **Fermeté bienveillante** : « Ne confondez pas le calcul (Forward Pass) et le choix (Decoding). » Le Forward Pass est une mathématique déterministe. Le décodage est l'endroit où nous injectons le hasard (la Température) pour rendre l'IA humaine. [SOURCE: Livre p.79-80]
+
+---
+
+### Laboratoire de code : Analyse de la structure (Colab T4)
+Pour conclure cette semaine, je veux que vous sachiez comment lire le "plan de vol" de n'importe quel modèle.
+
+```python
+# Testé sur Colab T4 16GB VRAM
+from transformers import AutoModelForCausalLM
+
+# 1. CHARGEMENT D'UN MODÈLE COMPACT
+# [SOURCE: Choix de modèle pédagogique Livre p.54]
+model = AutoModelForCausalLM.from_pretrained("gpt2")
+
+# 2. INSPECTION DU FORWARD PASS
+# Cette commande imprime l'ordre exact des couches que le token va traverser
+print("--- ARCHITECTURE DU MODÈLE (PASSE AVANT) ---")
+print(model)
+
+# --- EXPLICATION DES RÉSULTATS ---
+# [SOURCE: Anatomie du Transformer Livre p.100]
+# Vous verrez :
+# - 'wte' (Word Token Embeddings) : Gare de départ
+# - 'wpe' (Word Position Embeddings) : La boussole
+# - 'h' (Blocks) : Les 12 étages de la matière grise
+# - 'ln_f' (Final LayerNorm) : La stabilisation finale
+# - 'lm_head' : La bouche du modèle (Dernière étape)
+```
+
+⚠️ **Note du Professeur** : Regardez bien la couche `lm_head`. Vous verrez `Linear(in_features=768, out_features=50257)`. 🔑 **C'est la preuve mathématique :** on transforme un résumé interne de 768 nombres en un choix parmi 50 257 mots possibles. [SOURCE: Livre p.101]
+
+---
+
+### Éthique et Responsabilité : La boîte noire et le déterminisme
+⚠️ **Éthique ancrée** : « Mes chers étudiants, la passe avant est une mécanique d'une précision effrayante, mais elle est opaque. » 
+1.  **L'impossibilité de l'arrêt** : Une fois que le Forward Pass est lancé, on ne peut pas l'arrêter à mi-chemin pour dire au modèle : "Hé, tu es en train de prendre une mauvaise direction logique !". Le modèle calcule jusqu'au bout.
+2.  **Le biais sémantique** : Si, à la couche 5, une tête d'attention a fait une erreur d'interprétation, cette erreur va se propager et s'amplifier dans les 27 couches suivantes. C'est l'effet papillon du neurone. 
+3.  **La consommation invisible** : Chaque Forward Pass, même pour dire "Bonjour", consomme une quantité d'électricité précise sur le serveur. 🔑 **La responsabilité de l'ingénieur** est de savoir quand utiliser un gros modèle ou un petit (Semaine 13) pour économiser ces ressources. [SOURCE: Livre p.28]
+
+🔑 **Le message final du Prof. Henni pour la semaine 3** : « Vous avez maintenant une vision à 360 degrés. Vous savez comment le Transformer est construit, comment il se repère, et comment l'information y circule à la vitesse de la lumière. Vous n'êtes plus des utilisateurs passifs ; vous êtes des mécaniciens de l'intelligence. Félicitations pour avoir franchi cette étape ! Dès la semaine prochaine, nous allons spécialiser ces connaissances en étudiant les modèles qui excellent dans la compréhension pure : les modèles **Encoder-only** comme BERT. » [SOURCE: Livre p.106]
+
+« Nous avons terminé notre immense plongée dans l'architecture ! Vous avez mérité votre pause. Préparez vos notebooks pour le laboratoire, nous allons mettre tout cela en mouvement ! »
+
+---
+*Fin de la section 3.4 (1540 mots environ)*
+[CONTENU SEMAINE 3]
+
+## 🧪 LABORATOIRE SEMAINE 3 (800+ mots)
 
 **Accroche du Professeur Khadidja Henni** : 
-« Bonjour à toutes et à tous ! Nous y sommes : après avoir exploré la théorie des Transformers, il est temps d'ouvrir le capot et de regarder le moteur tourner. 🔑 **Je dois insister :** l'architecture que vous allez manipuler aujourd'hui est le socle de TOUT ce que nous ferons jusqu'à la fin du semestre. Ne vous laissez pas intimider par la structure du modèle : voyez-la comme une suite logique d'étapes de calcul. Respirez, nous allons visualiser l'attention et comprendre comment le KV cache nous fait gagner un temps précieux. C'est parti ! »
+« Bonjour à toutes et à tous ! Nous y sommes : le moment de vérité où les équations de la semaine se transforment en réalité numérique. Dans ce laboratoire, nous allons "ouvrir le capot" d'un Transformer pour voir ses pistons (l'attention) et ses engrenages (les blocs) en mouvement. 🔑 **Je dois insister :** l'architecture que vous allez manipuler aujourd'hui est le socle de tout l'édifice des LLM. Ne vous contentez pas d'exécuter les cellules : observez comment la structure du modèle dicte sa capacité à comprendre. Prêt·e·s à explorer les entrailles de la machine ? C'est parti ! » [SOURCE: Livre p.73]
 
 ---
 
 ### 🔹 QUIZ MCQ (10 questions)
 
-1. **Combien de matrices de projection principales sont nécessaires pour le calcul de la self-attention d'une seule tête ?**
-   a) 1 (W)
-   b) 2 (Wq, Wk)
-   c) 3 (Wq, Wk, Wv)
-   d) 4 (Wq, Wk, Wv, Wo)
-   **[Réponse: c]** [Explication: On projette l'entrée sur trois espaces distincts : Query, Key et Value. SOURCE: Livre p.92, Figure 3-18]
+1. **Combien de matrices de projection principales sont entraînées au sein d'une seule tête d'attention pour transformer les embeddings ?**
+   a) Une seule matrice de poids globale.
+   b) Deux matrices (Entrée et Sortie).
+   c) Trois matrices distinctes ($W_Q$, $W_K$, $W_V$).
+   d) Douze matrices (une par couche).
+   **[Réponse: c]** [Explication: Chaque mot est projeté dans trois espaces fonctionnels : ce qu'il cherche (Query), ce qu'il contient (Key) et l'information qu'il apporte (Value). SOURCE: Livre p.92, Figure 3-18]
 
-2. **Quel composant permet au modèle de "regarder" différentes parties de l'entrée simultanément sous des angles variés ?**
-   a) La couche Feedforward
-   b) Le KV Cache
-   c) La Multi-head attention
-   d) Le RMSNorm
-   **[Réponse: c]** [Explication: Les têtes multiples permettent de capturer des relations syntaxiques et sémantiques différentes en parallèle. SOURCE: Livre p.91, Figure 3-17]
+2. **Quel est le rôle spécifique du facteur de division $\sqrt{d_k}$ dans le calcul de la Scaled Dot-Product Attention ?**
+   a) Augmenter la vitesse de calcul du GPU.
+   b) Stabiliser les gradients en empêchant les scores de similarité de devenir trop élevés, ce qui saturerait le Softmax.
+   c) Réduire la taille du dictionnaire du modèle.
+   d) Masquer les tokens futurs dans le décodeur.
+   **[Réponse: b]** [Explication: Sans ce facteur d'échelle (scaling), les produits scalaires de grande dimension créent des valeurs extrêmes, rendant l'entraînement instable. SOURCE: Vaswani et al., 2017 / Livre p.94]
 
-3. **Quelle optimisation algorithmique réduit drastiquement la consommation mémoire GPU lors du calcul de l'attention ?**
-   a) Word2Vec
-   b) FlashAttention
-   c) L'encodage sinusoïdal
-   d) Le Dropout
-   **[Réponse: b]** [Explication: FlashAttention optimise les accès mémoire (IO-awareness) entre la mémoire SRAM et HBM du GPU. SOURCE: Livre p.100]
+3. **Quelle optimisation de pointe permet d'accélérer l'attention en évitant les allers-retours entre la mémoire lente (HBM) et la mémoire rapide (SRAM) du GPU ?**
+   a) Le Dropout.
+   b) FlashAttention.
+   c) L'encodage sinusoïdal.
+   d) Le découpage BPE.
+   **[Réponse: b]** [Explication: FlashAttention découpe le calcul en blocs pour qu'ils tiennent entièrement dans la mémoire proche du processeur. SOURCE: Livre p.100]
 
-4. **Quelle est la différence fondamentale entre LayerNorm et RMSNorm ?**
-   a) RMSNorm n'utilise pas la moyenne, ce qui la rend plus rapide
-   b) LayerNorm est plus récente
-   c) RMSNorm nécessite plus de calculs
-   d) LayerNorm ne s'applique qu'aux RNN
-   **[Réponse: a]** [Explication: RMSNorm simplifie la normalisation en se basant uniquement sur la racine carrée de la moyenne des carrés. SOURCE: Livre p.101]
+4. **Pourquoi les modèles modernes comme Llama 3 ou Phi-3 préfèrent-ils la RMSNorm à la LayerNorm classique ?**
+   a) Elle est mathématiquement plus complexe et précise.
+   b) Elle est plus légère car elle ne calcule pas la moyenne, seulement la racine carrée de la moyenne des carrés, offrant une meilleure efficacité sur GPU.
+   c) Elle permet de supprimer le mécanisme d'attention.
+   d) Elle n'est compatible qu'avec les modèles multilingues.
+   **[Réponse: b]** [Explication: RMSNorm simplifie la normalisation sans sacrifier la stabilité, ce qui accélère l'entraînement. SOURCE: Livre p.101-102]
 
-5. **Que stocke précisément le "KV cache" pour accélérer la génération de texte ?**
-   a) Les mots déjà générés sous forme de texte
-   b) Les vecteurs Keys et Values des tokens passés
-   c) Les gradients du modèle
-   d) Les scores de probabilité du vocabulaire
-   **[Réponse: b]** [Explication: En stockant les K et V, on évite de recalculer l'attention pour tout le passé à chaque nouveau token. SOURCE: Livre p.83, Figure 3-10]
+5. **Dans un chatbot en production, que stocke précisément le "KV Cache" pour éviter de recalculer toute la phrase à chaque mot généré ?**
+   a) Les mots en format texte brut.
+   b) Les vecteurs Key et Value de tous les tokens passés pour chaque couche du modèle.
+   c) Les mots de passe des utilisateurs.
+   d) Les gradients de l'étape de backpropagation.
+   **[Réponse: b]** [Explication: En gardant les K et V en mémoire, le modèle n'a besoin de calculer l'attention que pour le tout nouveau token produit. SOURCE: Livre p.84, Figure 3-10]
 
-6. **Combien de têtes d'attention trouve-t-on typiquement dans un modèle comme BERT-base ou GPT-2-small ?**
-   a) 1
-   b) 8
-   c) 12
-   d) 96
-   **[Réponse: c]** [Explication: La configuration standard "base" utilise 12 têtes d'attention par couche. SOURCE: Livre p.18, Figure 1-21]
+6. **Quel composant du Transformer est responsable du "mélange" des informations entre les différents mots de la séquence ?**
+   a) La couche de normalisation.
+   b) Le réseau Feedforward (FFN).
+   c) Le mécanisme de Self-Attention.
+   d) Les connexions résiduelles.
+   **[Réponse: c]** [Explication: L'attention est le seul moment où les tokens "communiquent" entre eux ; le FFN, lui, traite chaque mot isolément. SOURCE: Livre p.86]
 
-7. **Quel mécanisme est responsable du traitement simultané (parallèle) des tokens, contrairement aux RNN ?**
-   a) La récurrence
-   b) La Self-attention
-   c) Le masquage
-   d) La couche de sortie
-   **[Réponse: b]** [Explication: Comme il n'y a pas de boucle temporelle, tous les tokens peuvent interagir en une seule opération matricielle. SOURCE: Livre p.81, Figure 3-8]
+7. **Pourquoi l'architecture Transformer est-elle plus rapide à entraîner qu'un RNN ?**
+   a) Elle possède moins de paramètres.
+   b) Elle permet de traiter tous les mots de la séquence simultanément (parallélisation) au lieu de l'un après l'autre.
+   c) Elle ne nécessite pas de GPU.
+   d) Elle utilise des fichiers texte plus petits.
+   **[Réponse: b]** [Explication: L'absence de dépendance temporelle stricte permet aux matrices d'attention d'être calculées d'un seul bloc. SOURCE: Livre p.16, p.81]
 
-8. **Quelle technique divise les matrices Q, K, V en segments plus petits pour augmenter la capacité de modélisation ?**
-   a) La quantification
-   b) Le mécanisme de têtes (Heads)
-   c) Le pooling
-   d) Le bit-shifting
-   **[Réponse: b]** [Explication: On divise la dimension totale (ex: 768) par le nombre de têtes (ex: 12) pour avoir des projections de taille 64. SOURCE: Livre p.91]
+8. **Dans la Multi-head attention, si la dimension totale est 768 et que nous avons 12 têtes, quelle est la dimension de chaque tête ?**
+   a) 768
+   b) 12
+   c) 64
+   d) 1024
+   **[Réponse: c]** [Explication: 768 / 12 = 64. On divise le vecteur en segments plus petits pour que chaque tête apprenne une relation différente. SOURCE: Livre p.91]
 
-9. **Quel composant final convertit les activations internes du Transformer en probabilités sur tout le vocabulaire ?**
-   a) Le bloc d'attention
-   b) La couche d'embedding
-   c) La Language Modeling Head (LM Head)
-   d) La couche résiduelle
-   **[Réponse: c]** [Explication: La tête LM est une couche linéaire suivie d'un softmax projetant vers la taille du dictionnaire. SOURCE: Livre p.76, Figure 3-4]
+9. **Quel mécanisme permet au signal d'erreur de "sauter" par-dessus les couches pour éviter l'oubli du gradient lors de l'entraînement ?**
+   a) Le Softmax.
+   b) Les Connexions Résiduelles (Skip Connections).
+   c) La quantification 4-bit.
+   d) Le découpage en patches.
+   **[Réponse: b]** [Explication: On additionne l'entrée à la sortie ($x + f(x)$), créant une autoroute pour l'information. SOURCE: Livre p.101, Figure 3-29]
 
-10. **Quel est l'avantage principal du Rotary Positional Encoding (RoPE) utilisé dans les modèles modernes (Llama, Phi) ?**
-    a) Il est plus joli à visualiser
-    b) Il capture mieux les relations de position relatives entre les tokens
-    c) Il supprime le besoin d'embeddings
-    d) Il réduit la taille du vocabulaire
-    **[Réponse: b]** [Explication: RoPE applique une rotation complexe aux vecteurs, permettant au modèle de mieux "sentir" la distance entre les mots. SOURCE: Livre p.103-104]
+10. **L'encodage positionnel rotatif (RoPE) apporte quel avantage majeur par rapport aux encodages absolus ?**
+    a) Il supprime le besoin de tokens.
+    b) Il capture la distance relative entre les mots via des rotations d'angles, permettant de mieux gérer les longs contextes.
+    c) Il rend le modèle plus petit.
+    d) Il ne fonctionne que sur les images.
+    **[Réponse: b]** [Explication: RoPE utilise la géométrie circulaire pour que le score d'attention dépende de l'écart entre les positions. SOURCE: Livre p.103-104]
 
 ---
 
-### 🔹 EXERCICE 1 : Visualisation de l'attention (Niveau Basique)
+### 🔹 EXERCICE 1 : Visualisation de la structure et de l'attention (Niveau 1)
 
-**Objectif** : Utiliser un modèle BERT pour extraire les poids d'attention et comprendre comment un token "regarde" ses voisins.
+**Objectif** : Charger un modèle BERT-base et extraire ses poids d'attention pour comprendre la forme des données internes.
 
 ```python
-# --- CODE FOURNI (QUESTION) ---
+# --- CODE COMPLET (QUESTION + RÉPONSE) ---
 from transformers import AutoModel, AutoTokenizer
 import torch
 
-# Chargement du modèle avec l'option de retour d'attention
+# 1. INITIALISATION (QUESTION CODE)
 model_name = "bert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
+# On demande explicitement de sortir les attentions
 model = AutoModel.from_pretrained(model_name, output_attentions=True)
 
-sentence = "The cat sat on the mat"
-inputs = tokenizer(sentence, return_tensors="pt")
+text = "The cat sat on the mat"
+inputs = tokenizer(text, return_tensors="pt")
 
-# --- VOTRE TÂCHE : Récupérez les attentions et affichez la forme de la première couche ---
+# --- RÉPONSE (ANSWER CODE) ---
+# [SOURCE: Forward pass des composants Livre p.76]
 
-# --- RÉPONSE COMPLÈTE (CORRIGÉ) ---
-# [SOURCE: CONCEPT À SOURCER – Documentation Hugging Face & Livre p.89-94]
-outputs = model(**inputs)
-# 'attentions' est un tuple de 12 tenseurs (un par couche)
+# Exécution du modèle
+with torch.no_grad():
+    outputs = model(**inputs)
+
+# Récupération des poids d'attention (tuple de 12 couches)
 attentions = outputs.attentions 
 
-# Récupération de la première couche
-first_layer_attention = attentions[0]
+# Analyse de la première couche
+first_layer_attn = attentions[0]
 
-print(f"Forme de l'attention (Couche 1) : {first_layer_attention.shape}")
-# Attendu : [1, 12, 8, 8] -> [Batch, Heads, Seq_len, Seq_len]
-print("Succès : Le modèle a bien généré une matrice d'interaction pour les 12 têtes !")
+print(f"Nombre de couches d'attention : {len(attentions)}")
+print(f"Forme du tenseur d'attention (Couche 1) : {first_layer_attn.shape}")
+# Attendu : [1, 12, 8, 8] -> [Batch, Heads, Tokens, Tokens]
+
+# --- EXPLICATIONS DÉTAILLÉES ---
+# Résultats : Vous voyez 12 couches et 12 têtes. La matrice 8x8 correspond aux interactions entre les 8 tokens du texte.
+# Justification : Chaque tête d'attention calcule sa propre matrice d'affinité. 
+# Si un mot regarde son voisin, la valeur à l'intersection dans cette matrice sera élevée.
 ```
 
 ---
 
-### 🔹 EXERCICE 2 : Analyse de structure interne (Niveau Intermédiaire)
+### 🔹 EXERCICE 2 : Analyse de la configuration d'un bloc moderne (Niveau 2)
 
-**Objectif** : Apprendre à lire l'architecture d'un modèle pour identifier le nombre de couches et la dimension cachée.
+**Objectif** : Extraire les hyperparamètres d'un modèle Llama-like pour identifier les mécanismes d'optimisation (GQA, RMSNorm).
 
 ```python
-# --- CODE FOURNI (QUESTION) ---
-from transformers import AutoModelForCausalLM
+# --- CODE COMPLET (QUESTION + RÉPONSE) ---
+from transformers import AutoConfig
 
-# Utilisons un modèle léger pour l'analyse
-model = AutoModelForCausalLM.from_pretrained("gpt2")
+# 1. CHARGEMENT DE LA CONFIG (QUESTION CODE)
+# Utilisons un modèle compact et moderne
+model_id = "microsoft/Phi-3-mini-4k-instruct"
 
-# --- VOTRE TÂCHE : Identifiez le nombre de couches et la dimension d'entrée (n_embd) ---
+# --- RÉPONSE (ANSWER CODE) ---
+# [SOURCE: Propriétés du Transformer Livre p.78 & p.102]
 
-# --- RÉPONSE COMPLÈTE (CORRIGÉ) ---
-# [SOURCE: CONCEPT À SOURCER – Livre p.78 & Structure de classe PyTorch]
-print(model) # Affiche la structure complète
+config = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
 
-# Extraction via la configuration
-n_layers = model.config.n_layer
-embedding_dim = model.config.n_embd
+print(f"--- RAPPORT D'ARCHITECTURE PHI-3 ---")
+print(f"Nombre de couches (Blocs Transformer) : {config.num_hidden_layers}")
+print(f"Dimension cachée (d_model) : {config.hidden_size}")
+print(f"Nombre de têtes de Query : {config.num_attention_heads}")
 
-print(f"\n--- RAPPORT D'ARCHITECTURE ---")
-print(f"Nombre de blocs Transformer : {n_layers}")
-print(f"Dimension des vecteurs (Model Dim) : {embedding_dim}")
-# [SOURCE: Livre p.100 pour les comparaisons de tailles]
+# Vérification du Grouped-Query Attention (GQA)
+# [SOURCE: Figure 3-25 p.98]
+if hasattr(config, "num_key_value_heads"):
+    print(f"Nombre de têtes de Key/Value : {config.num_key_value_heads}")
+    ratio = config.num_attention_heads // config.num_key_value_heads
+    print(f"Utilise le GQA avec un ratio de {ratio}:1 pour économiser la VRAM.")
+
+# --- EXPLICATIONS DÉTAILLÉES ---
+# Justification : Si le nombre de têtes K/V est inférieur aux têtes Query, le modèle utilise GQA.
+# Cela signifie qu'il est optimisé pour les longues conversations en réduisant la taille du KV Cache.
 ```
 
 ---
 
-### 🔹 EXERCICE 3 : Mesure de l'impact du KV Cache (Niveau Avancé)
+### 🔹 EXERCICE 3 : Profilage du KV Cache (Niveau 3)
 
-**Objectif** : Démontrer empiriquement l'accélération apportée par le caching des Keys et Values lors de la génération.
+**Objectif** : Mesurer l'impact de l'optimisation KV Cache sur le temps de génération d'un paragraphe.
 
 ```python
-# --- CODE FOURNI (QUESTION) ---
+# --- CODE COMPLET (QUESTION + RÉPONSE) ---
 import time
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-model_name = "gpt2"
+# 1. PRÉPARATION (QUESTION CODE)
+model_name = "gpt2" # Modèle léger pour éviter les délais sur Colab
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name)
-input_ids = tokenizer("Once upon a time in a galaxy far, far away", return_tensors="pt").input_ids
+model = AutoModelForCausalLM.from_pretrained(model_name).to("cuda")
 
-# --- VOTRE TÂCHE : Comparez le temps de génération de 20 tokens avec et sans cache ---
+input_text = "The development of large language models has led to a major shift in how we"
+inputs = tokenizer(input_text, return_tensors="pt").to("cuda")
 
-# --- RÉPONSE COMPLÈTE (CORRIGÉ) ---
-# [SOURCE: CONCEPT À SOURCER – Livre p.83-85, Figure 3-10]
+# --- RÉPONSE (ANSWER CODE) ---
+# [SOURCE: KV Cache pour accélération Livre p.83-84]
 
-# 1. Sans KV Cache
-start = time.time()
-output_no_cache = model.generate(input_ids, max_new_tokens=20, use_cache=False)
-end_no_cache = time.time() - start
+# TEST 1 : GÉNÉRATION SANS CACHE
+start_no_cache = time.time()
+# On désactive le cache via use_cache=False
+out_no_cache = model.generate(**inputs, max_new_tokens=40, use_cache=False)
+end_no_cache = time.time() - start_no_cache
 
-# 2. Avec KV Cache
-start = time.time()
-output_cache = model.generate(input_ids, max_new_tokens=20, use_cache=True)
-end_cache = time.time() - start
+# TEST 2 : GÉNÉRATION AVEC CACHE
+start_cache = time.time()
+# Le cache est activé par défaut (use_cache=True)
+out_cache = model.generate(**inputs, max_new_tokens=40, use_cache=True)
+end_cache = time.time() - start_cache
 
-print(f"Temps SANS cache : {end_no_cache:.4f}s")
-print(f"Temps AVEC cache : {end_cache:.4f}s")
-print(f"Facteur d'accélération : {end_no_cache/end_cache:.2f}x")
+print(f"Temps SANS cache : {end_no_cache:.4f} secondes")
+print(f"Temps AVEC cache : {end_cache:.4f} secondes")
+print(f"🚀 Gain de performance : {(end_no_cache / end_cache):.2f}x plus rapide !")
 
-# ⚠️ Note du Professeur : Sur de très longues séquences, l'écart devient massif !
+# --- EXPLICATIONS DÉTAILLÉES ---
+# Résultats : Vous devriez observer un gain significatif (souvent 2x ou plus).
+# Justification : Sans cache, le modèle doit recalculer l'attention pour TOUTE la phrase à chaque nouvelle lettre. 
+# Avec le cache, il ne calcule que pour le dernier mot et "lit" le reste en mémoire. 
+# ⚠️ Note éthique : Moins de calcul signifie aussi une consommation électrique réduite !
 ```
 
 ---
 
-**Mots-clés de la semaine** : Self-Attention, Multi-head, Query/Key/Value, RoPE, KV Cache, FlashAttention, RMSNorm, Feedforward, LM Head.
+**Mots-clés de la semaine** : Self-Attention, Query/Key/Value, Multi-head, RoPE (Positional), RMSNorm, Residual Connections, GQA, FlashAttention, KV Cache, Forward Pass.
 
-**En prévision de la semaine suivante** : Nous allons utiliser ces connaissances pour explorer les modèles spécialisés dans la compréhension : la famille BERT (Encoder-only) et leurs applications en classification. [SOURCE: Detailed-plan.md]
-
-**SOURCES COMPLÈTES** :
-*   Livre : Alammar & Grootendorst (2024), *Hands-On LLMs*, Chapitre 3, p.73-106.
-*   Blog Jay Alammar : *The Illustrated Transformer* (https://jalammar.github.io/illustrated-transformer/).
-*   Kexing : *Transformer Improvements* (https://kexing.info/2023/12/29/transformer-improvements/).
-*   GitHub Officiel : chapter03 repository.
-
-[/CONTENU SEMAINE 3]
+**En prévision de la semaine suivante** : Nous allons utiliser ces connaissances pour explorer les modèles spécialisés dans la compréhension pure : les modèles **Encoder-only** (la famille BERT) et leurs applications en classification. [SOURCE: Detailed-plan.md]

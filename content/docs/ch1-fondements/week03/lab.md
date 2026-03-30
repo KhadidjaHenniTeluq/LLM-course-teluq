@@ -3,21 +3,20 @@ title: "Laboratoire"
 weight: 6
 ---
 
-Bonjour à toutes et à tous ! Nous y sommes : après avoir exploré la théorie des Transformers, il est temps d'ouvrir le capot et de regarder le moteur tourner.
+Bonjour à toutes et à tous ! Nous y sommes : le moment de vérité où les équations de la semaine se transforment en réalité numérique. Dans ce laboratoire, nous allons "ouvrir le capot" d'un Transformer pour voir ses pistons (l'attention) et ses engrenages (les blocs) en mouvement. 
 
 > [!IMPORTANT]
-🔑 **Je dois insister :** l'architecture que vous allez manipuler aujourd'hui est le socle de TOUT ce que nous ferons jusqu'à la fin du cours. 
+‼️ **Je dois insister :** l'architecture que vous allez manipuler aujourd'hui est le socle de tout l'édifice des LLM. 
 
-Ne vous laissez pas intimider par la structure du modèle : voyez-la comme une suite logique d'étapes de calcul. Respirez, nous allons visualiser l'attention et comprendre comment le KV cache nous fait gagner un temps précieux. C'est parti !
+Ne vous contentez pas d'exécuter les cellules : observez comment la structure du modèle dicte sa capacité à comprendre. Prêt·e·s à explorer les entrailles de la machine ? C'est parti !  
 
 ---
-
-## Exercice 1 : Visualisation de l'attention (Niveau Basique)
+## Exercice 1 : Visualisation de l'attention
 
 **Objectif** : Utiliser un modèle BERT pour extraire les poids d'attention et comprendre comment un token "regarde" ses voisins.
 
 ```python
-# --- CODE FOURNI (QUESTION) ---
+# --- QUESTION ---
 from transformers import AutoModel, AutoTokenizer
 import torch
 
@@ -36,7 +35,7 @@ inputs = tokenizer(sentence, return_tensors="pt")
 {{< colab url="" label="Voir la solution sur Colab" >}}
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 <!-- TODO: add solution colab link -->
 
@@ -57,12 +56,12 @@ print("Succès : Le modèle a bien généré une matrice d'interaction pour les 
 
 ---
 
-## Exercice 2 : Analyse de structure interne (Niveau Intermédiaire)
+## Exercice 2 : Analyse de structure interne
 
 **Objectif** : Apprendre à lire l'architecture d'un modèle pour identifier le nombre de couches et la dimension cachée.
 
 ```python
-# --- CODE FOURNI (QUESTION) ---
+# --- QUESTION ---
 from transformers import AutoModelForCausalLM
 
 # Utilisons un modèle léger pour l'analyse
@@ -76,7 +75,7 @@ model = AutoModelForCausalLM.from_pretrained("gpt2")
 <!-- TODO: add solution colab link -->
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 ```python
 print(model) # Affiche la structure complète
@@ -94,12 +93,12 @@ print(f"Dimension des vecteurs (Model Dim) : {embedding_dim}")
 
 ---
 
-## Exercice 3 : Mesure de l'impact du KV Cache (Niveau Avancé)
+## Exercice 3 : Mesure de l'impact du KV Cache
 
 **Objectif** : Démontrer empiriquement l'accélération apportée par le caching des Keys et Values lors de la génération.
 
 ```python
-# --- CODE FOURNI (QUESTION) ---
+# --- QUESTION ---
 import time
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -116,7 +115,7 @@ input_ids = tokenizer("Once upon a time in a galaxy far, far away", return_tenso
 <!-- TODO: add solution colab link -->
 
 <details>
-<summary>Voir la réponse</summary>
+<summary><b>Voir la réponse</b></summary>
 
 ```python
 # 1. Sans KV Cache

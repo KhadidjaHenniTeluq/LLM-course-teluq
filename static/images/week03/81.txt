@@ -1,0 +1,1 @@
+Figure 3-19. Grouped-query attention sacrifices a little bit of the efficiency of multi- query attention in return for a large improvement in quality by allowing multiple groups of shared key/value matrices; each group has its respective set of attention heads.

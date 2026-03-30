@@ -3,18 +3,22 @@ title: "Introduction"
 weight: 1
 ---
 
-Bonjour à toutes et à tous ! J'espère que vous avez bien dormi, car aujourd'hui, nous entrons dans la "salle des machines". ⚙️ La semaine dernière, nous avons étudié les atomes (les tokens) et leur position dans l'espace (les embeddings). Aujourd'hui, nous allons voir comment ces atomes interagissent pour créer de la pensée artificielle. Nous allons disséquer le mécanisme d'attention, non plus seulement comme une intuition, mais comme une symphonie mathématique de haute précision.
+## Au cœur des Transformers : Mécanismes d'attention et blocs Transformer
 
-{{% hint info %}}
-🔑 **Je dois insister :** ce que nous allons voir — l'équation de la Scaled Dot-Product Attention — est le secret le mieux gardé de la révolution technologique actuelle. Prenez votre souffle, nous allons rendre l'invisible visible.
-{{% /hint %}}
+Bienvenue à toutes et à tous ! Nous entamons aujourd'hui la phase la plus spectaculaire de notre cursus. Imaginez que jusqu'ici, nous n'ayons fait qu'accorder nos instruments (les tokens) et choisir nos partitions (les embeddings). Aujourd'hui, mes chers étudiants, nous allons faire monter le chef d'orchestre sur l'estrade. 
 
-**Rappel semaine précédente** : La semaine dernière, nous avons exploré la tokenisation et les embeddings, comprenant comment le texte est converti en vecteurs denses et comment les modèles comme BERT créent des représentations contextuelles.
+> [!IMPORTANT]
+📌 **Je dois insister :** l'Architecture Transformer n'est pas qu'un simple algorithme, c'est une symphonie de calculs où chaque mot devient un musicien capable d'écouter et de répondre à tous les autres en temps réel. 
 
-## Objectifs de la semaine
+Nous allons décortiquer comment le mécanisme d'**Attention** permet cette harmonie parfaite, transformant une suite de chiffres en une véritable structure de compréhension. Respirez, la musique de l'IA va commencer !
 
+---
+**Rappel semaine précédente** : La semaine dernière, nous avons exploré les atomes du langage : les tokens. Nous avons appris comment les tokeniseurs découpent le texte et comment les embeddings transforment ces morceaux en vecteurs denses, créant ainsi une géométrie du sens.
+
+**Objectifs de la semaine** :
 À la fin de cette semaine, vous saurez :
-*   Expliquer et calculer mathématiquement le mécanisme de self-attention (Q, K, V).
-*   Comprendre l'importance de l'encodage positionnel rotatif (RoPE).
-*   Décortiquer la structure d'un bloc Transformer moderne (Norm, Residuals, MLP).
-*   Analyser le passage de l'information (Forward Pass) et l'optimisation par cache KV.
+> *   Expliquer mathématiquement le mécanisme de Self-Attention (Q, K, V).
+> *   Comprendre le rôle des têtes d'attention multiples (Multi-head attention).
+> *   Détailler le fonctionnement de l'encodage positionnel moderne (RoPE).
+> *   Analyser la structure d'un bloc Transformer complet (Normalisation, Feedforward, Résidus).
+> *   Saisir l'importance de l'optimisation par KV Cache pour l'inférence.
